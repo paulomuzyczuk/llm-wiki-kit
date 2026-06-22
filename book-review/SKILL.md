@@ -88,6 +88,7 @@ Run all nine in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FA
 - Every `[[wikilink]]` in modified pages either (a) resolves to an existing vault file, or (b) is a deliberate dead link (acceptable — flag it but don't fail).
 - Concepts named more than once in a page are linked on first mention.
 - Every modified page has ≥1 `## See also` section with at least one wikilink.
+- **Source-entity backlink** — for each book a modified page cites (every distinct `raw-input/books/<slug>` PDF reference on the page), the page must contain a wikilink to that book's entity page (`[[<slug>]]`), canonically a `**Source entities:**` line in `## Sources` (see book-ingestion Full-synthesis rule). A page that cites a book PDF but never wikilinks its entity is a **FAIL** — it orphans the entity (the orphan check excludes `index.md`). The check is on the edge: any entity wikilink on the page satisfies it, regardless of form.
 
 ### Check 3 — Negative-space discipline
 

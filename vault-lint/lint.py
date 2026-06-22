@@ -1261,12 +1261,55 @@ def _ext_english_first_naming(vault_path, config, check):
     return findings
 
 
+def _ext_book_entity_backlink(vault_path, config, check):
+    """Every topic page that cites a book's PDF must wikilink that book's entity
+    page; otherwise the entity is orphaned (the orphan check excludes index.md, so
+    a catalogue entry does not save it). Enforces the per-page Source-entity
+    backlink rule from book-ingestion at vault scope — a backstop to the orphan
+    check, which only sees the aggregate (>=1 inbound link), not per-page coverage.
+
+    The book *folder* slug may differ from the *entity* slug (e.g.
+    books/periodization/ -> entities/books/periodization-book.md, named to avoid
+    colliding with the `periodization` concept page), and an entity page need not
+    cite its own PDF — so map each book folder to its entity deterministically from
+    the filesystem: prefer an entity file named exactly for the folder, else fall
+    back to `<folder>-book`. The check is edge-based: any wikilink to the entity
+    (`[[slug]]` or `[[slug|display]]`) anywhere on the page satisfies it."""
+    cite_re = re.compile(r'raw-input/books/([^/)]+)/')
+    ent_dir = os.path.join(vault_path, 'wiki/entities/books')
+    folder_to_entity = {}
+    for bdir in sorted(glob.glob(os.path.join(vault_path, 'raw-input/books/*/'))):
+        folder = os.path.basename(bdir.rstrip('/'))
+        for cand in (folder, folder + '-book'):
+            if os.path.isfile(os.path.join(ent_dir, cand + '.md')):
+                folder_to_entity[folder] = cand
+                break
+
+    findings = []
+    for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
+        rp = os.path.relpath(fpath, vault_path)
+        try:
+            with open(fpath, encoding='utf-8') as f:
+                content = f.read()
+        except Exception:
+            continue
+        for folder in sorted(set(cite_re.findall(content))):
+            entity = folder_to_entity.get(folder)
+            if not entity:
+                continue  # cited book has no entity page — outside this check's scope
+            if not re.search(r'\[\[' + re.escape(entity) + r'(?:\]\]|\|)', content):
+                findings.append({'page': rp, 'book': folder, 'entity': entity,
+                                 'reason': f'cites book "{folder}" but does not wikilink its entity [[{entity}]]'})
+    return findings
+
+
 _EXT_HANDLERS = {
     'project-entity-recent-handoff': _ext_project_entity_recent_handoff,
     'cross-vault-reference-format': _ext_cross_vault_reference_format,
     'calendar-staleness-sweep': _ext_calendar_staleness_sweep,
     'alias-bilingual-coverage': _ext_alias_bilingual_coverage,
     'english-first-naming': _ext_english_first_naming,
+    'book-entity-backlink': _ext_book_entity_backlink,
 }
 
 
@@ -1632,6 +1675,11 @@ def _render_ext_findings(L, cid, findings):
         for f in findings:
             if 'page' in f:
                 L.append(f'- `{f["page"]}` — title: "{f["title"]}" — {f["reason"]}')
+
+    elif cid == 'book-entity-backlink':
+        for f in findings:
+            if 'page' in f:
+                L.append(f'- `{f["page"]}` — {f["reason"]}')
 
     else:
         for f in findings:

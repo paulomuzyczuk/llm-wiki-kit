@@ -142,6 +142,19 @@ concept that warrants its own page. Apply all discipline rules from CLAUDE.md:
 - **Enrichment-not-replacement:** for pages that already exist, add new content
   as new H2 sections preserving all prior content and citations.
 - **Pair-and-split:** paired concepts get separate pages bridged by wikilinks.
+- **Source-entity backlink:** every topic page created or enriched from the book
+  must link the book entity page (`wiki/entities/books/<slug>.md`), so the entity
+  is not left orphaned. The orphan check excludes `index.md`, so the catalogue
+  entry does not count as an inbound link — ticking the entity in Phase 4 only
+  links *outward*, and this backlink is the inbound link that makes it reachable.
+  Add it in the page's `## Sources` section as a dedicated
+  `**Source entities:** [[<slug>]]` line (list every book entity the page draws
+  on, comma-separated). Use the per-page form — every citing page carries the
+  line, not a single representative link — so the requirement clears the orphan
+  check and populates the cross-reference graph uniformly. The enforcement target
+  is the *edge* (an entity wikilink exists for each cited book), so a vault that
+  already links the entity idiomatically elsewhere in `## Sources` also satisfies
+  it; the labeled line is the canonical form the skill emits.
 
 ### Principles + decision criteria
 For reference-catalog chapters: do not create per-item mechanics pages. Capture:
