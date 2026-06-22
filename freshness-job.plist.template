@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+launchd plist template — freshness-scan job (Job B)
+macOS only. Use this alongside scheduled-job.plist.template ONLY when the
+vault uses `freshness_model: calendar` in its VAULT-LINT-EXTENSIONS block.
+See sanctioned region 6 in CLAUDE.template.md for context.
+
+To instantiate:
+  1. Replace {{VAULT_PREFIX}} with the vault's short prefix.
+  2. Replace {{VAULT_PATH}} with the absolute path to the vault root.
+  3. The default StartCalendarInterval > Hour is 9, staggered one hour
+     after the scheduled-operations job (default 8). This avoids a
+     same-vault race on log.md between Job A and Job B. Keep them
+     staggered by at least an hour.
+  4. The `--permission-mode bypassPermissions` argument grants the
+     headless session non-interactive write approval. Without it,
+     headless `claude -p` blocks on the Write/Edit/Bash operations
+     that record the freshness report and append the log.md entry
+     ("awaiting permission"), so nothing persists. No `--add-dir` is
+     needed here — freshness work stays inside the vault.
+  5. Save as
+       ~/Library/LaunchAgents/com.user.vault-{{VAULT_PREFIX}}-freshness.plist
+  6. plutil -lint <path>
+  7. launchctl load <path>
+  8. launchctl list | grep com.user.vault-{{VAULT_PREFIX}}-freshness
+
+Same XML-escaping rule as scheduled-job.plist.template — use &amp;&amp;
+not &&.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.vault-{{VAULT_PREFIX}}-freshness</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-c</string>
+        <string>cd {{VAULT_PATH}} &amp;&amp; /opt/homebrew/bin/claude -p "Run freshness-scan workflow as defined in CLAUDE.md. Apply the 7-day guard." --permission-mode bypassPermissions</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>{{VAULT_PATH}}/.launchd-freshness.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>{{VAULT_PATH}}/.launchd-freshness.err</string>
+</dict>
+</plist>
