@@ -7,6 +7,7 @@ last_updated: 2026-06-23
 ---
 
 <!-- batch 6 (2026-06-23): registered concepts bug-tracking, real-time-chat, wikis, translation-infrastructure -->
+<!-- batch 7 (2026-06-23): registered subject open-source-economics; concepts open-source-economics, corporate-open-source-participation, government-and-open-source, open-source-contracting -->
 
 # Topics Authority — software craft
 
@@ -40,6 +41,7 @@ Use-for column.
 | release-engineering | releasing, packaging, release-management |
 | code-quality | quality, software-quality |
 | open-source-licensing | licensing, software-licenses, license-compatibility, copyleft |
+| open-source-economics | funding, open-source-business, commercialization, corporate-open-source, organizations-and-money |
 
 ## Concept aliases
 
@@ -67,6 +69,10 @@ pages or shadow another page's canonical title/slug.
 | real-time-chat | project-chat, chat-rooms, irc |
 | wikis | project-wiki, wiki |
 | translation-infrastructure | i18n, l10n, internationalization, localization, translation-platform |
+| open-source-economics | economics-of-open-source, paid-developers, money-and-influence |
+| corporate-open-source-participation | corporate-involvement, being-a-good-corporate-citizen, appear-as-many-not-one, money-cant-buy-love |
+| government-and-open-source | government-open-source, public-sector-open-source, open-source-in-government |
+| open-source-contracting | contracting, contractors, osqa, open-source-quality-assurance |
 
 ## Reserved non-subject tags
 

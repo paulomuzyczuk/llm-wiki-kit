@@ -152,6 +152,22 @@ principle is separation: the legal entity "is there to handle things the develop
 want to handle, not to interfere" with technical decisions, even if it formally owns the
 project's copyrights and trademarks ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=79), p. 66).
 
+## Funding strains the benevolent-dictator model
+
+Ch.5 adds a governance corollary to the funding dynamics in [[open-source-economics]]: when a
+project has a primary funder, that funder must "play by the same rules as everyone else," which
+makes the [Benevolent dictator](#benevolent-dictator) model "slightly harder to pull off in the
+presence of funding, particularly if the benevolent dictator works for the primary funder."
+The reason is structural: "since a dictatorship has few rules, it is hard for the funder to
+prove that it's abiding by community standards, even when it is." It is "certainly not
+impossible," but it "requires a project leader who is able to see things from the point of view
+of the outside developers as well as that of the funder." Fogel's hedge: "it's probably a good
+idea to have a proposal for non-dictatorial governance sitting in your back pocket, ready to be
+brought out if there start to be indications of widespread dissatisfaction"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=87), p. 74).
+The complementary funder-side behavior — making the company "the same size as everyone else"
+— is on [[corporate-open-source-participation]].
+
 ## Negative Space
 
 - **Specific umbrella organizations** (`tool-specific/perishable`): the named list (Software
@@ -175,6 +191,10 @@ project's copyrights and trademarks ([Fogel 2023](../../raw-input/books/producin
 - [[open-source-culture]] — the "influence ∝ contribution" ethic these structures
   operationalize.
 - [[code-review]] — the per-change discussion in which most consensus is actually reached.
+- [[corporate-open-source-participation]] — the funder-side discipline ("make yourself the same
+  size as everyone else") that the funding-strains-BD section turns on.
+- [[open-source-economics]] — how money becomes credibility and then influence within these
+  decision processes.
 
 ## Sources
 
@@ -182,4 +202,6 @@ project's copyrights and trademarks ([Fogel 2023](../../raw-input/books/producin
 
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 4 "Social and Political
   Infrastructure" — Benevolent Dictators; Consensus-based Democracy; voting and vetoes;
-  Writing It All Down; Joining or Creating a Non-Profit (printed pp. 59–66).
+  Writing It All Down; Joining or Creating a Non-Profit (printed pp. 59–66). Ch. 5
+  "Organizations and Money" — "Money Can't Buy You Love" (funding and the benevolent-dictator
+  model, printed p. 74).
