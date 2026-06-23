@@ -59,6 +59,15 @@ One honest caveat: this is a **reference base, not a thinking tool**. In the Zet
 - [`VAULTS.md`](VAULTS.md) — example fleet registry (intake prefixes → vault paths). *Illustrative.*
 - [`BACKLOG.md`](BACKLOG.md), [`closeout-handoffs/`](closeout-handoffs/) — sanitized examples of the fleet backlog and the `planning-handoff` closeout record type. *Illustrative — fictional vaults and dates.*
 - [`check-conformance/subs/software-craft.json`](check-conformance/subs/software-craft.json) — example subs file (token substitutions) for the conformance checker.
+- [`examples/software-craft/`](examples/software-craft/) — a **populated example vault** built by running the real pipeline. It shows actual synthesized output, not just templates: topic pages with frontmatter and [two-part citations](examples/software-craft/wiki/topics/version-control.md), `## Negative Space` sections, a subject-grouped [`index.md`](examples/software-craft/wiki/index.md), a role map-of-content, the `book-planner` → `book-ingestion` → `book-review` artifacts (plan, meta, [review digest](examples/software-craft/wiki/digests/)), and cross-source enrichment where a peer-reviewed paper extends a book-derived page. CI runs `vault-lint` against it on every push to keep it clean.
+
+### Example sources (all openly licensed, committed under `examples/software-craft/raw-input/`)
+
+- *Producing Open Source Software* (2nd ed.) — Karl Fogel — **CC BY-SA 4.0** — https://producingoss.com/
+- *Studying the Impact of CI on Pull Request Delivery Time in Open Source Projects* — Guo & Leitner, *PeerJ CS* 5:e245 (2019) — **CC BY 4.0** — [doi:10.7717/peerj-cs.245](https://doi.org/10.7717/peerj-cs.245)
+- *Who Makes Open Source Code?* — Mehler, Otto & Sapienza, *EPJ Data Science* 13:35 (2024) — **CC BY 4.0** — [doi:10.1140/epjds/s13688-024-00475-0](https://doi.org/10.1140/epjds/s13688-024-00475-0)
+
+The example synthesizes and cites these sources (attribution as required by their licenses); it does not reproduce them in full.
 
 ## Install
 
@@ -84,6 +93,12 @@ Then create a vault with the scaffolder, reusing the same subs format the confor
 It substitutes the tokens, writes `CLAUDE.md`, and builds the folder tree; it then prints the judgment calls it deliberately leaves to you (the roles table, the optional notation/extension blocks, the lint config). Prefer to do it by hand? Copy `CLAUDE.template.md` into your vault root as `CLAUDE.md` and substitute the `{{PLACEHOLDER}}` values yourself — the instantiation header at the top of the template walks through it.
 
 The Python tools require Python 3 and no third-party dependencies; run their test suites with `pytest`.
+
+**Want to see real output before building your own?** Browse [`examples/software-craft/`](examples/software-craft/) — start at its [`wiki/index.md`](examples/software-craft/wiki/index.md), open [`version-control`](examples/software-craft/wiki/topics/version-control.md) to see the citation and negative-space conventions in practice, then run the linter against it to confirm it's clean:
+
+```sh
+python3 vault-lint/lint.py examples/software-craft   # Phase 1 findings: 0
+```
 
 ## Requirements
 
