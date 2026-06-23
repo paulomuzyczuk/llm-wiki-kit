@@ -15,7 +15,7 @@ A vault is governed by a single `CLAUDE.md` contract instantiated from [`CLAUDE.
 - **A pipeline** — how source material (books, articles) is planned, ingested, reviewed, and evaluated into wiki pages.
 - **Negative space** — knowledge gaps and out-of-scope topics are first-class, recorded rather than silently absent.
 
-One template, many vaults. A "fleet" of domain vaults (software craft, finance, sports science, …) all share the contract and are kept conformant by tooling.
+One template, many vaults. A "fleet" of domain vaults (e.g. business-analytics, design, software-craft) all share the contract and are kept conformant by tooling.
 
 ## Why it's shaped this way
 
@@ -113,6 +113,34 @@ The Python tools require Python 3 and no third-party dependencies; run their tes
 ```sh
 python3 vault-lint/lint.py examples/software-craft   # Phase 1 findings: 0
 ```
+
+Once you have a vault, see [Using the vault](#using-the-vault) for how to prompt an LLM against it efficiently.
+
+## Using the vault
+
+The build pipeline is the hard part; *reading* a vault is deliberately plain — it's Markdown, so any LLM with file access works. In practice you point Claude Code (or any agent) at the vault directory and ask. The vault's shape is what makes that exchange efficient: the LLM should **enter through [`index.md`](examples/software-craft/wiki/index.md), pull only the pages it needs, and answer from their citations** rather than re-deriving the material. A few prompt patterns get you most of the value:
+
+**Scope the agent to the vault, entering through the index.** The index is the retrieval surface — subject-grouped, with role maps-of-content as a browse layer above it. Tell the agent to start there instead of grepping blindly:
+
+> Use `~/vaults/software-craft` as your only knowledge source. Start from `wiki/index.md`, follow the `[[wikilinks]]` to the relevant topic pages, and answer: *what does this vault say about choosing a version control system?*
+
+**Demand citations, and answer only from what's paged.** Every claim in a topic page carries a two-part citation (a `[[<slug>-book]]` entity backlink plus a source page anchor). Make the agent carry those through so you can verify, and forbid it from filling gaps with its own training data:
+
+> Answer using only the cited claims in the vault. Quote each supporting line and include its citation (e.g. `Fogel 2023, p. 43`). If the vault doesn't cover something, say so — do not supplement from general knowledge.
+
+**Ask what the vault deliberately leaves out.** Negative space is first-class here: each page has a `## Negative Space` section, and [`gaps.md`](examples/software-craft/wiki/gaps.md) records knowledge gaps and books not yet ingested. This is the question most knowledge bases can't answer:
+
+> Based on the `## Negative Space` sections and `wiki/gaps.md`, what does this vault explicitly *not* cover on continuous integration, and why was it left out?
+
+**Read through a role.** Role maps-of-content (under **Navigation** in the index) and the `roles:` frontmatter field let you scope to a persona's reading list rather than the whole fleet:
+
+> Using the `role-code-craftsperson` map-of-content, give me the three pages most worth reading before my first open-source contribution, and summarize each in two sentences with citations.
+
+**Follow the cross-references.** Pages link to each other with `[[wikilinks]]`; let the agent traverse them to assemble a synthesis no single page holds:
+
+> Starting from `[[version-control]]`, follow its cross-references and synthesize how version control, code review, and continuous integration reinforce each other. Cite each page you draw from.
+
+The throughline: tell the agent to treat the vault as authoritative and bounded — **enter through the index, cite every claim, and surface gaps instead of papering over them.** That's the behavior the contract was built to reward.
 
 ## Requirements
 
