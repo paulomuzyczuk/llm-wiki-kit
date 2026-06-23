@@ -102,6 +102,16 @@ resolve-before-minting rule the ingest skill applies to topic pages.
 This page is the living hub for the book's synthesis. It is updated after each ingested
 chapter; Phase 4 of the ingestion skill ticks the chapter index and `meta.md` together.
 
+### 0.3b — Seed the topics-authority skeleton (first content into a fresh vault)
+
+If `wiki/topics-authority.md` is still an unpopulated skeleton (`status: stub` with a
+`SEED-ME` comment), this book is the vault's first content — seed the file now, per the
+CLAUDE.md Conventions *First-ingest seed* rule: populate **up to 10 subject categories**
+(the `topics:` vocabulary) and **up to 30 aliases**, drawn from this book's structure and
+the domain; set `status: active` and remove the `SEED-ME` comment. The 10/30 caps apply
+to this initial seed only — later ingests grow the vocabulary under resolve-before-minting.
+If the file is already populated, skip this step.
+
 ### 0.4 — Halt for human review
 
 Surface `meta.md` and the entity stub to the human for confirmation before proceeding
