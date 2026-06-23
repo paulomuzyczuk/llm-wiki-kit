@@ -34,6 +34,18 @@ def _die(msg: str) -> None:
     sys.exit(2)
 
 
+class AnchorError(Exception):
+    """A sanctioned-region anchor could not be located.
+
+    Raised by the anchor finders instead of aborting the whole run. When the
+    *template* (expected) side is missing an anchor the caller re-raises it as a
+    fatal error (the tool/template is broken). When the *vault* side is missing
+    one, the caller degrades the Conventions region to an ordinary literal
+    comparison so the divergence is reported as a DIFF (exit 1) rather than
+    crashing the probe with exit 2 over a single heading-format change.
+    """
+
+
 def _emit(line: str) -> None:
     sys.stdout.write(line if line.endswith("\n") else line + "\n")
 
@@ -43,11 +55,21 @@ def _emit(line: str) -> None:
 # ---------------------------------------------------------------------------
 
 def _strip_header(text: str) -> str:
-    """Remove all leading HTML comment blocks (version comments + instantiation header) and blank lines."""
-    while text.startswith("<!--"):
-        end = text.index("-->")
-        text = text[end + 3:].lstrip("\n")
-    return text
+    """Remove the leading template header (the version comment + the
+    instantiation-header HTML comment block) so what remains is the contract
+    body — exactly what an instantiated vault's CLAUDE.md contains.
+
+    The header body legitimately contains literal ``<!--`` / ``-->`` strings
+    (documented marker examples such as ``<!-- VAULT-LINT-EXTENSIONS-END -->``),
+    so the header cannot be parsed by comment delimiters: ``index("-->")`` lands
+    on the first embedded example, not the block's real close, leaking ~190
+    lines of header into the body. Instead, cut to the contract's first
+    top-level ``# `` heading, which is where every vault's CLAUDE.md begins.
+    """
+    m = re.search(r"(?m)^# ", text)
+    if m is None:
+        _die("no top-level '# ' heading found (cannot locate contract body)")
+    return text[m.start():]
 
 
 def _discover_tokens(text: str) -> set:
@@ -106,7 +128,7 @@ def _find_roles_region(lines: list, start_pat, label: str):
             start = i
             break
     if start is None:
-        _die(f"Anchor not found: {label}")
+        raise AnchorError(f"Anchor not found: {label}")
     # Find the sentinel line anywhere after start.
     sentinel_idx = None
     for i in range(start + 1, len(lines)):
@@ -114,7 +136,7 @@ def _find_roles_region(lines: list, start_pat, label: str):
             sentinel_idx = i
             break
     if sentinel_idx is None:
-        _die(f"Anchor not found: roles table end (sentinel '{_ROLES_END_SENTINEL}') — searched after {label}")
+        raise AnchorError(f"Anchor not found: roles table end (sentinel '{_ROLES_END_SENTINEL}') — searched after {label}")
     # Walk backward from the sentinel to find the first blank of the preceding run.
     end_idx = sentinel_idx - 1
     while end_idx > start and lines[end_idx].rstrip() == "":
@@ -129,7 +151,7 @@ def _find_oos_row(lines: list, label: str) -> int:
     for i, ln in enumerate(lines):
         if _OOS_ROW_PAT.match(ln):
             return i
-    _die(f"Anchor not found: {label}")
+    raise AnchorError(f"Anchor not found: {label}")
 
 
 def _oos_cell_conforms(line: str, domain: str) -> bool:
@@ -138,21 +160,36 @@ def _oos_cell_conforms(line: str, domain: str) -> bool:
     return bool(re.match(r"^Outside " + re.escape(domain) + r"(\s*\(.*\))?$", cell))
 
 
-def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str) -> dict:
-    """Locate all sanctioned sub-region anchors. Exit 2 on any failure."""
+def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str):
+    """Locate all sanctioned sub-region anchors.
+
+    Returns the anchor-location dict on success. Returns ``None`` when the
+    *vault* side cannot be anchored (missing ## Conventions, or a roles/oos
+    anchor the vault diverged away from) — the caller then compares the
+    Conventions region literally so the divergence surfaces as a DIFF (exit 1)
+    instead of aborting the whole probe. A missing anchor on the *template*
+    side is fatal (exit 2): that means the template or the tool itself is
+    broken, not that a vault drifted.
+    """
     if CONVENTIONS_NAME not in exp_regions:
         _die(f"Anchor not found: '## {CONVENTIONS_NAME}' heading in expected/template")
 
     conv_exp = exp_regions[CONVENTIONS_NAME]
-    exp_rs, exp_re = _find_roles_region(conv_exp, _ROLES_START_EXPECTED, "expected roles table start")
-    exp_oos        = _find_oos_row(conv_exp, "expected out-of-scope row")
+    try:
+        exp_rs, exp_re = _find_roles_region(conv_exp, _ROLES_START_EXPECTED, "expected roles table start")
+        exp_oos        = _find_oos_row(conv_exp, "expected out-of-scope row")
+    except AnchorError as e:
+        _die(f"{e} (in expected/template — template or tool is broken)")
 
     conv_vault = vault_regions.get(CONVENTIONS_NAME)
     if conv_vault is None:
-        _die("Anchor not found: vault roles table start (## Conventions region absent from vault)")
+        return None  # degrade: ## Conventions absent from vault → reported as DIFF
 
-    vlt_rs, vlt_re = _find_roles_region(conv_vault, _ROLES_START_VAULT, "vault roles table start")
-    vlt_oos        = _find_oos_row(conv_vault, "vault out-of-scope row")
+    try:
+        vlt_rs, vlt_re = _find_roles_region(conv_vault, _ROLES_START_VAULT, "vault roles table start")
+        vlt_oos        = _find_oos_row(conv_vault, "vault out-of-scope row")
+    except AnchorError:
+        return None  # degrade: vault diverged so anchors don't resolve → reported as DIFF
 
     oos_ok = _oos_cell_conforms(conv_vault[vlt_oos], domain)
 
@@ -248,13 +285,21 @@ def _cmp_conventions(s: dict) -> tuple:
 # Main comparison loop and output
 # ---------------------------------------------------------------------------
 
-def _run(exp_regions: dict, vault_regions: dict, s: dict) -> bool:
+def _run(exp_regions: dict, vault_regions: dict, s) -> bool:
     counts   = {"PASS": 0, "DIFF": 0, "EXEMPT-CONTAINED": 0}
     has_diff = False
 
     for name, exp_lines in exp_regions.items():
-        if name == CONVENTIONS_NAME:
+        if name == CONVENTIONS_NAME and s is not None:
             status, extra = _cmp_conventions(s)
+        elif name == CONVENTIONS_NAME:
+            # Sanctioned anchors could not be located on the vault side; compare
+            # the region literally rather than aborting. Note it so the reader
+            # knows the roles-table/oos exemptions were NOT applied.
+            print("NOTE: vault Conventions anchors not found "
+                  "(e.g. roles heading not the literal '**Roles for this vault:**'); "
+                  "comparing region literally, sanctioned exemptions not applied.")
+            status, extra = _cmp_regular(name, exp_lines, vault_regions.get(name))
         else:
             status, extra = _cmp_regular(name, exp_lines, vault_regions.get(name))
 

@@ -195,16 +195,31 @@ def test_subs_missing_token_exits_2(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# test 6: vault missing roles-table anchor → exit 2
+# test 6: vault missing roles-table anchor → degrade to Conventions DIFF (exit 1)
 # ---------------------------------------------------------------------------
 
-def test_roles_anchor_absent_exits_2(tmp_path):
-    """If the vault has no roles-table start anchor the script must exit 2."""
+def test_roles_anchor_absent_degrades_to_diff(tmp_path):
+    """If the vault has no roles-table start anchor the script must NOT abort
+    with exit 2; it degrades to a literal Conventions comparison and reports a
+    DIFF (exit 1). A single heading-format divergence is a conformance finding,
+    not a tool crash (F2). The template-side anchor is always present, so the
+    failure can only be vault-side here."""
     vault = make_vault(mutations=[_delete_roles_anchor])
     result = run_check(vault, tmp_path=tmp_path)
-    assert result.returncode == 2, result.stdout + result.stderr
+    assert result.returncode == 1, result.stdout + result.stderr
     out = result.stdout + result.stderr
-    assert "roles" in out.lower() or "anchor" in out.lower()
+    # The degraded-comparison note must explain why exemptions weren't applied.
+    assert "anchors not found" in out.lower()
+    # Conventions must be reported as DIFF (not EXEMPT-CONTAINED, not a crash).
+    conventions_lines = [
+        ln for ln in result.stdout.splitlines()
+        if ln.startswith("REGION") and "Conventions" in ln
+    ]
+    assert conventions_lines, "Conventions region must appear in output"
+    assert "DIFF" in conventions_lines[0], (
+        f"Conventions must DIFF when the vault roles anchor is absent, "
+        f"got: {conventions_lines[0]!r}"
+    )
 
 
 # ---------------------------------------------------------------------------

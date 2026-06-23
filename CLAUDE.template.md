@@ -246,6 +246,7 @@ wiki/
 ├── index.md
 ├── log.md
 ├── gaps.md
+├── quality-debt.md
 ├── handoffs/
 │   ├── {{EXEC_HANDOFF}}s/
 │   └── planning-handoffs/
