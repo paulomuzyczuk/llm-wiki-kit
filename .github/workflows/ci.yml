@@ -32,6 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # gitleaks scans the PR commit range, so it needs full history —
+          # a shallow clone makes the base commit unreachable and the scan errors.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
