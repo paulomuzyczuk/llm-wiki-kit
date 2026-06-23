@@ -2,7 +2,7 @@
 
 A system of [Claude Code](https://claude.com/claude-code) skills and tools for building and maintaining **LLM-Wiki vaults** — durable, structured knowledge bases in [Obsidian](https://obsidian.md) that an LLM reads, writes, and keeps honest.
 
-The idea is to treat a knowledge vault less like a pile of notes and more like a small encyclopedia with a contract: every page has a defined shape, every claim cites its source, gaps in knowledge are recorded explicitly, and a linter plus a conformance checker enforce all of it instead of relying on discipline. The name nods to [Andrej Karpathy's framing](https://karpathy.ai/) of building a personal "wiki" of distilled understanding rather than hoarding raw material.
+The idea is to treat a knowledge vault less like a pile of notes and more like a small encyclopedia with a contract: every page has a defined shape, every claim cites its source, gaps in knowledge are recorded explicitly, and a linter plus a conformance checker enforce all of it instead of relying on discipline. The name nods to [Andrej Karpathy's framing]([https://karpathy.ai/](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)) of building a personal "wiki" of distilled understanding rather than hoarding raw material.
 
 > **Status:** working personal system, opened up. The skills and tooling are mature and in daily use. The example artifacts (`VAULTS.md`, `closeout-handoffs/`, `BACKLOG.md`) are sanitized illustrations of the workflow's record types — fictional vaults and decisions, present to show the format. See [What's here](#whats-here).
 
