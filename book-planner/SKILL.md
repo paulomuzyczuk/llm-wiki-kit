@@ -63,6 +63,7 @@ If `ebook-convert` is not available, stop and ask the human to install Calibre
 
 Read the table of contents. Write `raw-input/books/<slug>/meta.md` with:
 - Title and author
+- Edition/printing, and ISBN (or DOI) when available — the specific manifestation being ingested, so citations resolve against a known edition
 - Chapter → PDF-page-range map (using PDF page indices, not printed page numbers)
 - Ingest-status checklist: one line per chapter, all unticked
 
@@ -90,6 +91,10 @@ from it). Stub contents:
 - One-line overview of what the book covers
 - "Why it matters" placeholder for the vault
 - Chapter index with empty wikilinks (filled as ingestion progresses)
+
+Set the entity's source-identity frontmatter — `edition` and `isbn`/`doi` for the
+manifestation (copied from `meta.md`; `null` when unavailable) — so this page is the
+edition-stable anchor every `#page=N` citation resolves through.
 
 This page is the living hub for the book's synthesis. It is updated after each ingested
 chapter; Phase 4 of the ingestion skill ticks the chapter index and `meta.md` together.
