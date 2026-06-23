@@ -1019,6 +1019,179 @@ def check_7_data_gaps(pages):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §12.5 CHECK 8 — CONTROLLED-VOCABULARY RESOLUTION (topics-authority SOT)
+#     Resolves `topics:` against the Subjects tier and `aliases:` against the
+#     Concepts tier of wiki/topics-authority.md (a lightweight thesaurus:
+#     preferred term + use-for variants). Report-only. Skips cleanly when the
+#     SOT file is absent, so vaults without one are unaffected.
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _extract_authority_section(text, *headings):
+    """Body text under the first matching ## heading (until the next ## or EOF)."""
+    for h in headings:
+        m = re.search(
+            r'^#{2,}\s+' + re.escape(h) + r'[^\n]*\n(.*?)(?=^\s*#{2,}\s|\Z)',
+            text, re.MULTILINE | re.DOTALL | re.IGNORECASE,
+        )
+        if m:
+            return m.group(1)
+    return ''
+
+
+def _parse_authority_table(section_text):
+    """
+    Parse a two-column markdown table — | `preferred` | variant, variant | —
+    into (preferred_set, variant_map). variant_map maps each lower-cased
+    use-for variant to its preferred term. Header/separator rows are skipped.
+    """
+    preferred = set()
+    variants = {}
+    for line in section_text.split('\n'):
+        line = line.strip()
+        if not line.startswith('|'):
+            continue
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if len(cells) < 2:
+            continue
+        pref = cells[0].strip().strip('`').strip()
+        if (not pref or pref.lower() in ('preferred', 'preferred (page)', 'canonical')
+                or set(pref) <= set('-: ')):
+            continue
+        preferred.add(pref.lower())
+        for v in re.split(r'[,;]', cells[1]):
+            v = v.strip().strip('`').strip()
+            if v and v not in ('—', '-', ''):
+                variants[v.lower()] = pref.lower()
+    return preferred, variants
+
+
+def parse_topics_authority(vault_path):
+    """
+    Parse wiki/topics-authority.md into the controlled vocabulary.
+    Returns None when the file is absent (the check is then skipped).
+    """
+    path = os.path.join(vault_path, 'wiki', 'topics-authority.md')
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path, encoding='utf-8') as f:
+            text = f.read()
+    except Exception as e:
+        print(f'WARNING: could not read topics-authority.md: {e}', file=sys.stderr)
+        return None
+
+    subj_pref, subj_var = _parse_authority_table(
+        _extract_authority_section(text, 'Subject categories', 'Subjects'))
+    conc_pref, conc_var = _parse_authority_table(
+        _extract_authority_section(text, 'Concept aliases', 'Concepts'))
+    reserved = set()
+    for line in _extract_authority_section(
+            text, 'Reserved non-subject tags', 'Reserved tags').split('\n'):
+        for tok in re.findall(r'`([^`]+)`', line):
+            reserved.add(tok.strip().lower())
+
+    return {
+        'subjects': {'preferred': subj_pref, 'variants': subj_var},
+        'concepts': {'preferred': conc_pref, 'variants': conc_var},
+        'reserved': reserved,
+    }
+
+
+def _nearest_preferred(value, preferred, threshold=0.6):
+    """Best-matching preferred term for an unresolved value, or None."""
+    best, best_r = None, 0.0
+    vt = set(value.lower().split('-'))
+    for p in preferred:
+        r = difflib.SequenceMatcher(None, value.lower(), p).ratio()
+        pt = set(p.split('-'))
+        if vt & pt:  # shared hyphen-token → boost
+            r = max(r, 0.5 + 0.5 * len(vt & pt) / max(len(vt | pt), 1))
+        if r > best_r:
+            best, best_r = p, r
+    return best if best_r >= threshold else None
+
+
+def check_8_vocabulary(pages, authority):
+    """
+    CHECK 8 — controlled-vocabulary resolution against topics-authority.md.
+
+    Subjects tier: every `topics:` value must resolve to a preferred subject
+    (or a reserved non-subject tag). A registered use-for variant is flagged
+    "use the canonical"; an unresolved value is flagged with the nearest
+    preferred term suggested. Concepts tier: enforce the de-alias guarantees —
+    no alias may belong to two pages (collision) and no alias may shadow a
+    different page's canonical slug/title (homonym). Report-only.
+
+    Returns {'skipped': True} when no SOT file is present.
+    """
+    if authority is None:
+        return {'skipped': True}
+
+    subj = authority['subjects']
+    reserved = authority['reserved']
+
+    topic_unregistered = []   # topics: value resolves to nothing
+    topic_use_preferred = []  # topics: value is a use-for variant → use canonical
+    alias_collision = []      # alias owned by >1 page
+    alias_shadows = []        # alias equals a different page's canonical
+
+    # ── Subjects tier ──
+    for relpath, p in sorted(pages.items()):
+        fm = p['fm'] or {}
+        topics = fm.get('topics') or []
+        if not isinstance(topics, list):
+            topics = [topics]
+        for t in topics:
+            tl = str(t).strip().lower()
+            if not tl or tl in reserved or tl in subj['preferred']:
+                continue
+            if tl in subj['variants']:
+                topic_use_preferred.append(
+                    {'page': relpath, 'value': t, 'canonical': subj['variants'][tl]})
+            elif subj['preferred']:  # only meaningful once a vocabulary is declared
+                topic_unregistered.append(
+                    {'page': relpath, 'value': t,
+                     'suggestion': _nearest_preferred(tl, subj['preferred'])})
+
+    # ── Concepts tier — alias uniqueness from frontmatter (the de-alias guarantee) ──
+    canonical_slugs = {get_slug(rp): rp for rp in pages}
+    canonical_titles = {}
+    for rp, p in pages.items():
+        title = (p['fm'] or {}).get('title')
+        if isinstance(title, str):
+            canonical_titles[title.strip().lower()] = rp
+
+    alias_owner = {}
+    for relpath, p in sorted(pages.items()):
+        aliases = (p['fm'] or {}).get('aliases') or []
+        if not isinstance(aliases, list):
+            aliases = [aliases]
+        for a in aliases:
+            al = str(a).strip().lower()
+            if not al:
+                continue
+            alias_owner.setdefault(al, set()).add(relpath)
+            owner = canonical_slugs.get(al) or canonical_titles.get(al)
+            if owner and owner != relpath:
+                alias_shadows.append(
+                    {'page': relpath, 'alias': a, 'canonical_page': owner})
+
+    for al, owners in sorted(alias_owner.items()):
+        if len(owners) > 1:
+            alias_collision.append({'alias': al, 'pages': sorted(owners)})
+
+    return {
+        'skipped': False,
+        'topic_unregistered': topic_unregistered,
+        'topic_use_preferred': topic_use_preferred,
+        'alias_collision': alias_collision,
+        'alias_shadows': alias_shadows,
+        'subject_vocab_size': len(subj['preferred']),
+        'concept_vocab_size': len(authority['concepts']['preferred']),
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §13 PHASE 2 — ROLE-COUNT DRIFT
 #     Reference implementation from SKILL.md, inlined verbatim.
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1618,10 +1791,16 @@ def render_report(vault_slug, findings):
     c5 = findings['c5']
     c6 = findings['c6']
     c7 = findings['c7']
+    c8 = findings['c8']
     p15 = findings['p15']
     p2 = findings['p2']
     p3 = findings['p3']
     index_md_text = findings.get('index_md_text', '')
+
+    c8_count = 0 if c8.get('skipped') else (
+        len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
+        len(c8['alias_collision']) + len(c8['alias_shadows'])
+    )
 
     # Counts for summary
     ph1 = (
@@ -1629,7 +1808,8 @@ def render_report(vault_slug, findings):
         len(c3a['dangling']) + len(c3b['candidates']) +
         min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
         len(c6['stale_active']) + len(c6['opposing_candidates']) +
-        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions'])
+        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions']) +
+        c8_count
     )
     drift_n = 0 if p2.get('skipped') else sum(1 for d in p2['delta'].values() if d != 0)
     ph3_n = sum(len(r.get('findings', [])) for r in p3)
@@ -1654,6 +1834,7 @@ def render_report(vault_slug, findings):
         f'- Role-count drift: {"skipped (no surface in index.md)" if p2.get("skipped") else f"{drift_n} roles with non-zero delta"}',
         f'- Structural signals: {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned pages',
         f'- Vault-specific extensions: {ph3_n} findings',
+        f'- Controlled vocabulary: {"skipped (no topics-authority.md)" if c8.get("skipped") else f"{c8_count} findings"}',
         f'- Activity since last lint: {act["books"]} books, {act["articles"]} articles, {act["other_ingests"]} other ingests, {act["handoffs"]} handoffs',
         '',
         '## Phase 1 — Universal checks',
@@ -1799,6 +1980,42 @@ def render_report(vault_slug, findings):
             L.append(f'**Explicit gap markers — [?] / ?? / > Q: ({len(c7["open_questions"])}):**')
             for item in c7['open_questions']:
                 L.append(f'- `{item["page"]}` [{item["marker"]}]: {item["line"]}')
+    L.append('')
+
+    # ── Check 8 — controlled-vocabulary resolution (topics-authority SOT)
+    L.append('### Check 8 — Controlled-vocabulary resolution (topics-authority)')
+    if c8.get('skipped'):
+        L.append('SKIPPED — no `wiki/topics-authority.md` in this vault. '
+                 'Add one to control the `topics:` and `aliases:` vocabularies.')
+    elif c8_count == 0:
+        L.append(f'PASS — all `topics:` resolve against {c8["subject_vocab_size"]} '
+                 f'subject terms; no alias collisions or canonical shadows.')
+    else:
+        if c8['topic_use_preferred']:
+            L.append(f'**Use the preferred term ({len(c8["topic_use_preferred"])}) — '
+                     '`topics:` value is a registered use-for variant:**')
+            for f in c8['topic_use_preferred']:
+                L.append(f'- `{f["page"]}` — `{f["value"]}` → use `{f["canonical"]}`')
+        if c8['topic_unregistered']:
+            L.append('')
+            L.append(f'**Unregistered `topics:` values ({len(c8["topic_unregistered"])}) — '
+                     'reconcile to a preferred term or register in the SOT:**')
+            for f in c8['topic_unregistered']:
+                sug = f' → nearest: `{f["suggestion"]}`' if f['suggestion'] else ' (no close match — new category?)'
+                L.append(f'- `{f["page"]}` — `{f["value"]}`{sug}')
+        if c8['alias_collision']:
+            L.append('')
+            L.append(f'**Alias collisions ({len(c8["alias_collision"])}) — '
+                     'one alias claimed by multiple pages (breaks uniqueness):**')
+            for f in c8['alias_collision']:
+                pgs = ', '.join(f'`{p}`' for p in f['pages'])
+                L.append(f'- "{f["alias"]}" ← {pgs}')
+        if c8['alias_shadows']:
+            L.append('')
+            L.append(f'**Alias shadows a canonical ({len(c8["alias_shadows"])}) — '
+                     "alias equals another page's title/slug:**")
+            for f in c8['alias_shadows']:
+                L.append(f'- `{f["page"]}` alias "{f["alias"]}" shadows `{f["canonical_page"]}`')
     L.append('')
 
     # ── Phase 1.5
@@ -2151,6 +2368,16 @@ def main():
     c7 = check_7_data_gaps(pages)
     print(f'  Check 7 (data gaps):    {len(c7["stubs"])} stubs, {len(c7["todos"])} TODOs, {len(c7["open_questions"])} questions')
 
+    authority = parse_topics_authority(vault_path)
+    c8 = check_8_vocabulary(pages, authority)
+    if c8.get('skipped'):
+        print('  Check 8 (vocabulary):   skipped — no wiki/topics-authority.md')
+    else:
+        print(f'  Check 8 (vocabulary):   {len(c8["topic_unregistered"])} unregistered, '
+              f'{len(c8["topic_use_preferred"])} use-preferred, '
+              f'{len(c8["alias_collision"])} alias collisions, '
+              f'{len(c8["alias_shadows"])} shadows')
+
     # ── Phase 1.5 ─────────────────────────────────────────────
     print('[vault-lint] Phase 1.5 — activity since last lint')
     activity = count_activity_since(log_md_text, vault_slug, watermark_date)
@@ -2187,7 +2414,7 @@ def main():
 
     # ── Render and write report ────────────────────────────────
     all_findings = dict(
-        c1=c1, c2=c2, c3a=c3a, c3b=c3b, c4=c4, c5=c5, c6=c6, c7=c7,
+        c1=c1, c2=c2, c3a=c3a, c3b=c3b, c4=c4, c5=c5, c6=c6, c7=c7, c8=c8,
         p15=p15, p2=p2, p3=p3, index_md_text=index_md_text,
     )
     report_text = render_report(vault_slug, all_findings)
@@ -2196,12 +2423,17 @@ def main():
     print(f'[vault-lint] report written: {report_path}')
 
     # ── Log entry + pending marker cleanup ─────────────────────
+    c8_total = 0 if c8.get('skipped') else (
+        len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
+        len(c8['alias_collision']) + len(c8['alias_shadows'])
+    )
     ph1_total = (
         len(c1['findings']) + len(c2['orphans']) +
         len(c3a['dangling']) + len(c3b['candidates']) +
         min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
         len(c6['stale_active']) + len(c6['opposing_candidates']) +
-        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions'])
+        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions']) +
+        c8_total
     )
     drift_count = len(drift_roles)
     append_log_entry(log_md_path, vault_slug, ph1_total, drift_count)

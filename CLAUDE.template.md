@@ -303,6 +303,7 @@ This vault exists for documentation only. Its job is to enrich the human's excha
 
 - `wiki/` — your domain.
   - `index.md` — catalogue of every wiki page with one-line summaries, organised by category.
+  - `topics-authority.md` — controlled-vocabulary source of truth: the preferred `topics:` subject terms and the registered `aliases:`, each with their accepted variants (a lightweight thesaurus). `/vault-lint` resolves every `topics:`/`aliases:` value against it. Optional — a vault without it simply skips the vocabulary check.
   - `log.md` — append-only chronological log of operations.
   - `gaps.md` — field-level open questions and missing source coverage tracker; two sections: §1 explicit knowledge gaps found in ingested content, §2 books not yet in the vault.
   - `handoffs/`
@@ -407,6 +408,12 @@ Existing pages (synthesized from books only) are all source_tier: 1. The field i
 - `isbn:` (books) / `doi:` (papers) — a stable external identifier when one exists; `null` otherwise.
 
 This is what protects each `#page=N` anchor over time: if a different printing is ever ingested, the discriminator makes the manifestation explicit instead of letting page anchors silently drift from the `p. M` tail. These fields are optional and backfilled lazily on existing source entities when they are next updated, not as a bulk pass.
+
+**Controlled vocabulary — `wiki/topics-authority.md`.** The `topics:` and `aliases:` fields are governed by a per-vault controlled vocabulary, structured as a lightweight thesaurus (a preferred term plus its "use-for" variants) in two tiers:
+- **Subjects** (governs `topics:`) — the canonical broad subject categories, each listing the variant spellings/synonyms that must resolve to it. A `topics:` value must be a preferred subject, or a reserved non-subject tag such as `stub`.
+- **Concepts** (governs `aliases:` / page identity) — each topic page is a preferred concept and its `aliases:` are use-for variants. No alias may belong to two pages, and no alias may shadow another page's canonical title/slug (those are the uniqueness guarantees the de-alias handling depends on).
+
+`aliases:` are still authored in page frontmatter; `topics-authority.md` is the source of truth, and `/vault-lint`'s vocabulary check resolves every `topics:`/`aliases:` value against it (report-only, suggesting the nearest preferred term on a miss). **Resolve before minting:** before introducing a new `topics:` value or a new alias, resolve the candidate against `topics-authority.md` first — if it already resolves to a preferred term, reuse that term rather than create a scattered variant; only register a genuinely new term. A vault without `topics-authority.md` skips this check entirely.
 
 Other conventions:
 
