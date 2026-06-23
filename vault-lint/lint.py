@@ -511,7 +511,13 @@ def check_2_orphans(vault_path, pages, slug_index):
             if tgt_rel in inbound and tgt_rel != src:
                 inbound[tgt_rel].add(src)
 
-    orphans = sorted(p for p, srcs in inbound.items() if not srcs)
+    # Archived pages (status: archived) are intentional tombstones — e.g. merge
+    # redirects whose inbound links were deliberately retargeted elsewhere. They
+    # are expected to have no inbound links and must not be reported as orphans.
+    orphans = sorted(
+        p for p, srcs in inbound.items()
+        if not srcs and (pages[p].get('fm') or {}).get('status') != 'archived'
+    )
     return {'orphans': orphans, 'total': len(pages)}
 
 
@@ -519,12 +525,20 @@ def check_2_orphans(vault_path, pages, slug_index):
 # §8  CHECK 3 — CONCEPTS LACKING A PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 
-def check_3_pass_a(pages, slug_index):
-    """Pass A: dangling wikilinks — targets with no live page."""
+def check_3_pass_a(vault_path, pages, slug_index):
+    """Pass A: dangling wikilinks — targets with no live page.
+
+    Digest artifacts (wiki/digests/*.md — ingest reports, review/lint digests) are
+    legitimate wikilink targets even though they are not loaded as live pages, so a
+    link resolving to a digest filename is not dangling.
+    """
+    digest_slugs = set()
+    for fpath in glob.glob(os.path.join(vault_path, 'wiki/digests/**/*.md'), recursive=True):
+        digest_slugs.add(os.path.splitext(os.path.basename(fpath))[0])
     dangling = {}
     for relpath, data in pages.items():
         for target in data['wikilinks']:
-            if target not in slug_index:
+            if target not in slug_index and target not in digest_slugs:
                 dangling.setdefault(target, set()).add(relpath)
     return {'dangling': {t: sorted(ps) for t, ps in sorted(dangling.items())}}
 
@@ -1333,8 +1347,72 @@ def _ext_book_entity_backlink(vault_path, config, check):
     return findings
 
 
+_MERGE_PTR = re.compile(r'[Mm]erged into \[\[([^\]|#]+)')
+
+
+def _ext_merge_tombstone_hygiene(vault_path, config, check):
+    """Merge-tombstone hygiene — the automatable proxy for the book-ingestion
+    pair-and-split rule (book-ingestion SKILL.md). It cannot judge whether a merge
+    wrongly conflated two *contrasting* concepts (that is book-review Check 2 and a
+    manual-review item), but it does verify a merge preserved *retrievability*:
+
+    For each archived page (status: archived) carrying a 'Merged into [[X]]' pointer:
+      (a) FAIL — the merge target [[X]] must exist as a live page (no broken redirect);
+      (b) WARN — the tombstone must carry no aliases (they migrate to the target, so a
+          term has one owner; leftover aliases re-split retrievability and re-collide);
+      (c) WARN — no live page may still wikilink the tombstone (all inbound links must
+          be redirected to the target).
+    """
+    findings = []
+    live_slugs = set()
+    files = {}  # relpath -> (fm, content)
+    for pattern in ['wiki/topics/**/*.md', 'wiki/entities/**/*.md']:
+        for fpath in sorted(glob.glob(os.path.join(vault_path, pattern), recursive=True)):
+            rp = os.path.relpath(fpath, vault_path).replace('\\', '/')
+            try:
+                with open(fpath, encoding='utf-8') as f:
+                    content = f.read()
+            except Exception:
+                continue
+            fm = parse_frontmatter(content) or {}
+            files[rp] = (fm, content)
+            if fm.get('status') != 'archived':
+                live_slugs.add(os.path.splitext(os.path.basename(rp))[0])
+
+    # Inbound wikilinks per slug, counted from live pages only.
+    inbound = {}
+    for rp, (fm, content) in files.items():
+        if fm.get('status') == 'archived':
+            continue
+        for tgt in extract_wikilink_targets(content):
+            inbound.setdefault(tgt, set()).add(rp)
+
+    for rp, (fm, content) in sorted(files.items()):
+        if fm.get('status') != 'archived':
+            continue
+        m = _MERGE_PTR.search(content)
+        if not m:
+            continue  # archived but not a merge redirect — out of this check's scope
+        slug = os.path.splitext(os.path.basename(rp))[0]
+        target = m.group(1).strip()
+        if target not in live_slugs:
+            findings.append({'page': rp, 'severity': 'fail',
+                             'reason': f'merge target [[{target}]] is not a live page (broken redirect)'})
+        aliases = fm.get('aliases', []) or []
+        if aliases:
+            findings.append({'page': rp, 'severity': 'warn',
+                             'reason': f'tombstone still carries {len(aliases)} alias(es); migrate them to [[{target}]] so each term has one owner'})
+        stragglers = sorted(inbound.get(slug, set()))
+        if stragglers:
+            shown = ', '.join(stragglers[:8]) + ('…' if len(stragglers) > 8 else '')
+            findings.append({'page': rp, 'severity': 'warn',
+                             'reason': f'{len(stragglers)} live page(s) still wikilink this tombstone instead of [[{target}]]: {shown}'})
+    return findings
+
+
 _EXT_HANDLERS = {
     'project-entity-recent-handoff': _ext_project_entity_recent_handoff,
+    'merge-tombstone-hygiene': _ext_merge_tombstone_hygiene,
     'cross-vault-reference-format': _ext_cross_vault_reference_format,
     'calendar-staleness-sweep': _ext_calendar_staleness_sweep,
     'alias-bilingual-coverage': _ext_alias_bilingual_coverage,
@@ -1713,6 +1791,11 @@ def _render_ext_findings(L, cid, findings):
             elif 'page' in f:
                 L.append(f'- `{f["page"]}` — {f["reason"]}')
 
+    elif cid == 'merge-tombstone-hygiene':
+        for f in findings:
+            sev = f.get('severity', 'info').upper()
+            L.append(f'- **{sev}** `{f["page"]}` — {f["reason"]}')
+
     else:
         for f in findings:
             L.append(f'- {f}')
@@ -1891,7 +1974,7 @@ def main():
     c2 = check_2_orphans(vault_path, pages, slug_index)
     print(f'  Check 2 (orphans):      {len(c2["orphans"])} of {c2["total"]} pages')
 
-    c3a = check_3_pass_a(pages, slug_index)
+    c3a = check_3_pass_a(vault_path, pages, slug_index)
     print(f'  Check 3a (dangling):    {len(c3a["dangling"])} unique dangling targets')
 
     c3b = check_3_pass_b(pages, slug_index)

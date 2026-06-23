@@ -274,7 +274,7 @@ def test_check_3a_clean():
         "wiki/topics/a.md": "# A\n[[b]]\n",
         "wiki/topics/b.md": "# B\n",
     })
-    res = lint.check_3_pass_a(pages, slug_index)
+    res = lint.check_3_pass_a("/nonexistent", pages, slug_index)
     assert res["dangling"] == {}
 
 
@@ -282,7 +282,7 @@ def test_check_3a_dangling():
     pages, slug_index = make_pages({
         "wiki/topics/a.md": "# A\n[[ghost]]\n",
     })
-    res = lint.check_3_pass_a(pages, slug_index)
+    res = lint.check_3_pass_a("/nonexistent", pages, slug_index)
     assert "ghost" in res["dangling"]
     assert res["dangling"]["ghost"] == ["wiki/topics/a.md"]
 
@@ -602,3 +602,68 @@ def test_e2e_minimal_valid_vault_exit_0(tmp_path):
     # A log entry was appended.
     log_text = (vault / "wiki" / "log.md").read_text()
     assert f"[{today}] lint | test-vault |" in log_text
+
+
+# ===========================================================================
+# Regression: lint-remediation additions (2026-06-23)
+#   - check_2 excludes archived tombstones from orphans
+#   - check_3a excludes wiki/digests/ artifacts from dangling
+#   - merge-tombstone-hygiene extension check (pair-and-split retrievability proxy)
+# ===========================================================================
+
+def test_check_2_orphan_excludes_archived():
+    pages, slug_index = make_pages({
+        "wiki/topics/target.md": "# Target\n",
+        "wiki/topics/active-orphan.md": "# Active Orphan\n",
+        "wiki/topics/tomb.md": (
+            frontmatter(title="T", status="archived")
+            + "# T\nMerged into [[target]] on 2026-01-01.\n"
+        ),
+    })
+    res = lint.check_2_orphans("/nonexistent", pages, slug_index)
+    assert "wiki/topics/tomb.md" not in res["orphans"]          # archived tombstone excluded
+    assert "wiki/topics/active-orphan.md" in res["orphans"]     # active orphan still flagged
+    assert "wiki/topics/target.md" not in res["orphans"]        # has inbound from tomb
+
+
+def test_check_3a_excludes_digests(tmp_path):
+    vault = build_vault(tmp_path, topic_pages={})
+    (vault / "wiki" / "digests" / "ingest-report-foo.md").write_text("# report\n", encoding="utf-8")
+    pages, slug_index = make_pages({
+        "wiki/topics/a.md": "# A\n[[ingest-report-foo]] and [[ghost]]\n",
+    })
+    res = lint.check_3_pass_a(str(vault), pages, slug_index)
+    assert "ingest-report-foo" not in res["dangling"]   # resolves to a digest artifact
+    assert "ghost" in res["dangling"]                    # genuinely dangling
+
+
+def test_ext_merge_tombstone_hygiene_clean(tmp_path):
+    vault = build_vault(tmp_path, topic_pages={
+        "target": frontmatter(title="Target", status="active", aliases=[]) + "# Target\n",
+        "tomb": (
+            frontmatter(title="Tomb", status="archived", aliases=[])
+            + "# Tomb\nMerged into [[target]] on 2026-01-01.\n"
+        ),
+    })
+    findings = lint._ext_merge_tombstone_hygiene(str(vault), {}, {})
+    assert findings == []
+
+
+def test_ext_merge_tombstone_hygiene_violations(tmp_path):
+    vault = build_vault(tmp_path, topic_pages={
+        "tomb": (
+            frontmatter(title="Tomb", status="archived", aliases=["ytm", "current yield"])
+            + "# Tomb\nMerged into [[missing]] on 2026-01-01.\n"
+        ),
+        "live": (
+            frontmatter(title="Live", status="active", aliases=[])
+            + "# Live\nsee [[tomb]]\n"
+        ),
+    })
+    findings = lint._ext_merge_tombstone_hygiene(str(vault), {}, {})
+    reasons = " ".join(f["reason"] for f in findings)
+    sevs = {f["severity"] for f in findings}
+    assert "broken redirect" in reasons    # target [[missing]] is not a live page -> FAIL
+    assert "alias" in reasons              # aliases not migrated -> WARN
+    assert "still wikilink" in reasons     # live page still links the tombstone -> WARN
+    assert "fail" in sevs and "warn" in sevs
