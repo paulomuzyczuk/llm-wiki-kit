@@ -10,6 +10,7 @@ last_updated: 2026-06-24
 <!-- batch 7 (2026-06-23): registered subject open-source-economics; concepts open-source-economics, corporate-open-source-participation, government-and-open-source, open-source-contracting -->
 <!-- batch 8 (2026-06-23): registered concepts funding-non-programming-activities, open-source-marketing -->
 <!-- batch 9 (2026-06-24): registered concepts innersourcing, evaluating-open-source-projects, hiring-open-source-developers, crowdfunding-and-bounties -->
+<!-- batch 10 (2026-06-24): registered subject open-source-communication; concepts written-communication, facilitating-online-discussion, difficult-people -->
 
 # Topics Authority — software craft
 
@@ -44,6 +45,7 @@ Use-for column.
 | code-quality | quality, software-quality |
 | open-source-licensing | licensing, software-licenses, license-compatibility, copyleft |
 | open-source-economics | funding, open-source-business, commercialization, corporate-open-source, organizations-and-money |
+| open-source-communication | communication, written-culture, online-discussion, conflict-handling, mailing-list-etiquette |
 
 ## Concept aliases
 
@@ -81,6 +83,9 @@ pages or shadow another page's canonical title/slug.
 | evaluating-open-source-projects | project-evaluation, evaluating-projects, project-health-signals |
 | hiring-open-source-developers | hiring-for-influence, open-source-resume, portable-resume-test |
 | crowdfunding-and-bounties | crowdfunding, bounties, bounty-funding |
+| written-communication | written-culture, you-are-what-you-write, writing-well, recognizing-rudeness, online-face, screen-name |
+| facilitating-online-discussion | avoiding-common-pitfalls, productive-threads, bikeshed-effect, bikeshedding, holy-wars, noisy-minority, dont-post-without-a-purpose |
+| difficult-people | handling-difficult-people, obstructionists, filibuster, sealioning |
 
 ## Reserved non-subject tags
 
