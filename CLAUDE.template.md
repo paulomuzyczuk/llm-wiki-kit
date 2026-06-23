@@ -455,6 +455,15 @@ Other conventions:
 | `case-study-specifics` | Particular to one institution or historical case; not generalizable |
 | `tool-specific/perishable` | Software names, version-specific workflows, vendor-specific advice |
 
+> **Figures are captured, not rejected — `figures-as-prose` is not a label.** Never
+> reproduce a source figure as ASCII art: capture its underlying insight as prose or a
+> structured list and cite the figure by name (e.g. "see Figure 4.2"). Handling a figure
+> this way is a *capture*, recorded where useful as a capture note (the ingest log line
+> or the page's figure citation) — **not** with a negative-space label. A figure enters
+> `## Negative Space` only when its content is deliberately *not* captured: use
+> `subsumed-by` if surrounding prose already covers it, or `illustrative-scaffolding` if
+> it is purely decorative.
+
 ---
 
 ## Shell commands
