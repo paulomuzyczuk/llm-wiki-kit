@@ -5,6 +5,7 @@ code. Where behaviour looked surprising it is captured as-is and flagged with
 a `# NOTE:` comment for human review rather than "corrected".
 """
 import datetime
+import math
 
 from conftest import (
     lint,
@@ -312,7 +313,23 @@ def test_check_3b_candidate():
 
 # --- check_4_cross_refs ----------------------------------------------------
 
-def test_check_4_clean(tmp_path):
+def _grid_topic_pages(n_pages=12, hubs=10, extra=None):
+    """Build n_pages topic slugs that each cite every hub h01..hN (so the hubs
+    become high-df stopwords that also fill the top-K-hub set). `extra` maps a
+    slug -> list of additional distinctive wikilink targets cited only there."""
+    extra = extra or {}
+    pages = {}
+    hub_links = " ".join(f"[[h{idx:02d}]]" for idx in range(1, hubs + 1))
+    for i in range(n_pages):
+        slug = f"p{i:02d}"
+        links = hub_links
+        for t in extra.get(slug, []):
+            links += f" [[{t}]]"
+        pages[slug] = f"# {slug}\n{links}\n"
+    return pages
+
+
+def test_check_4_clean_links_each_other(tmp_path):
     # Two topic pages that DO link each other -> no actionable pair.
     vault = build_vault(
         tmp_path,
@@ -326,21 +343,46 @@ def test_check_4_clean(tmp_path):
     assert res["actionable"] == []
 
 
-def test_check_4_actionable(tmp_path):
-    # Two pages sharing >=3 concepts, neither links the other.
-    vault = build_vault(
-        tmp_path,
-        topic_pages={
-            "a": "# A\n[[x]] [[y]] [[z]]\n",
-            "b": "# B\n[[x]] [[y]] [[z]]\n",
-        },
-    )
+def test_check_4_hub_only_overlap_suppressed(tmp_path):
+    # 12 pages that ALL co-cite the same 10 hubs and nothing else. Every pair's
+    # shared neighbors are stopwords -> no bilateral signal -> no actionable.
+    vault = build_vault(tmp_path, topic_pages=_grid_topic_pages())
+    pages = lint.load_live_pages(str(vault))
+    res = lint.check_4_cross_refs(str(vault), pages)
+    assert res["actionable"] == []
+    assert res["total_pages"] == 12
+
+
+def test_check_4_distinctive_overlap_actionable(tmp_path):
+    # Only p00 and p01 also cite two rare concepts (df=2, non-stopword,
+    # outside the top-K hubs). They become the single actionable pair, scored
+    # by IDF weight, not raw shared count.
+    extra = {"p00": ["concept-x", "concept-y"], "p01": ["concept-x", "concept-y"]}
+    vault = build_vault(tmp_path, topic_pages=_grid_topic_pages(extra=extra))
     pages = lint.load_live_pages(str(vault))
     res = lint.check_4_cross_refs(str(vault), pages)
     assert len(res["actionable"]) == 1
-    a, b, n, shared = res["actionable"][0]
-    assert n == 3
-    assert shared == ["x", "y", "z"]
+    a, b, weight, shared = res["actionable"][0]
+    assert {lint.get_slug(a), lint.get_slug(b)} == {"p00", "p01"}
+    assert shared == ["concept-x", "concept-y"]
+    # weight = 2 * ln(N / df) = 2 * ln(12 / 2) ~= 3.58
+    assert weight == round(2 * math.log(12 / 2), 3)
+
+
+def test_check_4_entity_neighbor_excluded(tmp_path):
+    # p00/p01 share one rare concept AND a book-entity hub. The entity is
+    # dropped from evidence, leaving a single distinctive neighbor -> below the
+    # >=2 floor -> not actionable.
+    extra = {"p00": ["concept-x", "bond-markets-fabozzi-book"],
+             "p01": ["concept-x", "bond-markets-fabozzi-book"]}
+    vault = build_vault(
+        tmp_path,
+        topic_pages=_grid_topic_pages(extra=extra),
+        entity_pages={"bond-markets-fabozzi-book": "# Fabozzi\n"},
+    )
+    pages = lint.load_live_pages(str(vault))
+    res = lint.check_4_cross_refs(str(vault), pages)
+    assert res["actionable"] == []
 
 
 # --- check_5_duplicates ----------------------------------------------------
@@ -352,6 +394,7 @@ def test_check_5_clean():
     })
     res = lint.check_5_duplicates(pages)
     assert res["pairs"] == []
+    assert res["alias_resolve"] == []
 
 
 def test_check_5_title_collision():
@@ -361,21 +404,75 @@ def test_check_5_title_collision():
     })
     res = lint.check_5_duplicates(pages)
     assert len(res["pairs"]) == 1
-    a, b, shared, otype = res["pairs"][0]
+    a, b, shared, otype, jaccard = res["pairs"][0]
     assert shared == ["same title"]
     assert otype == "title-vs-title"
 
 
-def test_check_5_alias_collision():
+def test_check_5_near_identical_titles():
+    # Not exactly equal, but SequenceMatcher ratio >= 0.9 -> flagged.
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="Yield To Maturity"),
+        "wiki/topics/b.md": frontmatter(title="Yield To Maturityy"),
+    })
+    res = lint.check_5_duplicates(pages)
+    assert len(res["pairs"]) == 1
+    _, _, shared, otype, _ = res["pairs"][0]
+    assert otype == "title-vs-title"
+    assert shared == ["yield to maturity", "yield to maturityy"]
+
+
+def test_check_5_full_alias_overlap_flagged():
+    # Two pages whose alias sets are identical -> Jaccard 1.0 -> duplicate.
     pages, _ = make_pages({
         "wiki/topics/a.md": frontmatter(title="Alpha", aliases=["shared-alias"]),
         "wiki/topics/b.md": frontmatter(title="Beta", aliases=["shared-alias"]),
     })
     res = lint.check_5_duplicates(pages)
     assert len(res["pairs"]) == 1
-    _, _, shared, otype = res["pairs"][0]
+    _, _, shared, otype, jaccard = res["pairs"][0]
     assert shared == ["shared-alias"]
     assert otype == "alias-vs-alias"
+    assert jaccard == 1.0
+
+
+def test_check_5_single_overlap_among_many_not_flagged():
+    # One shared alias buried in otherwise-disjoint sets -> Jaccard 1/7 -> below
+    # threshold -> NOT a duplicate (the core hub-inflation fix for Check 5).
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="Alpha", aliases=["x", "p", "q", "r"]),
+        "wiki/topics/b.md": frontmatter(title="Beta", aliases=["x", "s", "t", "u"]),
+    })
+    res = lint.check_5_duplicates(pages)
+    assert res["pairs"] == []
+
+
+def test_check_5_generic_term_is_not_evidence():
+    # The only shared alias is a generic stoplist term -> stripped -> no pair.
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="Alpha", aliases=["risk premium"]),
+        "wiki/topics/b.md": frontmatter(title="Beta", aliases=["risk premium"]),
+    })
+    res = lint.check_5_duplicates(pages)
+    assert res["pairs"] == []
+
+
+def test_check_5_alias_resolves_to_dedicated_page():
+    # A dedicated "Duration" page exists; two other pages alias "duration".
+    # That is a de-alias signal, not duplication: alias_resolve, not pairs.
+    pages, _ = make_pages({
+        "wiki/topics/duration.md": frontmatter(title="Duration"),
+        "wiki/topics/a.md": frontmatter(title="Alpha", aliases=["duration", "foo"]),
+        "wiki/topics/b.md": frontmatter(title="Beta", aliases=["duration", "bar"]),
+    })
+    res = lint.check_5_duplicates(pages)
+    assert res["pairs"] == []
+    findings = {(f["page"], f["alias"]) for f in res["alias_resolve"]}
+    assert ("wiki/topics/a.md", "duration") in findings
+    assert ("wiki/topics/b.md", "duration") in findings
+    for f in res["alias_resolve"]:
+        if f["alias"] == "duration":
+            assert f["dedicated"] == ["wiki/topics/duration.md"]
 
 
 # --- check_6_stale_claims --------------------------------------------------

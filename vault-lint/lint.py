@@ -22,6 +22,8 @@ import os
 import re
 import sys
 import glob
+import math
+import difflib
 import datetime
 import fnmatch
 import urllib.parse
@@ -664,10 +666,42 @@ def _excluded_pair(a, b):
     return False
 
 
+# ── Check 4 tuning — hub-inflation suppression ────────────────────────────────
+# Raw shared-neighbor counts inflate any pair that merely co-cites the vault's
+# universal hubs. These knobs weight evidence by distinctiveness instead.
+CHECK4_STOPWORD_DF_RATIO = 0.25      # neighbors linked by > this fraction of pages are stopwords
+CHECK4_MIN_SHARED_NEIGHBORS = 2      # min non-stopword shared neighbors to report a pair
+CHECK4_MIN_WEIGHT = 3.0              # min summed IDF weight (ln); just above two at-cutoff neighbors
+CHECK4_TOPK_HUBS = 10               # a pair sharing only these global hubs is suppressed
+CHECK4_MAX_REPORT = 50             # cap on reported pairs, ranked by weighted score
+CHECK4_REQUIRE_SHARED_TOPIC = False  # optional: also require a shared non-generic frontmatter topic
+CHECK4_GENERIC_TOPICS = frozenset({'fixed-income', 'bonds'})
+
+
 def check_4_cross_refs(vault_path, pages):
     """
-    Actionable page pairs sharing ≥3 concepts, neither linking to the other.
-    Scope: wiki/topics/*.md + wiki/entities/books/*.md (non-recursive, per ref impl).
+    Page pairs that *should* cross-link but don't, scored by the IDF-weighted
+    distinctiveness of the concepts they share — not by raw shared count, which
+    inflates pairs that merely both cite universal hubs.
+
+    Scope: wiki/topics/*.md + wiki/entities/books/*.md (non-recursive).
+
+    Hub-inflation defenses:
+      1. Entity/book pages are dropped from the shared-neighbor evidence set —
+         they are intentional hubs, not signs of a bilateral relationship.
+      2. Each surviving shared neighbor is IDF-weighted: w = ln(N / df), where
+         df is how many scanned pages link to it. Ubiquitous neighbors weigh ~0.
+      3. "Stopword" neighbors (df > CHECK4_STOPWORD_DF_RATIO of all pages) are
+         dropped from the evidence set before scoring.
+      4. A pair is reported only if it shares >= CHECK4_MIN_SHARED_NEIGHBORS
+         non-stopword neighbors AND its summed IDF weight >= CHECK4_MIN_WEIGHT.
+         Pairs whose surviving shared neighbors are *all* global top-K hubs are
+         suppressed.
+      5. (Optional, CHECK4_REQUIRE_SHARED_TOPIC) require >= 1 shared frontmatter
+         topic beyond the generic ones.
+    Output is ranked and capped by weighted score, not raw count.
+
+    Returns: {'actionable': [(a, b, weight, ranked_shared)], 'total_pages': N}.
     """
     page_links = {}
     for pattern in ['wiki/topics/*.md', 'wiki/entities/books/*.md']:
@@ -683,8 +717,37 @@ def check_4_cross_refs(vault_path, pages):
                     page_links[rp] = set()
 
     page_list = sorted(page_links.keys())
-    actionable = []
+    N = len(page_list)
+    if N == 0:
+        return {'actionable': [], 'total_pages': 0}
 
+    # Rule 1: slugs of every entity/book page — excluded from neighbor evidence.
+    entity_slugs = {get_slug(rp) for rp in pages if rp.startswith('wiki/entities/')}
+
+    # Document frequency of each neighbor across the scanned page set.
+    df = {}
+    for p in page_list:
+        for n in page_links[p]:
+            df[n] = df.get(n, 0) + 1
+
+    # Rule 3: stopword neighbors. Rule 4: global top-K most-linked pages.
+    stopword_cutoff = CHECK4_STOPWORD_DF_RATIO * N
+    stopwords = {n for n, d in df.items() if d > stopword_cutoff}
+    top_k_hubs = set(sorted(df, key=lambda n: (-df[n], n))[:CHECK4_TOPK_HUBS])
+
+    # Rule 5 (optional): non-generic frontmatter topics per scanned page.
+    page_topics = {}
+    for p in page_list:
+        fm = (pages.get(p) or {}).get('fm') or {}
+        raw = fm.get('topics', []) or []
+        if not isinstance(raw, list):
+            raw = [raw]
+        page_topics[p] = {str(t).strip().lower() for t in raw if str(t).strip()} - CHECK4_GENERIC_TOPICS
+
+    def idf(n):
+        return math.log(N / df[n])
+
+    actionable = []
     for i, a in enumerate(page_list):
         slug_a = get_slug(a)
         links_a = page_links[a]
@@ -694,62 +757,142 @@ def check_4_cross_refs(vault_path, pages):
             links_b = page_links[b]
             if slug_b in links_a or slug_a in links_b:
                 continue
-            shared = (links_a & links_b) - {slug_a, slug_b}
-            if len(shared) < 3:
-                continue
             if _excluded_pair(a, b):
                 continue
-            actionable.append((a, b, len(shared), sorted(shared)))
 
-    actionable.sort(key=lambda x: -x[2])
-    return {'actionable': actionable, 'total_pages': len(page_list)}
+            shared = (links_a & links_b) - {slug_a, slug_b}
+            shared -= entity_slugs            # rule 1
+            shared -= stopwords               # rule 3
+            if len(shared) < CHECK4_MIN_SHARED_NEIGHBORS:
+                continue
+            if shared <= top_k_hubs:          # rule 4: all-hub evidence = no signal
+                continue
+            if CHECK4_REQUIRE_SHARED_TOPIC and not (page_topics[a] & page_topics[b]):
+                continue
+
+            weight = sum(idf(n) for n in shared)
+            if weight < CHECK4_MIN_WEIGHT:    # rule 4: weighted floor
+                continue
+
+            ranked = sorted(shared, key=lambda n: (-idf(n), n))
+            actionable.append((a, b, round(weight, 3), ranked))
+
+    # Rule: rank and cap by weighted score, not raw count.
+    actionable.sort(key=lambda x: (-x[2], x[0], x[1]))
+    return {'actionable': actionable[:CHECK4_MAX_REPORT], 'total_pages': N}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # §10 CHECK 5 — DUPLICATE CONCEPT PAGES
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ── Check 5 tuning — duplicate-vs-de-alias discrimination ─────────────────────
+# Generic finance terms that two pages can legitimately both carry without being
+# duplicates — they never count as duplicate evidence.
+CHECK5_GENERIC_TERMS = frozenset({
+    'option greeks', 'premium/discount', 'alpha/beta', 'risk premium',
+    'cap/floor', 'hedge ratio', 'average life', 'yield ratio',
+})
+CHECK5_JACCARD_THRESHOLD = 0.5      # min alias-set Jaccard to call a pair duplicate
+CHECK5_TITLE_SIMILARITY = 0.9       # SequenceMatcher ratio for "near-identical" titles
+
+
+def _resolves_elsewhere(term, dedicated, titles, exclude):
+    """True if `term` is the title/slug of a dedicated page outside `exclude`."""
+    for rp in dedicated.get(term, ()):
+        if rp in exclude:
+            continue
+        if titles.get(rp) == term or get_slug(rp).lower() == term:
+            return True
+    return False
+
+
 def check_5_duplicates(pages):
     """
-    Find page pairs sharing at least one normalised title/alias identifier.
-    Cross-type (topic vs entity) pairs are valid findings per spec.
-    Only exclusion: same file path (self-pair).
+    Distinguish genuine duplicate pages from two weaker signals that a single
+    shared term used to masquerade as duplication:
+
+    (a) Generic-term stoplist (CHECK5_GENERIC_TERMS) — terms like "risk premium"
+        or "hedge ratio" never count as duplicate evidence.
+    (b) Alias-should-resolve-to-dedicated-page — if a page's alias equals the
+        title/slug of a *different* dedicated page, that is a de-alias signal,
+        reported separately in 'alias_resolve' and excluded from duplicate
+        evidence. It means "make this alias a link", not "merge these pages".
+    (c) A pair is a true duplicate only when its cleaned alias-set Jaccard
+        exceeds CHECK5_JACCARD_THRESHOLD OR its titles are near-identical
+        (>= CHECK5_TITLE_SIMILARITY) — never on a single shared term.
+
+    Returns: {'pairs': [(a, b, shared, otype, jaccard)], 'alias_resolve': [...]}.
     """
-    id_sets = {}
     titles = {}
+    alias_sets = {}
     for rp, data in pages.items():
         fm = data['fm'] or {}
-        ids = set()
-        title = (fm.get('title') or '').strip()
-        if title:
-            ids.add(title.lower())
-        titles[rp] = title.lower()
+        titles[rp] = (fm.get('title') or '').strip().lower()
+        aliases = set()
         for a in fm.get('aliases', []) or []:
             if a and isinstance(a, str) and a.strip():
-                ids.add(a.strip().lower())
-        id_sets[rp] = ids
+                aliases.add(a.strip().lower())
+        alias_sets[rp] = aliases - CHECK5_GENERIC_TERMS   # rule (a)
+
+    # Dedicated-page index: normalised title or slug -> {relpaths}.
+    dedicated = {}
+    for rp in pages:
+        if titles[rp]:
+            dedicated.setdefault(titles[rp], set()).add(rp)
+        dedicated.setdefault(get_slug(rp).lower(), set()).add(rp)
+
+    # Rule (b): per-page de-alias hygiene findings.
+    alias_resolve = []
+    for rp in sorted(pages):
+        for al in sorted(alias_sets[rp]):
+            targets = sorted(t for t in dedicated.get(al, set()) - {rp}
+                             if titles[t] == al or get_slug(t).lower() == al)
+            if targets:
+                alias_resolve.append({'page': rp, 'alias': al, 'dedicated': targets})
 
     pairs = []
-    page_list = sorted(id_sets.keys())
+    page_list = sorted(alias_sets.keys())
     for i, a in enumerate(page_list):
-        ids_a = id_sets[a]
         for j in range(i + 1, len(page_list)):
             b = page_list[j]
-            shared = ids_a & id_sets[b]
-            if not shared:
+            exclude = {a, b}
+            # Drop aliases that resolve to a *third* dedicated page (rule b) and
+            # generic terms (already stripped) before measuring overlap.
+            ca = {t for t in alias_sets[a]
+                  if not _resolves_elsewhere(t, dedicated, titles, exclude)}
+            cb = {t for t in alias_sets[b]
+                  if not _resolves_elsewhere(t, dedicated, titles, exclude)}
+            inter = ca & cb
+            union = ca | cb
+            jaccard = len(inter) / len(union) if union else 0.0
+
+            ta, tb = titles[a], titles[b]
+            titles_near = bool(ta) and bool(tb) and (
+                ta == tb or
+                difflib.SequenceMatcher(None, ta, tb).ratio() >= CHECK5_TITLE_SIMILARITY
+            )
+
+            # Rule (c): need strong alias overlap OR near-identical titles.
+            if jaccard < CHECK5_JACCARD_THRESHOLD and not titles_near:
                 continue
-            # Determine overlap type
-            ta_in = titles[a] in shared
-            tb_in = titles[b] in shared
+
+            shared = set(inter)
+            if titles_near and ta == tb:
+                shared.add(ta)
+            shared = sorted(shared) or sorted({ta, tb} - {''})
+
+            ta_in = ta in shared
+            tb_in = tb in shared
             if ta_in and tb_in:
                 otype = 'title-vs-title'
             elif ta_in or tb_in:
                 otype = 'title-vs-alias'
             else:
                 otype = 'alias-vs-alias'
-            pairs.append((a, b, sorted(shared), otype))
+            pairs.append((a, b, shared, otype, round(jaccard, 3)))
 
-    return {'pairs': pairs}
+    return {'pairs': pairs, 'alias_resolve': alias_resolve}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1484,7 +1627,7 @@ def render_report(vault_slug, findings):
     ph1 = (
         len(c1['findings']) + len(c2['orphans']) +
         len(c3a['dangling']) + len(c3b['candidates']) +
-        min(20, len(c4['actionable'])) + len(c5['pairs']) +
+        min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
         len(c6['stale_active']) + len(c6['opposing_candidates']) +
         len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions'])
     )
@@ -1579,11 +1722,13 @@ def render_report(vault_slug, findings):
     else:
         n_show = min(20, len(actionable))
         L.append(f'Total pages scanned: {c4["total_pages"]}')
-        L.append(f'Actionable pairs: {len(actionable)}')
+        L.append(f'Actionable pairs: {len(actionable)} '
+                 '(IDF-weighted; entity/book hubs and stopword neighbors excluded)')
         L.append('')
-        L.append(f'Top {n_show} by shared concept count:')
-        for a, b, n, shared in actionable[:n_show]:
-            L.append(f'- `{get_slug(a)}` ↔ `{get_slug(b)}`: {n} shared (sample: {shared[:3]})')
+        L.append(f'Top {n_show} by weighted score:')
+        for a, b, weight, shared in actionable[:n_show]:
+            L.append(f'- `{get_slug(a)}` ↔ `{get_slug(b)}`: score {weight} '
+                     f'({len(shared)} distinctive shared, sample: {shared[:3]})')
         if len(actionable) > 20:
             L.append(f'*Overflow: {len(actionable)-20} additional pairs not shown*')
     L.append('')
@@ -1595,12 +1740,25 @@ def render_report(vault_slug, findings):
     else:
         L.append(f'{len(c5["pairs"])} candidate duplicate pairs:')
         L.append('')
-        L.append('| Page A | Page B | Shared identifier(s) | Overlap type |')
-        L.append('|---|---|---|---|')
-        for a, b, shared, otype in c5['pairs']:
+        L.append('| Page A | Page B | Shared identifier(s) | Overlap type | Alias Jaccard |')
+        L.append('|---|---|---|---|---|')
+        for a, b, shared, otype, jaccard in c5['pairs']:
             ids_str = ', '.join(f'"{s}"' for s in shared)
-            L.append(f'| `{a}` | `{b}` | {ids_str} | {otype} |')
+            L.append(f'| `{a}` | `{b}` | {ids_str} | {otype} | {jaccard} |')
     L.append('')
+
+    # ── Check 5 (hygiene) — aliases that should resolve to a dedicated page
+    alias_resolve = c5.get('alias_resolve', [])
+    if alias_resolve:
+        L.append(f'**Alias should resolve to dedicated page ({len(alias_resolve)}):**')
+        L.append('*De-alias signal — make the alias a link to the dedicated page; not a duplicate.*')
+        L.append('')
+        L.append('| Page | Alias | Dedicated page(s) |')
+        L.append('|---|---|---|')
+        for item in alias_resolve:
+            ded = ', '.join(f'`{d}`' for d in item['dedicated'])
+            L.append(f'| `{item["page"]}` | "{item["alias"]}" | {ded} |')
+        L.append('')
 
     # ── Check 6
     L.append('### Check 6 — Contradictions and stale claims')
@@ -1981,10 +2139,11 @@ def main():
     print(f'  Check 3b (bold terms):  {len(c3b["candidates"])} candidate missing pages')
 
     c4 = check_4_cross_refs(vault_path, pages)
-    print(f'  Check 4 (cross-refs):   {len(c4["actionable"])} actionable pairs')
+    print(f'  Check 4 (cross-refs):   {len(c4["actionable"])} actionable pairs (IDF-weighted)')
 
     c5 = check_5_duplicates(pages)
-    print(f'  Check 5 (duplicates):   {len(c5["pairs"])} pairs')
+    print(f'  Check 5 (duplicates):   {len(c5["pairs"])} pairs, '
+          f'{len(c5["alias_resolve"])} alias-resolve')
 
     c6 = check_6_stale_claims(pages)
     print(f'  Check 6 (stale):        {len(c6["stale_active"])} stale-active, {len(c6["opposing_candidates"])} CONTRADICTS: markers')
@@ -2040,7 +2199,7 @@ def main():
     ph1_total = (
         len(c1['findings']) + len(c2['orphans']) +
         len(c3a['dangling']) + len(c3b['candidates']) +
-        min(20, len(c4['actionable'])) + len(c5['pairs']) +
+        min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
         len(c6['stale_active']) + len(c6['opposing_candidates']) +
         len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions'])
     )
