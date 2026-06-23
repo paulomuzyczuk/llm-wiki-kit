@@ -244,6 +244,7 @@ raw-input/
 
 wiki/
 ├── index.md
+├── topics-authority.md
 ├── log.md
 ├── gaps.md
 ├── quality-debt.md
@@ -303,7 +304,7 @@ This vault exists for documentation only. Its job is to enrich the human's excha
 
 - `wiki/` — your domain.
   - `index.md` — catalogue of every wiki page with one-line summaries, organised by category.
-  - `topics-authority.md` — controlled-vocabulary source of truth: the preferred `topics:` subject terms and the registered `aliases:`, each with their accepted variants (a lightweight thesaurus). `/vault-lint` resolves every `topics:`/`aliases:` value against it. Optional — a vault without it simply skips the vocabulary check.
+  - `topics-authority.md` — controlled-vocabulary source of truth: the preferred `topics:` subject terms and the registered `aliases:`, each with their accepted variants (a lightweight thesaurus). `/vault-lint` resolves every `topics:`/`aliases:` value against it. Scaffolded as an unpopulated skeleton and seeded by the first ingest (see Conventions → *First-ingest seed*).
   - `log.md` — append-only chronological log of operations.
   - `gaps.md` — field-level open questions and missing source coverage tracker; two sections: §1 explicit knowledge gaps found in ingested content, §2 books not yet in the vault.
   - `handoffs/`
@@ -413,7 +414,9 @@ This is what protects each `#page=N` anchor over time: if a different printing i
 - **Subjects** (governs `topics:`) — the canonical broad subject categories, each listing the variant spellings/synonyms that must resolve to it. A `topics:` value must be a preferred subject, or a reserved non-subject tag such as `stub`.
 - **Concepts** (governs `aliases:` / page identity) — each topic page is a preferred concept and its `aliases:` are use-for variants. No alias may belong to two pages, and no alias may shadow another page's canonical title/slug (those are the uniqueness guarantees the de-alias handling depends on).
 
-`aliases:` are still authored in page frontmatter; `topics-authority.md` is the source of truth, and `/vault-lint`'s vocabulary check resolves every `topics:`/`aliases:` value against it (report-only, suggesting the nearest preferred term on a miss). **Resolve before minting:** before introducing a new `topics:` value or a new alias, resolve the candidate against `topics-authority.md` first — if it already resolves to a preferred term, reuse that term rather than create a scattered variant; only register a genuinely new term. A vault without `topics-authority.md` skips this check entirely.
+`aliases:` are still authored in page frontmatter; `topics-authority.md` is the source of truth, and `/vault-lint`'s vocabulary check resolves every `topics:`/`aliases:` value against it (report-only, suggesting the nearest preferred term on a miss). **Resolve before minting:** before introducing a new `topics:` value or a new alias, resolve the candidate against `topics-authority.md` first — if it already resolves to a preferred term, reuse that term rather than create a scattered variant; only register a genuinely new term.
+
+**First-ingest seed.** A freshly scaffolded vault ships an unpopulated skeleton `topics-authority.md` (marked `status: stub` with a `SEED-ME` comment). The **first ingest** into the vault — `book-planner` Phase 0 if a book is added first, otherwise the first article/notes ingest — seeds it with **up to 10 subject categories and up to 30 aliases** drawn from that first content and the domain, then sets `status: active` and removes the `SEED-ME` comment. The 10/30 caps apply to the **initial seed only**; the vocabulary grows from there under the resolve-before-minting rule, and `/vault-lint` reconciles scatter. A vault with no `topics-authority.md` at all skips the vocabulary check entirely.
 
 Other conventions:
 
@@ -570,6 +573,8 @@ Triggered by: scheduled job (5-day cadence) OR human request.
 ### Ingest (`raw-input/_pending/` -> wiki updates)
 
 Triggered by: scheduled job (after intake) OR human request. Processes ALL `_pending/` types.
+
+> **First-ingest vocabulary seed (one-time).** If `wiki/topics-authority.md` is still an unpopulated skeleton (`status: stub` + `SEED-ME` comment) and this is the first content entering the vault, seed it per the Conventions *First-ingest seed* rule (≤10 subjects, ≤30 aliases from this content + the domain) before synthesising pages, so the pages you write resolve against it.
 
 For each file in `_pending/`:
 
