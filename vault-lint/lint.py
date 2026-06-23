@@ -516,9 +516,17 @@ def check_2_orphans(vault_path, pages, slug_index):
     # Archived pages (status: archived) are intentional tombstones — e.g. merge
     # redirects whose inbound links were deliberately retargeted elsewhere. They
     # are expected to have no inbound links and must not be reported as orphans.
+    #
+    # Role MOCs (wiki/topics/role-<name>.md) are navigation entry points reached
+    # from the index's role surface, not content pages that need discovery via
+    # inbound wikilinks. The orphan scan deliberately does not treat index.md as a
+    # source, so a role MOC linked only from the index would always false-positive.
+    # Exclude them — they are top-level browse surfaces, like index.md itself.
     orphans = sorted(
         p for p, srcs in inbound.items()
-        if not srcs and (pages[p].get('fm') or {}).get('status') != 'archived'
+        if not srcs
+        and (pages[p].get('fm') or {}).get('status') != 'archived'
+        and not _is_role_moc(p)
     )
     return {'orphans': orphans, 'total': len(pages)}
 
