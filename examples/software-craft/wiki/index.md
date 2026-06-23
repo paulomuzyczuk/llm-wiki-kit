@@ -41,6 +41,9 @@ this flat list.
   beyond coders, and writing it down.
 - [[forkability]] — the right to fork as the ceiling on all project power; why the
   *possibility* matters more than the rare act, and why there are no true dictators.
+- [[setting-the-tone]] — culture is transmitted, not legislated: set precedents early so
+  useful behaviors become self-perpetuating "in-group" norms; public-by-default discussion,
+  nipping rudeness in the bud, and codes of conduct.
 
 ### Open-source ecosystem & participation
 
@@ -53,7 +56,10 @@ this flat list.
 - [[launching-an-open-source-project]] — turning a private vision into a public one:
   scaled presentation, "appearances matter," hacktivation energy, and the newcomer
   checklist (name, mission, license, status, downloads, repo, docs) — captured as what
-  each item *signals*.
+  each item *signals*; plus Announcing (where to post, running-code-not-required, seed).
+- [[developing-in-the-open]] — be open from Day One: "you open source your code, not your
+  time"; why closed-then-open accumulates incompatible choices and a single large exposure
+  event; and managing the siege mentality when opening a formerly closed project.
 - [[open-source-licensing]] — Fogel's quick license guide: "free" and "open source"
   name the same approved set; the one-question choice (permissive MIT vs. copyleft GPL
   vs. network-use AGPL); and how to apply a license. Anchor to be enriched by Ch.9.
@@ -64,7 +70,8 @@ this flat list.
 
 - [[producing-open-source-software-book]] — Karl Fogel, *Producing Open Source Software*
   (2nd ed., CC BY-SA 4.0). The example's primary source; full-book ingest in progress
-  (Batches 1–3: Ch.1, Ch.4, the Ch.2–3 slice, and Ch.2a launch + licensing).
+  (Batches 1–4: Ch.1, Ch.4, and all of Ch.2 — code review, launch, licensing, setting the
+  tone, developing in the open — plus the Ch.3 version-control slice).
 
 ### Papers
 

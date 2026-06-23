@@ -56,6 +56,8 @@ pages or shadow another page's canonical title/slug.
 | forkability | right-to-fork |
 | launching-an-open-source-project | project-presentation, hacktivation-energy, scaled-presentation, getting-started |
 | open-source-licensing | choosing-a-license, applying-a-license, software-license |
+| setting-the-tone | project-culture, setting-precedents, codes-of-conduct, in-group-behaviors |
+| developing-in-the-open | open-from-day-one, develop-in-the-open, opening-a-closed-project, transparency-by-default |
 
 ## Reserved non-subject tags
 

@@ -154,6 +154,55 @@ The same scrupulous honesty about "known deficiencies … is the norm in the ope
 world" and applies to documentation, the bug tracker, and mailing lists alike
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=30), p. 17).
 
+## Announcing — the capstone of the launch
+
+The launch is finished by announcing the project, and the bar is lower than founders
+expect: "Once the project is presentable — not perfect, just presentable — you're ready to
+announce it to the world." Announcements go in "two kinds of forums": **generic** forums
+that carry many project announcements, and **topic-specific** forums where the project is
+on-topic news. Topic-specific forums are "probably where you'll get the most interest"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=40), p. 27); ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=41), p. 28).
+
+The discipline of the announcement itself
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=41), p. 28):
+
+- **Be findable.** Include "key words and phrases that will help people find your project in
+  search engines"; the test is that a search for your project's actual domain ("open source
+  foo bar baz") should put a credible offering "on the first page of results."
+- **Post once per forum, and redirect follow-up.** "Be careful to make exactly one post per
+  forum," directing replies to the project's own discussion areas (by setting the `Reply-to`
+  header when posting by email). The announcement "should be short and get right to the
+  point," with a Subject line that flags it plainly as a new-project announcement
+  (`[ANNOUNCE]`).
+- **Don't join the marketing arms race.** General venues like Hacker News or the relevant
+  subreddits work by upvote/word-of-mouth; getting featured is good, but Fogel pointedly
+  declines to suggest tactics for engineering it — "use your judgement and try not to spam."
+
+### Running code is no longer a precondition
+
+Fogel revises his own earlier view that "running code" was "what separated successful
+projects from toys." Subversion launched "with a design document, a core of interested and
+well-connected developers, a lot of fanfare, and no running code at all" and acquired active
+participants immediately; Mozilla was likewise "launched without running code." So he backs
+away from the absolute claim — running code "is still the best foundation for success," and
+the rule of thumb is to "wait until you have it before announcing," but "there may be
+circumstances where announcing earlier makes sense." What *is* required is "at least a
+well-developed design document, or else some sort of code framework" — "something concrete …
+for people to sink their teeth into." (Announcement timing is independent of open-sourcing:
+the code should be public from day one regardless of when you announce — see
+[[developing-in-the-open]])
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=42), p. 29).
+
+### Announcement is planting a seed
+
+Calibrate expectations: "don't expect a horde of participants to join the project
+immediately afterward." The usual result is "a few casual inquiries, a few more people join
+your mailing lists," and otherwise business as usual — "but over time, you will notice a
+gradual increase in participation." Announcement "is merely the planting of a seed"; if the
+project "consistently rewards those who get involved, the news will spread, … because people
+want to share when they've found something good"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=42), p. 29).
+
 ## Negative Space
 
 - **Per-item tooling mechanics** (`tool-specific/perishable`): screen-recording key
@@ -172,6 +221,12 @@ world" and applies to documentation, the bug tracker, and mailing lists alike
 - **Bug-count-as-good-news essay** (`supporting-argument`): the linked rants.org argument
   that bug reports signal engagement rather than technical debt supports the "high bug
   count looks good" claim; not paged.
+- **Verbatim Scanley `[ANNOUNCE]` email** (`illustrative-scaffolding`): the sample
+  announcement (features list, requirements, the "long-distance mind-reading" joke) models
+  format; the durable rules (short, one-post-per-forum, set `Reply-to`) are captured instead.
+- **Specific announcement venues** (`tool-specific/perishable`): Hacker News, the named
+  subreddits, and the FSF Free Software Directory are named as of early 2022; captured as the
+  generic-vs-topic-specific distinction, not the venue list.
 
 ## See also
 
@@ -184,6 +239,10 @@ world" and applies to documentation, the bug tracker, and mailing lists alike
 - [[open-source-governance]] — the decision-making model developer guidelines must state
   plainly.
 - [[forkability]] — why a stated "dictatorship" is benign in open source.
+- [[setting-the-tone]] — the dynamic, behavioral culture-setting that complements this
+  static presentation checklist.
+- [[developing-in-the-open]] — why the launch artifacts must be public from Day One, and why
+  announcement timing is independent of open-sourcing.
 
 ## Sources
 
@@ -192,4 +251,4 @@ world" and applies to documentation, the bug tracker, and mailing lists alike
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 2 "Getting Started" —
   chapter intro (scaled presentation, appearances matter), "But First, Look Around,"
   "Starting From What You Have," and the launch checklist subsections through "Hosting"
-  (printed pp. 9–18).
+  (printed pp. 9–18); "Announcing" (printed pp. 28–29, added batch 4).

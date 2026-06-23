@@ -35,16 +35,17 @@ vault's open-source-collaboration topics.
 
 This book is also the worked **example source** for the kit. It is being ingested in
 full across 17 batches (see `ingestion-plan.md`) so the complete book-ingest workflow is
-reproduced end to end; permitted because the source is CC BY-SA 4.0. Batches 1–3 (Ch.3
+reproduced end to end; permitted because the source is CC BY-SA 4.0. Batches 1–4 (Ch.3
 §Version Control + Ch.2 §Code Review; Ch.1 + Ch.4; Ch.2a §Starting From What You Have +
-§Choosing a License) are complete.
+§Choosing a License; Ch.2b §Setting the Tone + §Opening a Formerly Closed Project +
+§Announcing) are complete — Chapter 2 is now fully ingested.
 
 ## Chapter Index
 
 | Ch. | Title | PDF pp. | Status | Wiki pages |
 |---|---|---|---|---|
 | 1 | Introduction | 14–21 | ✓ batch 2 | [[free-software-vs-open-source]], [[open-source-culture]] |
-| 2 | Getting Started | 22–42 | ◑ batch 1, 3 | [[code-review]], [[launching-an-open-source-project]], [[open-source-licensing]] |
+| 2 | Getting Started | 22–42 | ✓ batch 1, 3, 4 | [[code-review]], [[launching-an-open-source-project]], [[open-source-licensing]], [[setting-the-tone]], [[developing-in-the-open]] |
 | 3 | Technical Infrastructure | 43–71 | ◑ batch 1 (focused) | [[version-control]] |
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
 | 5 | Organizations and Money | 80–106 | — | |
