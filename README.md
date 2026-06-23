@@ -105,7 +105,7 @@ python3 vault-lint/lint.py examples/software-craft   # Phase 1 findings: 0
 - [Claude Code](https://claude.com/claude-code)
 - [Obsidian](https://obsidian.md) (the vaults are plain Markdown, so any editor works, but the conventions assume Obsidian-style `[[wikilinks]]`)
 - Python 3.10+ for the linter and conformance checker
-- [Calibre](https://calibre-ebook.com/) (its `ebook-convert` CLI) — only if you ingest non-PDF books; `book-planner` uses it to convert `.epub`/`.mobi`/`.azw` sources to PDF. Not needed for PDF sources or article ingestion.
+- [Calibre](https://calibre-ebook.com/) (its `ebook-convert` CLI) — only if you ingest non-PDF books; `book-planner` uses it to convert `.epub`/`.mobi`/`.azw`/`.azw3` sources to PDF. Not needed for PDF sources or article ingestion.
 
 ### Scheduling (optional, macOS only)
 
