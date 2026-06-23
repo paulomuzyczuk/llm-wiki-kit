@@ -71,18 +71,32 @@ The example synthesizes and cites these sources (attribution as required by thei
 
 ## Install
 
-These are Claude Code skills. Clone the repo, then symlink (or copy) each skill folder into your skills directory:
+These are Claude Code skills — there's nothing to compile. "Installing" just symlinks each skill folder into `~/.claude/skills/` so Claude Code can discover it. Clone the repo and run `install.sh`:
 
 ```sh
 git clone https://github.com/paulomuzyczuk/llm-wiki-kit.git
 cd llm-wiki-kit
+./install.sh
+```
+
+The installer auto-discovers every skill (any folder with a `SKILL.md`), creates the skills directory if needed, and is safe to re-run — it replaces existing links instead of duplicating them. Useful flags:
+
+```sh
+./install.sh --dir ~/some/other/skills   # install into a non-default location
+./install.sh --copy                      # copy the folders instead of symlinking
+./install.sh --uninstall                 # remove only the links pointing back at this repo
+```
+
+(`--uninstall` is conservative: it removes a skill link only if it resolves into this clone, and never touches a real directory or a link you pointed elsewhere. You can also override the target with the `CLAUDE_SKILLS_DIR` environment variable.)
+
+Prefer to do it by hand? It's just a symlink loop:
+
+```sh
 mkdir -p "$HOME/.claude/skills"
 for skill in article-ingestion book-ingestion book-planner book-review vault-evaluator vault-lint; do
   ln -sfn "$PWD/$skill" "$HOME/.claude/skills/$skill"
 done
 ```
-
-(`mkdir -p` creates the skills directory if it doesn't exist yet; `ln -sfn` makes the loop safe to re-run — it replaces an existing symlink instead of erroring or nesting a new link inside it.)
 
 Then create a vault with the scaffolder, reusing the same subs format the conformance checker consumes:
 
