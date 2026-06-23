@@ -37,6 +37,7 @@ Use-for column.
 | bug-tracking | issue-tracking, bug-tracker, defect-tracking |
 | release-engineering | releasing, packaging, release-management |
 | code-quality | quality, software-quality |
+| open-source-licensing | licensing, software-licenses, license-compatibility, copyleft |
 
 ## Concept aliases
 
@@ -53,6 +54,8 @@ pages or shadow another page's canonical title/slug.
 | free-software-vs-open-source | open-source-definition, free-vs-open-source |
 | open-source-governance | governance-model, benevolent-dictator, consensus-democracy |
 | forkability | right-to-fork |
+| launching-an-open-source-project | project-presentation, hacktivation-energy, scaled-presentation, getting-started |
+| open-source-licensing | choosing-a-license, applying-a-license, software-license |
 
 ## Reserved non-subject tags
 
