@@ -115,6 +115,14 @@ concept that warrants its own page. Apply all discipline rules from CLAUDE.md:
   declares one, and apply any per-type field rules. If CLAUDE.md doesn't declare
   the schema, stop and flag it — don't invent fields. Omitting any declared field
   is a Check 6 FAIL.
+- **Controlled vocabulary (resolve before minting):** if the vault has a
+  `wiki/topics-authority.md`, resolve every `topics:` value and every new
+  `aliases:` entry against it *before* writing the page. When the candidate
+  already resolves to a preferred term, reuse that term — never introduce a
+  scattered variant of an existing subject or an alias already claimed by
+  another page. Register a genuinely new subject or alias in
+  `topics-authority.md` in the same change. vault-lint's vocabulary check is the
+  catch-net; this is where scatter is prevented.
 - **Concept graining:** anchor pages for load-bearing concepts; stub-with-intent
   only if the source explicitly forward-references; dead wikilinks for concepts
   named but not yet paged.
