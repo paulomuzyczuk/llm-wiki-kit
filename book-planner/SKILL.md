@@ -78,7 +78,15 @@ guessed from an offset.
 
 ### 0.3 — Create book entity stub
 
-Create `wiki/entities/books/<slug>.md` as a stub:
+Create `wiki/entities/books/<slug>-book.md` as a stub. The entity filename carries
+a **`-book` type suffix** (the book *folder* under `raw-input/books/` stays
+`<slug>`; only the entity page gets the suffix). This makes the wikilink
+self-describing and collision-proof against a same-named concept page in
+`wiki/topics/` — e.g. a "periodization" book becomes `periodization-book.md` so it
+never collides with the `periodization` concept page — and gives the
+`book-entity-backlink` lint check a deterministic source→entity mapping. The suffix
+encodes source *type* only; it is independent of `source_tier` (do not infer tier
+from it). Stub contents:
 - One-line overview of what the book covers
 - "Why it matters" placeholder for the vault
 - Chapter index with empty wikilinks (filled as ingestion progresses)

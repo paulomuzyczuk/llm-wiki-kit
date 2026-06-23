@@ -28,7 +28,7 @@ If either argument is missing, ask the user before proceeding.
 **Locate vault root** — the vault root is the current working directory. Do not search parent directories. Derive all paths relative to `$(pwd)`:
 
 - Meta: `raw-input/books/<book>/meta.md`
-- Book entity: `wiki/entities/books/<book>.md`
+- Book entity: `wiki/entities/books/<book>-book.md` (entity filename carries a `-book` type suffix; older un-migrated vaults may still have `wiki/entities/books/<book>.md` — accept whichever exists)
 - Log: `wiki/log.md`
 - Index: `wiki/index.md`
 - PDF (spot-check only): `raw-input/books/<book>/<book>.pdf`
@@ -56,7 +56,7 @@ If either argument is missing, ask the user before proceeding.
    - **integer N**: `book-ingest | <book> ch.N |`
    - **named key K**: `book-ingest | <book> <row-label> |` (e.g. `book-ingest | <book> Afterword |`)
 
-   Parse its description to identify all pages created or updated — e.g. "created topic-name" → `wiki/topics/topic-name.md`; "enriched other-topic" → `wiki/topics/other-topic.md`; "created book entity page" → `wiki/entities/books/<book>.md`. Collect every such path.
+   Parse its description to identify all pages created or updated — e.g. "created topic-name" → `wiki/topics/topic-name.md`; "enriched other-topic" → `wiki/topics/other-topic.md`; "created book entity page" → `wiki/entities/books/<book>-book.md`. Collect every such path.
 5. Read every identified page in full, plus the book entity page, `wiki/index.md`, and `wiki/log.md`.
 
 ---
@@ -88,7 +88,7 @@ Run all nine in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FA
 - Every `[[wikilink]]` in modified pages either (a) resolves to an existing vault file, or (b) is a deliberate dead link (acceptable — flag it but don't fail).
 - Concepts named more than once in a page are linked on first mention.
 - Every modified page has ≥1 `## See also` section with at least one wikilink.
-- **Source-entity backlink** — for each book a modified page cites (every distinct `raw-input/books/<slug>` PDF reference on the page), the page must contain a wikilink to that book's entity page (`[[<slug>]]`), canonically a `**Source entities:**` line in `## Sources` (see book-ingestion Full-synthesis rule). A page that cites a book PDF but never wikilinks its entity is a **FAIL** — it orphans the entity (the orphan check excludes `index.md`). The check is on the edge: any entity wikilink on the page satisfies it, regardless of form.
+- **Source-entity backlink** — for each book a modified page cites (every distinct `raw-input/books/<slug>` PDF reference on the page), the page must contain a wikilink to that book's entity page, canonically `[[<slug>-book]]` in a `**Source entities:**` line in `## Sources` (see book-ingestion Full-synthesis rule). The entity filename carries a `-book` type suffix, so the cited folder `<slug>` maps to entity `<slug>-book` (older un-migrated entities may still be `<slug>` — resolve to whichever entity file exists). A page that cites a book PDF but never wikilinks its entity is a **FAIL** — it orphans the entity (the orphan check excludes `index.md`). The check is on the edge: any wikilink resolving to the book's entity satisfies it, regardless of form.
 
 ### Check 3 — Negative-space discipline
 

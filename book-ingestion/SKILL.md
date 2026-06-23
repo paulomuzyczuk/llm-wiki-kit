@@ -48,7 +48,7 @@ Read in this order:
    already been synthesized and what cross-references exist.
 2. `wiki/index.md` — to know which pages already exist (avoid duplicates, find
    enrichment candidates).
-3. `wiki/entities/books/<slug>.md` — the book entity, to see chapter completion
+3. `wiki/entities/books/<slug>-book.md` — the book entity, to see chapter completion
    status and any per-chapter notes.
 4. The specific topic pages most likely to be enriched by this batch (identified
    from the plan's convergence-watch section, if present).
@@ -143,13 +143,16 @@ concept that warrants its own page. Apply all discipline rules from CLAUDE.md:
   as new H2 sections preserving all prior content and citations.
 - **Pair-and-split:** paired concepts get separate pages bridged by wikilinks.
 - **Source-entity backlink:** every topic page created or enriched from the book
-  must link the book entity page (`wiki/entities/books/<slug>.md`), so the entity
+  must link the book entity page (`wiki/entities/books/<slug>-book.md`), so the entity
   is not left orphaned. The orphan check excludes `index.md`, so the catalogue
   entry does not count as an inbound link — ticking the entity in Phase 4 only
   links *outward*, and this backlink is the inbound link that makes it reachable.
   Add it in the page's `## Sources` section as a dedicated
-  `**Source entities:** [[<slug>]]` line (list every book entity the page draws
-  on, comma-separated). Use the per-page form — every citing page carries the
+  `**Source entities:** [[<slug>-book]]` line (list every book entity the page draws
+  on, comma-separated). The entity slug carries the `-book` type suffix (see
+  book-planner Phase 0.3); link `[[<slug>-book]]`, not `[[<slug>]]` — the latter
+  dangles or collides with a same-named concept page and fails the
+  `book-entity-backlink` lint check. Use the per-page form — every citing page carries the
   line, not a single representative link — so the requirement clears the orphan
   check and populates the cross-reference graph uniformly. The enforcement target
   is the *edge* (an entity wikilink exists for each cited book), so a vault that
@@ -299,7 +302,7 @@ List any unresolved anchors by file path and citation location.
 After each chapter is synthesized, complete the following steps for that chapter
 before moving to the next. Repeat Phases 3 and 4 for every chapter in the batch.
 
-1. **Book entity** (`wiki/entities/books/<slug>.md`): tick the ingested chapter
+1. **Book entity** (`wiki/entities/books/<slug>-book.md`): tick the ingested chapter
    in the chapter index. Do not tick chapters not yet done.
 
 2. **meta.md** (`raw-input/books/<slug>/meta.md`): tick the ingested chapter.
@@ -362,11 +365,11 @@ If any condition fails, do nothing here and proceed to the batch-outcome report.
 
 When all conditions hold:
   1. Generate the ingest report by synthesising ONLY from existing vault
-     artifacts — `meta.md`, `log.md`, `index.md`, `wiki/entities/books/<slug>.md`,
+     artifacts — `meta.md`, `log.md`, `index.md`, `wiki/entities/books/<slug>-book.md`,
      and the review digests for this book (`review-<slug>-*.md`). Do NOT re-read the
      source PDF; this is a rollup, not a fresh extraction. Write to
      `wiki/digests/ingest-report-<slug>-<YYYY-MM-DD>.md` using the schema below.
-  2. Stamp `wiki/entities/books/<slug>.md`: set frontmatter
+  2. Stamp `wiki/entities/books/<slug>-book.md`: set frontmatter
      `ingest_status: complete (<YYYY-MM-DD>)` and add a link to the report under
      the chapter index. Link it; never inline the report (keep the entity bounded).
   3. File any newly surfaced cross-book gaps into `gaps.md` §1.

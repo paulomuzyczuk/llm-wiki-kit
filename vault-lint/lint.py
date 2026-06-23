@@ -1274,18 +1274,35 @@ def _ext_book_entity_backlink(vault_path, config, check):
     cite its own PDF — so map each book folder to its entity deterministically from
     the filesystem: prefer an entity file named exactly for the folder, else fall
     back to `<folder>-book`. The check is edge-based: any wikilink to the entity
-    (`[[slug]]` or `[[slug|display]]`) anywhere on the page satisfies it."""
+    (`[[slug]]` or `[[slug|display]]`) anywhere on the page satisfies it.
+
+    Hardening: a cited book whose entity cannot be resolved is never silently
+    skipped (that was a false-negative risk — a misnamed or missing entity would
+    hide). Two cases are distinguished:
+      - HARD finding: the entity exists but the citing page does not link it.
+      - WARN: the book folder exists and is cited, but no entity page resolves
+        (neither `<folder>.md` nor `<folder>-book.md`). The benign cause is a book
+        mid-ingest whose entity page is not created yet; it could also be a missing
+        or misnamed entity. Emitted once per book (not per citing page) to stay
+        quiet, and as WARN rather than a hard finding so an in-progress ingest is
+        not punished.
+    A citation pointing at a book *folder that does not exist on disk* is left to
+    Check 1 (citation resolution), which owns broken citations — flagging it here
+    too would only duplicate that finding."""
     cite_re = re.compile(r'raw-input/books/([^/)]+)/')
     ent_dir = os.path.join(vault_path, 'wiki/entities/books')
     folder_to_entity = {}
+    existing_folders = set()
     for bdir in sorted(glob.glob(os.path.join(vault_path, 'raw-input/books/*/'))):
         folder = os.path.basename(bdir.rstrip('/'))
+        existing_folders.add(folder)
         for cand in (folder, folder + '-book'):
             if os.path.isfile(os.path.join(ent_dir, cand + '.md')):
                 folder_to_entity[folder] = cand
                 break
 
     findings = []
+    unresolved = {}  # book folder (exists, cited, no entity) -> [citing pages]
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
         rp = os.path.relpath(fpath, vault_path)
         try:
@@ -1294,12 +1311,25 @@ def _ext_book_entity_backlink(vault_path, config, check):
         except Exception:
             continue
         for folder in sorted(set(cite_re.findall(content))):
+            if folder not in existing_folders:
+                continue  # broken citation — owned by Check 1, not duplicated here
             entity = folder_to_entity.get(folder)
-            if not entity:
-                continue  # cited book has no entity page — outside this check's scope
+            if entity is None:
+                unresolved.setdefault(folder, []).append(rp)
+                continue
             if not re.search(r'\[\[' + re.escape(entity) + r'(?:\]\]|\|)', content):
                 findings.append({'page': rp, 'book': folder, 'entity': entity,
                                  'reason': f'cites book "{folder}" but does not wikilink its entity [[{entity}]]'})
+
+    for folder in sorted(unresolved):
+        citers = unresolved[folder]
+        findings.append({
+            'severity': 'warn', 'book': folder, 'entity': None,
+            'citing_count': len(citers), 'citing_sample': citers[:3],
+            'reason': (f'book "{folder}" is cited by {len(citers)} topic page(s) but no entity '
+                       f'page resolves (expected wiki/entities/books/{folder}.md or '
+                       f'{folder}-book.md) — book mid-ingest, or entity missing/misnamed'),
+        })
     return findings
 
 
@@ -1678,7 +1708,9 @@ def _render_ext_findings(L, cid, findings):
 
     elif cid == 'book-entity-backlink':
         for f in findings:
-            if 'page' in f:
+            if f.get('severity') == 'warn':
+                L.append(f'- **WARN** — {f["reason"]}')
+            elif 'page' in f:
                 L.append(f'- `{f["page"]}` — {f["reason"]}')
 
     else:

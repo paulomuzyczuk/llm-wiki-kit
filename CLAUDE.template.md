@@ -307,9 +307,14 @@ This vault exists for documentation only. Its job is to enrich the human's excha
   - `handoffs/`
     - `{{EXEC_HANDOFF}}s/` — one page per {{EXEC_NOUN}} session (cross-referenced summary, not a copy of the raw handoff).
     - `planning-handoffs/` — one distillation page per thinking/sparring session.
-  - `entities/` — pages about specific things. Subdirs are listed only when they exist; add a new subdir here when a new entity type is first created, not speculatively.
-    - `{{ENTITY_SUBJECT}}/` — one page per item; the living synthesis of its state.
-    - `books/` — one overview page per book, with a chapter index and ingest progress.
+  - `entities/` — pages about specific things, in two families. Subdirs are listed only when they exist; add a new subdir when a type is first created, not speculatively.
+    - **Source entities** — one page per ingested source, one subdir per source type. Each page's filename carries a **type suffix** so its wikilink is self-describing and never collides with a concept page (and gives the source-entity-backlink lint check a deterministic source→entity mapping):
+      - `books/` → `<slug>-book.md` — one overview page per book (chapter index + ingest progress).
+      - `papers/` → `<slug>-paper.md` — one page per scientific article.
+      - `blog-posts/` → `<slug>-blog-post.md` — one page per blog post.
+      - `whitepapers/` → `<slug>-whitepaper.md` — one page per whitepaper.
+    - **Output entities** — subjects the vault produces from its own knowledge; no source suffix.
+      - `{{ENTITY_SUBJECT}}/` — one page per item; the living synthesis of its state.
   - `topics/` — cross-source synthesis pages (concepts live here, including book concepts).
   - `digests/` — point-in-time summary artifacts for human review: scheduled-run
        outcomes (intake, ingest) and interactive review/completion reports
@@ -360,7 +365,7 @@ title: <human-readable>
 aliases: [<alternate names>]
 date: <YYYY-MM-DD created>
 last_updated: <YYYY-MM-DD>
-type: entity | topic | {{EXEC_HANDOFF}} | planning-handoff | book | digest
+type: entity | topic | {{EXEC_HANDOFF}} | planning-handoff | book | paper | blog-post | whitepaper | digest
 topics: [<list of topic tags>]
 roles: [<one or more role labels defined for this vault>]
 source_tier: 1 | 2 | 3
