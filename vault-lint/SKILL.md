@@ -17,7 +17,7 @@ description: >
 
 Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, role-count drift, and vault-specific extensions.
 
-The implementation is a single Python script at `~/repos/llm-wiki-kit/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
+The implementation is a single Python script, `lint.py`, co-located with this skill — it sits in the same folder as this `SKILL.md`. When the skill is installed per the repo README (symlinked or copied into `~/.claude/skills/`), that path is `~/.claude/skills/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
 
 ## When to invoke
 
@@ -46,9 +46,11 @@ If a `lint | pending | <vault-slug>` marker exists in `log.md`, mention it in th
 
 ### Step 3 — Invoke the script
 
-Once confirmed, execute:
+Once confirmed, execute the `lint.py` co-located with this skill. With the README install that is:
 
-  python3 ~/repos/llm-wiki-kit/vault-lint/lint.py <vault-path>
+  python3 ~/.claude/skills/vault-lint/lint.py <vault-path>
+
+If the skill was installed somewhere else, run the `lint.py` that sits beside this `SKILL.md` instead of hardcoding a clone path.
 
 Capture stdout (the script prints a short status summary). Capture the exit code:
 - 0 = success (clean lint, or lint with patches)
