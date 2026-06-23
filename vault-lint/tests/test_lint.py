@@ -764,3 +764,120 @@ def test_ext_merge_tombstone_hygiene_violations(tmp_path):
     assert "alias" in reasons              # aliases not migrated -> WARN
     assert "still wikilink" in reasons     # live page still links the tombstone -> WARN
     assert "fail" in sevs and "warn" in sevs
+
+
+# ===========================================================================
+# 8. CHECK 8 — CONTROLLED-VOCABULARY RESOLUTION (topics-authority SOT)
+# ===========================================================================
+
+AUTHORITY_MD = """# Topics Authority
+
+## Subject categories
+| Preferred | Use-for |
+|---|---|
+| `retrieval` | information-retrieval, subject-access, access |
+| `information-organization` | knowledge-organization, organizing-systems |
+
+## Concept aliases
+| Preferred (page) | Use-for |
+|---|---|
+| `surrogate-record` | catalogue record, bibliographic surrogate |
+
+## Reserved non-subject tags
+Legal but not subjects: `stub`.
+"""
+
+
+def _write_authority(tmp_path, body=AUTHORITY_MD):
+    vault = build_vault(tmp_path)
+    (vault / "wiki" / "topics-authority.md").write_text(body, encoding="utf-8")
+    return vault
+
+
+def test_parse_topics_authority_absent_returns_none(tmp_path):
+    vault = build_vault(tmp_path)  # no topics-authority.md
+    assert lint.parse_topics_authority(str(vault)) is None
+
+
+def test_parse_topics_authority_tiers(tmp_path):
+    vault = _write_authority(tmp_path)
+    auth = lint.parse_topics_authority(str(vault))
+    assert auth["subjects"]["preferred"] == {"retrieval", "information-organization"}
+    assert auth["subjects"]["variants"]["information-retrieval"] == "retrieval"
+    assert auth["subjects"]["variants"]["organizing-systems"] == "information-organization"
+    assert auth["concepts"]["preferred"] == {"surrogate-record"}
+    assert "stub" in auth["reserved"]
+
+
+def test_check_8_skips_when_no_authority():
+    assert lint.check_8_vocabulary({}, None) == {"skipped": True}
+
+
+def test_check_8_variant_use_preferred(tmp_path):
+    vault = _write_authority(tmp_path)
+    auth = lint.parse_topics_authority(str(vault))
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="A", aliases=[],
+                                        topics=["information-retrieval", "stub"]),
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    assert r["skipped"] is False
+    assert len(r["topic_use_preferred"]) == 1
+    assert r["topic_use_preferred"][0]["canonical"] == "retrieval"
+    assert r["topic_unregistered"] == []          # `stub` is reserved, not unregistered
+
+
+def test_check_8_unregistered_with_suggestion(tmp_path):
+    vault = _write_authority(tmp_path)
+    auth = lint.parse_topics_authority(str(vault))
+    pages, _ = make_pages({
+        # near a preferred term (shares the 'retrieval' token) -> suggested
+        "wiki/topics/a.md": frontmatter(title="A", aliases=[], topics=["retrieval-systems"]),
+        # nothing close -> no suggestion
+        "wiki/topics/b.md": frontmatter(title="B", aliases=[], topics=["zzz-quirk"]),
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    by_val = {f["value"]: f for f in r["topic_unregistered"]}
+    assert by_val["retrieval-systems"]["suggestion"] == "retrieval"
+    assert by_val["zzz-quirk"]["suggestion"] is None
+
+
+def test_check_8_alias_collision_and_shadow(tmp_path):
+    vault = _write_authority(tmp_path)
+    auth = lint.parse_topics_authority(str(vault))
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="Page A", aliases=["foo bar"], topics=["retrieval"]),
+        "wiki/topics/b.md": frontmatter(title="Page B", aliases=["foo bar"], topics=["retrieval"]),
+        # alias "a" equals page a.md's slug -> shadow
+        "wiki/topics/c.md": frontmatter(title="Page C", aliases=["a"], topics=["retrieval"]),
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    assert len(r["alias_collision"]) == 1
+    assert r["alias_collision"][0]["alias"] == "foo bar"
+    assert any(s["canonical_page"] == "wiki/topics/a.md" for s in r["alias_shadows"])
+
+
+def test_check_8_clean_vault_no_findings(tmp_path):
+    vault = _write_authority(tmp_path)
+    auth = lint.parse_topics_authority(str(vault))
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="A", aliases=["surrogate"], topics=["retrieval"]),
+        "wiki/topics/b.md": frontmatter(title="B", aliases=["catalog rec"],
+                                        topics=["information-organization", "stub"]),
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    assert (r["topic_unregistered"] == [] and r["topic_use_preferred"] == []
+            and r["alias_collision"] == [] and r["alias_shadows"] == [])
+
+
+def test_check_8_end_to_end_skip_clean(tmp_path):
+    # A vault with no topics-authority.md must lint cleanly and report SKIPPED.
+    vault = build_vault(tmp_path, topic_pages={
+        "x": frontmatter(title="X", roles=["alpha"], topics=["whatever"]) + "# X\n",
+    })
+    proc = run_lint(vault)
+    assert proc.returncode == 0
+    report = (vault / "wiki" / "digests").glob("lint-*.md")
+    text = next(report).read_text(encoding="utf-8")
+    assert "Check 8 — Controlled-vocabulary resolution" in text
+    assert "SKIPPED" in text
