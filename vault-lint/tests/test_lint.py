@@ -881,3 +881,69 @@ def test_check_8_end_to_end_skip_clean(tmp_path):
     text = next(report).read_text(encoding="utf-8")
     assert "Check 8 — Controlled-vocabulary resolution" in text
     assert "SKIPPED" in text
+
+
+# --- Check 8: unseeded-skeleton backstop -----------------------------------
+
+SKELETON_MD = """# Topics Authority
+
+<!-- SEED-ME: unpopulated skeleton -->
+
+## Subject categories
+| Preferred | Use-for |
+|---|---|
+
+## Concept aliases
+| Preferred (page) | Use-for |
+|---|---|
+
+## Reserved non-subject tags
+Tags legal in the topics field but not subjects: `stub`.
+"""
+
+
+def _write_skeleton(tmp_path):
+    vault = build_vault(tmp_path)
+    (vault / "wiki" / "topics-authority.md").write_text(SKELETON_MD, encoding="utf-8")
+    return vault
+
+
+def test_parse_authority_is_skeleton(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_skeleton(tmp_path)))
+    assert auth["is_skeleton"] is True
+    assert auth["subjects"]["preferred"] == set()
+    assert auth["concepts"]["preferred"] == set()
+    assert auth["reserved"] == {"stub"}
+
+
+def test_populated_authority_is_not_skeleton(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_authority(tmp_path)))
+    assert auth["is_skeleton"] is False
+
+
+def test_check_8_skeleton_unseeded_flagged_with_content(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_skeleton(tmp_path)))
+    pages, _ = make_pages({
+        f"wiki/topics/p{i}.md": frontmatter(title=f"P{i}", aliases=[], topics=["x"])
+        for i in range(3)
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    assert r["skeleton_unseeded"] is True
+    assert r["page_count"] == 3
+    # empty vocabulary must not also spam unregistered/use-preferred
+    assert r["topic_unregistered"] == [] and r["topic_use_preferred"] == []
+
+
+def test_check_8_skeleton_not_flagged_below_threshold(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_skeleton(tmp_path)))
+    pages, _ = make_pages({
+        "wiki/topics/a.md": frontmatter(title="A", aliases=[], topics=["x"]),
+    })
+    r = lint.check_8_vocabulary(pages, auth)
+    assert r["skeleton_unseeded"] is False  # 1 page < 3-page threshold
+
+
+def test_check_8_skeleton_not_flagged_when_empty_vault(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_skeleton(tmp_path)))
+    r = lint.check_8_vocabulary({}, auth)
+    assert r["skeleton_unseeded"] is False
