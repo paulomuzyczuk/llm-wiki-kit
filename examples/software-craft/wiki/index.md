@@ -28,6 +28,18 @@ this flat list.
   (CI raises PR *throughput* more than it cuts per-PR latency), and how CI relates to
   version control and review.
 
+### Project infrastructure & tooling
+
+- [[project-infrastructure]] — the collaboration-tool spine of a project: information
+  management as the antidote to Brooks' Law, the minimum standard toolset (web site,
+  forums, version control, bug tracking, chat), and "beware over-automation."
+- [[project-hosting]] — the build-vs-buy decision for project infrastructure: canned
+  hosting's convenience-vs-control trade-off, "if unsure, use canned hosting," GitHub as
+  default, and the durable no-lock-in criterion (data export + programmatic access).
+- [[message-forums]] — when a project needs dedicated forums vs. the bug tracker, forum
+  software/archiving selection criteria, mandatory layered spam prevention, and the
+  "settle tooling debates early" governance lesson (the Reply-to debate).
+
 ### Open-source governance & culture
 
 - [[free-software-vs-open-source]] — same software, two motives: the FSF's moral "free as

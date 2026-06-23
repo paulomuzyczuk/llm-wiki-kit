@@ -58,6 +58,9 @@ pages or shadow another page's canonical title/slug.
 | open-source-licensing | choosing-a-license, applying-a-license, software-license |
 | setting-the-tone | project-culture, setting-precedents, codes-of-conduct, in-group-behaviors |
 | developing-in-the-open | open-from-day-one, develop-in-the-open, opening-a-closed-project, transparency-by-default |
+| project-infrastructure | technical-infrastructure, collaboration-tools, what-a-project-needs |
+| project-hosting | canned-hosting, project-hosting-site, code-hosting |
+| message-forums | mailing-lists, discussion-forums |
 
 ## Reserved non-subject tags
 
