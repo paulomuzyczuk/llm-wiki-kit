@@ -18,14 +18,14 @@ Exit 1:  Phase 2.5 FATAL fired
 Exit 2:  vault structure invalid or script crash
 """
 
+import datetime
+import difflib
+import fnmatch
+import glob
+import math
 import os
 import re
 import sys
-import glob
-import math
-import difflib
-import datetime
-import fnmatch
 import urllib.parse
 
 TODAY = datetime.date.today()
@@ -35,6 +35,7 @@ TODAY_STR = TODAY.isoformat()
 # ══════════════════════════════════════════════════════════════════════════════
 # §1  CANONICAL WIKILINK PARSER — verbatim from SKILL.md; do not modify
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def extract_wikilink_targets(content):
     """
@@ -61,6 +62,7 @@ def extract_wikilink_targets(content):
 # ══════════════════════════════════════════════════════════════════════════════
 # §2  FRONTMATTER PARSER — regex-based, no PyYAML
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def parse_frontmatter(content):
     """
@@ -159,6 +161,7 @@ def _parse_inline_list(inner):
 # §3  CLAUDE.MD CONFIG PARSER
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def parse_claude_config(claude_md_text):
     """
     Parse CLAUDE.md for vault-lint configuration.
@@ -177,7 +180,8 @@ def parse_claude_config(claude_md_text):
     # VAULT-LINT-EXTENSIONS block
     ext_m = re.search(
         r'<!--\s*VAULT-LINT-EXTENSIONS-BEGIN\s*-->(.*?)<!--\s*VAULT-LINT-EXTENSIONS-END\s*-->',
-        claude_md_text, re.DOTALL
+        claude_md_text,
+        re.DOTALL,
     )
     if ext_m:
         _parse_extensions_block(ext_m.group(1), config)
@@ -185,7 +189,8 @@ def parse_claude_config(claude_md_text):
     # Canonical roles under "**Roles for this vault:**"
     roles_m = re.search(
         r'\*\*Roles for this vault:\*\*\s*\n(.*?)(?=\n(?:##|\*\*[A-Z]|---)|\Z)',
-        claude_md_text, re.DOTALL
+        claude_md_text,
+        re.DOTALL,
     )
     if roles_m:
         table_text = roles_m.group(1)
@@ -288,6 +293,7 @@ def _parse_extensions_block(text, config):
 # §4  LIVE PAGE LOADER
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def load_live_pages(vault_path):
     """
     Load all live wiki pages (topics + entities, excluding digests/handoffs/log).
@@ -327,15 +333,15 @@ def build_slug_index(pages):
 # §5  LOG.MD UTILITIES
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def find_watermark(log_text, vault_slug):
     """
     Find the latest lint watermark: ## [YYYY-MM-DD] lint | <vault-slug> |
     Returns datetime.date or None. Uses max date, not file position.
     """
     pattern = re.compile(
-        r'^##\s+\[(\d{4}-\d{2}-\d{2})\]\s+lint\s+\|\s+' +
-        re.escape(vault_slug) + r'\s+\|',
-        re.MULTILINE
+        r'^##\s+\[(\d{4}-\d{2}-\d{2})\]\s+lint\s+\|\s+' + re.escape(vault_slug) + r'\s+\|',
+        re.MULTILINE,
     )
     best = None
     for m in pattern.finditer(log_text):
@@ -353,9 +359,12 @@ def _watermark_char_pos(log_text, vault_slug, watermark_date):
     if watermark_date is None:
         return -1
     pattern = re.compile(
-        r'^##\s+\[' + re.escape(watermark_date.isoformat()) + r'\]\s+lint\s+\|\s+' +
-        re.escape(vault_slug) + r'\s+\|',
-        re.MULTILINE
+        r'^##\s+\['
+        + re.escape(watermark_date.isoformat())
+        + r'\]\s+lint\s+\|\s+'
+        + re.escape(vault_slug)
+        + r'\s+\|',
+        re.MULTILINE,
     )
     last_pos = -1
     for m in pattern.finditer(log_text):
@@ -381,7 +390,7 @@ def count_activity_since(log_text, vault_slug, watermark_date):
     after_start = log_text.find('\n', wm_pos)
     if after_start < 0:
         return counts
-    after_text = log_text[after_start + 1:]
+    after_text = log_text[after_start + 1 :]
 
     entry_pat = re.compile(r'^##\s+\[\d{4}-\d{2}-\d{2}\]\s+([\w\-]+)\s+\|\s+(.*)', re.MULTILINE)
     for m in entry_pat.finditer(after_text):
@@ -417,6 +426,7 @@ def count_activity_since(log_text, vault_slug, watermark_date):
 # §6  CHECK 1 — CITATION RESOLUTION
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def check_1_citations(vault_path, pages, depth_table):
     """
     Resolve every raw-input citation in live pages.
@@ -440,12 +450,14 @@ def check_1_citations(vault_path, pages, depth_table):
             exists = os.path.isfile(abs_target)
 
             if not exists:
-                findings.append({
-                    'type': 'not-found',
-                    'file': relpath,
-                    'cited': href,
-                    'defect': _diagnose_citation(href),
-                })
+                findings.append(
+                    {
+                        'type': 'not-found',
+                        'file': relpath,
+                        'cited': href,
+                        'defect': _diagnose_citation(href),
+                    }
+                )
                 continue
 
             resolving += 1
@@ -454,16 +466,22 @@ def check_1_citations(vault_path, pages, depth_table):
             if depth_table:
                 expected = _match_depth_table(page_dir, depth_table)
                 if expected and not href.startswith(expected):
-                    findings.append({
-                        'type': 'wrong-prefix',
-                        'file': relpath,
-                        'cited': href,
-                        'expected_prefix': expected,
-                        'actual_prefix': _extract_rel_prefix(href),
-                    })
+                    findings.append(
+                        {
+                            'type': 'wrong-prefix',
+                            'file': relpath,
+                            'cited': href,
+                            'expected_prefix': expected,
+                            'actual_prefix': _extract_rel_prefix(href),
+                        }
+                    )
 
-    return {'total': total, 'resolving': resolving, 'findings': findings,
-            'depth_validated': bool(depth_table)}
+    return {
+        'total': total,
+        'resolving': resolving,
+        'findings': findings,
+        'depth_validated': bool(depth_table),
+    }
 
 
 def _match_depth_table(page_dir, depth_table):
@@ -492,6 +510,7 @@ def _diagnose_citation(href):
 # ══════════════════════════════════════════════════════════════════════════════
 # §7  CHECK 2 — ORPHAN PAGES
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def check_2_orphans(vault_path, pages, slug_index):
     """Find live pages with no inbound wikilinks or path references."""
@@ -523,7 +542,8 @@ def check_2_orphans(vault_path, pages, slug_index):
     # source, so a role MOC linked only from the index would always false-positive.
     # Exclude them — they are top-level browse surfaces, like index.md itself.
     orphans = sorted(
-        p for p, srcs in inbound.items()
+        p
+        for p, srcs in inbound.items()
         if not srcs
         and (pages[p].get('fm') or {}).get('status') != 'archived'
         and not _is_role_moc(p)
@@ -534,6 +554,7 @@ def check_2_orphans(vault_path, pages, slug_index):
 # ══════════════════════════════════════════════════════════════════════════════
 # §8  CHECK 3 — CONCEPTS LACKING A PAGE
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def check_3_pass_a(vault_path, pages, slug_index):
     """Pass A: dangling wikilinks — targets with no live page.
@@ -553,33 +574,98 @@ def check_3_pass_a(vault_path, pages, slug_index):
     return {'dangling': {t: sorted(ps) for t, ps in sorted(dangling.items())}}
 
 
-_META_STOPLIST = frozenset([
-    'author', 'publisher', 'isbn', 'pdf', 'source', 'date', 'year', 'edition',
-    'page', 'chapter', 'section', 'decision criterion', 'key concept', 'summary',
-    'tldr', 'note', 'warning', 'todo', 'fixme', 'status', 'version',
-])
-_STRUCT_STOPLIST = frozenset([
-    'scope', 'purpose', 'monitoring', 'trade-off', 'tradeoff', 'overview',
-    'summary', 'background', 'context', 'rationale', 'example', 'examples',
-    'definition', 'conclusion', 'approach', 'motivation', 'problem', 'solution',
-    'observation', 'observations', 'result', 'results', 'principle', 'principles',
-    'pattern', 'patterns', 'antipattern', 'anti-pattern',
-    # Additions: generic domain words that appear as emphasis markers, not concepts.
-    # "fault tolerance" dropped here because it's too broad to warrant a dedicate page
-    # candidate signal; "Circuit Breaker" (a real pattern name) intentionally excluded.
-    'structure', 'communication', 'collaboration', 'simplicity', 'metrics',
-    'logging', 'tickets', 'throughput', 'asynchronous', 'event-based',
-    'time-based', 'root cause', 'best practice', 'best practices',
-    'caveat', 'caveats', 'fault tolerance',
-])
+_META_STOPLIST = frozenset(
+    [
+        'author',
+        'publisher',
+        'isbn',
+        'pdf',
+        'source',
+        'date',
+        'year',
+        'edition',
+        'page',
+        'chapter',
+        'section',
+        'decision criterion',
+        'key concept',
+        'summary',
+        'tldr',
+        'note',
+        'warning',
+        'todo',
+        'fixme',
+        'status',
+        'version',
+    ]
+)
+_STRUCT_STOPLIST = frozenset(
+    [
+        'scope',
+        'purpose',
+        'monitoring',
+        'trade-off',
+        'tradeoff',
+        'overview',
+        'summary',
+        'background',
+        'context',
+        'rationale',
+        'example',
+        'examples',
+        'definition',
+        'conclusion',
+        'approach',
+        'motivation',
+        'problem',
+        'solution',
+        'observation',
+        'observations',
+        'result',
+        'results',
+        'principle',
+        'principles',
+        'pattern',
+        'patterns',
+        'antipattern',
+        'anti-pattern',
+        # Additions: generic domain words that appear as emphasis markers, not concepts.
+        # "fault tolerance" dropped here because it's too broad to warrant a dedicate page
+        # candidate signal; "Circuit Breaker" (a real pattern name) intentionally excluded.
+        'structure',
+        'communication',
+        'collaboration',
+        'simplicity',
+        'metrics',
+        'logging',
+        'tickets',
+        'throughput',
+        'asynchronous',
+        'event-based',
+        'time-based',
+        'root cause',
+        'best practice',
+        'best practices',
+        'caveat',
+        'caveats',
+        'fault tolerance',
+    ]
+)
 
 # Substring words that mark section-label constructs rather than concept terms.
 # Any bold term containing one of these words (case-insensitive) is treated as
 # structural labelling and filtered out (e.g. "Synthesis strategy", "Footnotes 1–16").
-_SECTION_LABEL_WORDS = frozenset([
-    'strategy', 'steps', 'mechanics', 'footnote', 'footnotes',
-    'intentionally', 'omitted',
-])
+_SECTION_LABEL_WORDS = frozenset(
+    [
+        'strategy',
+        'steps',
+        'mechanics',
+        'footnote',
+        'footnotes',
+        'intentionally',
+        'omitted',
+    ]
+)
 
 
 def check_3_pass_b(pages, slug_index):
@@ -653,6 +739,7 @@ def check_3_pass_b(pages, slug_index):
 #     Ports the reference implementation from SKILL.md verbatim.
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def _is_role_moc(relpath):
     return relpath.startswith('wiki/topics/') and get_slug(relpath).startswith('role-')
 
@@ -677,11 +764,11 @@ def _excluded_pair(a, b):
 # ── Check 4 tuning — hub-inflation suppression ────────────────────────────────
 # Raw shared-neighbor counts inflate any pair that merely co-cites the vault's
 # universal hubs. These knobs weight evidence by distinctiveness instead.
-CHECK4_STOPWORD_DF_RATIO = 0.25      # neighbors linked by > this fraction of pages are stopwords
-CHECK4_MIN_SHARED_NEIGHBORS = 2      # min non-stopword shared neighbors to report a pair
-CHECK4_MIN_WEIGHT = 3.0              # min summed IDF weight (ln); just above two at-cutoff neighbors
-CHECK4_TOPK_HUBS = 10               # a pair sharing only these global hubs is suppressed
-CHECK4_MAX_REPORT = 50             # cap on reported pairs, ranked by weighted score
+CHECK4_STOPWORD_DF_RATIO = 0.25  # neighbors linked by > this fraction of pages are stopwords
+CHECK4_MIN_SHARED_NEIGHBORS = 2  # min non-stopword shared neighbors to report a pair
+CHECK4_MIN_WEIGHT = 3.0  # min summed IDF weight (ln); just above two at-cutoff neighbors
+CHECK4_TOPK_HUBS = 10  # a pair sharing only these global hubs is suppressed
+CHECK4_MAX_REPORT = 50  # cap on reported pairs, ranked by weighted score
 CHECK4_REQUIRE_SHARED_TOPIC = False  # optional: also require a shared non-generic frontmatter topic
 CHECK4_GENERIC_TOPICS = frozenset({'fixed-income', 'bonds'})
 
@@ -750,7 +837,9 @@ def check_4_cross_refs(vault_path, pages):
         raw = fm.get('topics', []) or []
         if not isinstance(raw, list):
             raw = [raw]
-        page_topics[p] = {str(t).strip().lower() for t in raw if str(t).strip()} - CHECK4_GENERIC_TOPICS
+        page_topics[p] = {
+            str(t).strip().lower() for t in raw if str(t).strip()
+        } - CHECK4_GENERIC_TOPICS
 
     def idf(n):
         return math.log(N / df[n])
@@ -769,17 +858,17 @@ def check_4_cross_refs(vault_path, pages):
                 continue
 
             shared = (links_a & links_b) - {slug_a, slug_b}
-            shared -= entity_slugs            # rule 1
-            shared -= stopwords               # rule 3
+            shared -= entity_slugs  # rule 1
+            shared -= stopwords  # rule 3
             if len(shared) < CHECK4_MIN_SHARED_NEIGHBORS:
                 continue
-            if shared <= top_k_hubs:          # rule 4: all-hub evidence = no signal
+            if shared <= top_k_hubs:  # rule 4: all-hub evidence = no signal
                 continue
             if CHECK4_REQUIRE_SHARED_TOPIC and not (page_topics[a] & page_topics[b]):
                 continue
 
             weight = sum(idf(n) for n in shared)
-            if weight < CHECK4_MIN_WEIGHT:    # rule 4: weighted floor
+            if weight < CHECK4_MIN_WEIGHT:  # rule 4: weighted floor
                 continue
 
             ranked = sorted(shared, key=lambda n: (-idf(n), n))
@@ -797,12 +886,20 @@ def check_4_cross_refs(vault_path, pages):
 # ── Check 5 tuning — duplicate-vs-de-alias discrimination ─────────────────────
 # Generic finance terms that two pages can legitimately both carry without being
 # duplicates — they never count as duplicate evidence.
-CHECK5_GENERIC_TERMS = frozenset({
-    'option greeks', 'premium/discount', 'alpha/beta', 'risk premium',
-    'cap/floor', 'hedge ratio', 'average life', 'yield ratio',
-})
-CHECK5_JACCARD_THRESHOLD = 0.5      # min alias-set Jaccard to call a pair duplicate
-CHECK5_TITLE_SIMILARITY = 0.9       # SequenceMatcher ratio for "near-identical" titles
+CHECK5_GENERIC_TERMS = frozenset(
+    {
+        'option greeks',
+        'premium/discount',
+        'alpha/beta',
+        'risk premium',
+        'cap/floor',
+        'hedge ratio',
+        'average life',
+        'yield ratio',
+    }
+)
+CHECK5_JACCARD_THRESHOLD = 0.5  # min alias-set Jaccard to call a pair duplicate
+CHECK5_TITLE_SIMILARITY = 0.9  # SequenceMatcher ratio for "near-identical" titles
 
 
 def _resolves_elsewhere(term, dedicated, titles, exclude):
@@ -841,7 +938,7 @@ def check_5_duplicates(pages):
         for a in fm.get('aliases', []) or []:
             if a and isinstance(a, str) and a.strip():
                 aliases.add(a.strip().lower())
-        alias_sets[rp] = aliases - CHECK5_GENERIC_TERMS   # rule (a)
+        alias_sets[rp] = aliases - CHECK5_GENERIC_TERMS  # rule (a)
 
     # Dedicated-page index: normalised title or slug -> {relpaths}.
     dedicated = {}
@@ -854,8 +951,11 @@ def check_5_duplicates(pages):
     alias_resolve = []
     for rp in sorted(pages):
         for al in sorted(alias_sets[rp]):
-            targets = sorted(t for t in dedicated.get(al, set()) - {rp}
-                             if titles[t] == al or get_slug(t).lower() == al)
+            targets = sorted(
+                t
+                for t in dedicated.get(al, set()) - {rp}
+                if titles[t] == al or get_slug(t).lower() == al
+            )
             if targets:
                 alias_resolve.append({'page': rp, 'alias': al, 'dedicated': targets})
 
@@ -867,18 +967,24 @@ def check_5_duplicates(pages):
             exclude = {a, b}
             # Drop aliases that resolve to a *third* dedicated page (rule b) and
             # generic terms (already stripped) before measuring overlap.
-            ca = {t for t in alias_sets[a]
-                  if not _resolves_elsewhere(t, dedicated, titles, exclude)}
-            cb = {t for t in alias_sets[b]
-                  if not _resolves_elsewhere(t, dedicated, titles, exclude)}
+            ca = {
+                t for t in alias_sets[a] if not _resolves_elsewhere(t, dedicated, titles, exclude)
+            }
+            cb = {
+                t for t in alias_sets[b] if not _resolves_elsewhere(t, dedicated, titles, exclude)
+            }
             inter = ca & cb
             union = ca | cb
             jaccard = len(inter) / len(union) if union else 0.0
 
             ta, tb = titles[a], titles[b]
-            titles_near = bool(ta) and bool(tb) and (
-                ta == tb or
-                difflib.SequenceMatcher(None, ta, tb).ratio() >= CHECK5_TITLE_SIMILARITY
+            titles_near = (
+                bool(ta)
+                and bool(tb)
+                and (
+                    ta == tb
+                    or difflib.SequenceMatcher(None, ta, tb).ratio() >= CHECK5_TITLE_SIMILARITY
+                )
             )
 
             # Rule (c): need strong alias overlap OR near-identical titles.
@@ -907,6 +1013,7 @@ def check_5_duplicates(pages):
 # §11 CHECK 6 — STALE CLAIMS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def check_6_stale_claims(pages):
     """
     Condition A: last_updated > 12 months ago + status: active.
@@ -930,11 +1037,13 @@ def check_6_stale_claims(pages):
             d = datetime.date.fromisoformat(str(lu))
             if d < cutoff:
                 topics = fm.get('topics', [])
-                stale_active.append({
-                    'page': rp,
-                    'last_updated': str(lu),
-                    'topics': topics if isinstance(topics, list) else [topics],
-                })
+                stale_active.append(
+                    {
+                        'page': rp,
+                        'last_updated': str(lu),
+                        'topics': topics if isinstance(topics, list) else [topics],
+                    }
+                )
         except (ValueError, TypeError):
             pass
 
@@ -953,12 +1062,14 @@ def check_6_stale_claims(pages):
             # Capture line plus one line of context each side
             before = lines[i - 1].strip() if i > 0 else ''
             after = lines[i + 1].strip() if i + 1 < len(lines) else ''
-            contradicts_findings.append({
-                'page': rp,
-                'line': line.strip()[:200],
-                'context_before': before[:120],
-                'context_after': after[:120],
-            })
+            contradicts_findings.append(
+                {
+                    'page': rp,
+                    'line': line.strip()[:200],
+                    'context_before': before[:120],
+                    'context_after': after[:120],
+                }
+            )
 
     return {'stale_active': stale_active, 'opposing_candidates': contradicts_findings}
 
@@ -966,6 +1077,7 @@ def check_6_stale_claims(pages):
 # ══════════════════════════════════════════════════════════════════════════════
 # §12 CHECK 7 — DATA GAPS
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def check_7_data_gaps(pages):
     """
@@ -999,7 +1111,7 @@ def check_7_data_gaps(pages):
         if content.startswith('---'):
             try:
                 end_idx = content.index('\n---', 3)
-                body = content[end_idx + 4:]
+                body = content[end_idx + 4 :]
             except ValueError:
                 pass
 
@@ -1012,7 +1124,7 @@ def check_7_data_gaps(pages):
             seen_keys.add(key)
             ls = body.rfind('\n', 0, m.start()) + 1
             le = body.find('\n', m.end())
-            line = body[ls:(le if le >= 0 else len(body))].strip()
+            line = body[ls : (le if le >= 0 else len(body))].strip()
             # Route to the right bucket
             if marker in ('TODO:', 'FIXME:'):
                 todos.append({'page': rp, 'marker': marker, 'line': line[:120]})
@@ -1034,12 +1146,14 @@ def check_7_data_gaps(pages):
 #     SOT file is absent, so vaults without one are unaffected.
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def _extract_authority_section(text, *headings):
     """Body text under the first matching ## heading (until the next ## or EOF)."""
     for h in headings:
         m = re.search(
             r'^#{2,}\s+' + re.escape(h) + r'[^\n]*\n(.*?)(?=^\s*#{2,}\s|\Z)',
-            text, re.MULTILINE | re.DOTALL | re.IGNORECASE,
+            text,
+            re.MULTILINE | re.DOTALL | re.IGNORECASE,
         )
         if m:
             return m.group(1)
@@ -1062,8 +1176,11 @@ def _parse_authority_table(section_text):
         if len(cells) < 2:
             continue
         pref = cells[0].strip().strip('`').strip()
-        if (not pref or pref.lower() in ('preferred', 'preferred (page)', 'canonical')
-                or set(pref) <= set('-: ')):
+        if (
+            not pref
+            or pref.lower() in ('preferred', 'preferred (page)', 'canonical')
+            or set(pref) <= set('-: ')
+        ):
             continue
         preferred.add(pref.lower())
         for v in re.split(r'[,;]', cells[1]):
@@ -1090,12 +1207,15 @@ def parse_topics_authority(vault_path):
 
     fm = parse_frontmatter(text) or {}
     subj_pref, subj_var = _parse_authority_table(
-        _extract_authority_section(text, 'Subject categories', 'Subjects'))
+        _extract_authority_section(text, 'Subject categories', 'Subjects')
+    )
     conc_pref, conc_var = _parse_authority_table(
-        _extract_authority_section(text, 'Concept aliases', 'Concepts'))
+        _extract_authority_section(text, 'Concept aliases', 'Concepts')
+    )
     reserved = set()
     for line in _extract_authority_section(
-            text, 'Reserved non-subject tags', 'Reserved tags').split('\n'):
+        text, 'Reserved non-subject tags', 'Reserved tags'
+    ).split('\n'):
         for tok in re.findall(r'`([^`]+)`', line):
             reserved.add(tok.strip().lower())
 
@@ -1108,7 +1228,8 @@ def parse_topics_authority(vault_path):
         # A well-formed authority file has both vocabulary sections.
         'has_sections': bool(
             re.search(r'^#{2,}\s+Subject categories', text, re.M)
-            and re.search(r'^#{2,}\s+Concept aliases', text, re.M)),
+            and re.search(r'^#{2,}\s+Concept aliases', text, re.M)
+        ),
         # Unpopulated scaffolder skeleton: no vocabulary registered at all.
         'is_skeleton': not subj_pref and not conc_pref,
     }
@@ -1147,10 +1268,10 @@ def check_8_vocabulary(pages, authority):
     subj = authority['subjects']
     reserved = authority['reserved']
 
-    topic_unregistered = []   # topics: value resolves to nothing
+    topic_unregistered = []  # topics: value resolves to nothing
     topic_use_preferred = []  # topics: value is a use-for variant → use canonical
-    alias_collision = []      # alias owned by >1 page
-    alias_shadows = []        # alias equals a different page's canonical
+    alias_collision = []  # alias owned by >1 page
+    alias_shadows = []  # alias equals a different page's canonical
 
     # ── Subjects tier ──
     for relpath, p in sorted(pages.items()):
@@ -1164,11 +1285,16 @@ def check_8_vocabulary(pages, authority):
                 continue
             if tl in subj['variants']:
                 topic_use_preferred.append(
-                    {'page': relpath, 'value': t, 'canonical': subj['variants'][tl]})
+                    {'page': relpath, 'value': t, 'canonical': subj['variants'][tl]}
+                )
             elif subj['preferred']:  # only meaningful once a vocabulary is declared
                 topic_unregistered.append(
-                    {'page': relpath, 'value': t,
-                     'suggestion': _nearest_preferred(tl, subj['preferred'])})
+                    {
+                        'page': relpath,
+                        'value': t,
+                        'suggestion': _nearest_preferred(tl, subj['preferred']),
+                    }
+                )
 
     # ── Concepts tier — alias uniqueness from frontmatter (the de-alias guarantee) ──
     canonical_slugs = {get_slug(rp): rp for rp in pages}
@@ -1190,8 +1316,7 @@ def check_8_vocabulary(pages, authority):
             alias_owner.setdefault(al, set()).add(relpath)
             owner = canonical_slugs.get(al) or canonical_titles.get(al)
             if owner and owner != relpath:
-                alias_shadows.append(
-                    {'page': relpath, 'alias': a, 'canonical_page': owner})
+                alias_shadows.append({'page': relpath, 'alias': a, 'canonical_page': owner})
 
     for al, owners in sorted(alias_owner.items()):
         if len(owners) > 1:
@@ -1202,7 +1327,8 @@ def check_8_vocabulary(pages, authority):
     # content but the SOT is still empty, the first-ingest seed was skipped.
     SKELETON_UNSEEDED_MIN_PAGES = 3
     skeleton_unseeded = bool(
-        authority.get('is_skeleton') and len(pages) >= SKELETON_UNSEEDED_MIN_PAGES)
+        authority.get('is_skeleton') and len(pages) >= SKELETON_UNSEEDED_MIN_PAGES
+    )
 
     # Authority-file checks (this category is exempt from the topic-page checks,
     # so it is validated here instead): correct declared type + well-formed.
@@ -1230,6 +1356,7 @@ def check_8_vocabulary(pages, authority):
 #     Reference implementation from SKILL.md, inlined verbatim.
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def _parse_frontmatter_roles(content):
     """
     Extract roles list from YAML frontmatter.
@@ -1250,7 +1377,7 @@ def _parse_frontmatter_roles(content):
         raw = inline.group(1).strip()
         if not raw:
             return []
-        return [s.strip().strip("'\"") for s in raw.split(',') if s.strip()]
+        return [s.strip().strip('\'"') for s in raw.split(',') if s.strip()]
 
     block = re.search(r'^roles:\s*\n((?:\s*-\s*.+\n?)+)', fm, re.MULTILINE)
     if block:
@@ -1258,7 +1385,7 @@ def _parse_frontmatter_roles(content):
         for line in block.group(1).split('\n'):
             m = re.match(r'\s*-\s*(.+)', line)
             if m:
-                items.append(m.group(1).strip().strip("'\""))
+                items.append(m.group(1).strip().strip('\'"'))
         return items
 
     if re.search(r'^roles:\s*$', fm, re.MULTILINE):
@@ -1304,7 +1431,7 @@ def phase_2_role_drift(vault_path, canonical_roles, index_md_text):
                 unknown_roles.setdefault(role, []).append(rp)
 
     reported, fmt_type, fmt_lines = _parse_index_role_counts(index_md_text, canonical_roles)
-    skipped = (fmt_type == 'unknown')
+    skipped = fmt_type == 'unknown'
     delta = {} if skipped else {r: counts[r] - reported.get(r, 0) for r in canonical_roles}
 
     actual_vals = [counts[r] for r in canonical_roles]
@@ -1349,17 +1476,13 @@ def _parse_index_role_counts(index_md_text, canonical_roles):
     lines = index_md_text.split('\n')
 
     # Find section heading containing "Role"
-    sec_start = next(
-        (i for i, ln in enumerate(lines) if re.match(r'^##\s+.*[Rr]ole', ln)),
-        -1
-    )
+    sec_start = next((i for i, ln in enumerate(lines) if re.match(r'^##\s+.*[Rr]ole', ln)), -1)
     if sec_start < 0:
         return reported, 'unknown', (-1, -1)
 
     # Find section end
     sec_end = next(
-        (i for i in range(sec_start + 1, len(lines)) if re.match(r'^##\s+', lines[i])),
-        len(lines)
+        (i for i in range(sec_start + 1, len(lines)) if re.match(r'^##\s+', lines[i])), len(lines)
     )
 
     section = lines[sec_start:sec_end]
@@ -1373,7 +1496,7 @@ def _parse_index_role_counts(index_md_text, canonical_roles):
             if not m:
                 continue
             path_slug = os.path.splitext(os.path.basename(m.group(1)))[0]
-            role_id = path_slug[len('role-'):] if path_slug.startswith('role-') else path_slug
+            role_id = path_slug[len('role-') :] if path_slug.startswith('role-') else path_slug
             if role_id in reported:
                 reported[role_id] = int(m.group(2))
         return reported, 'list', (sec_start, sec_end)
@@ -1401,6 +1524,7 @@ def _parse_index_role_counts(index_md_text, canonical_roles):
 # §14 PHASE 2.5 — REGRESSION GUARD
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def phase_2_5_guard(activity, p2_result, watermark_date):
     """
     Returns FATAL dict if ALL three conditions hold, else None:
@@ -1413,8 +1537,7 @@ def phase_2_5_guard(activity, p2_result, watermark_date):
     if p2_result.get('skipped'):
         return None
     total_activity = (
-        activity['books'] + activity['articles'] +
-        activity['other_ingests'] + activity['handoffs']
+        activity['books'] + activity['articles'] + activity['other_ingests'] + activity['handoffs']
     )
     if total_activity > 0:
         return None
@@ -1432,6 +1555,7 @@ def phase_2_5_guard(activity, p2_result, watermark_date):
 # §15 PHASE 3 — VAULT-SPECIFIC EXTENSIONS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def phase_3_extensions(vault_path, extension_checks, config):
     """Run each declared extension check. Returns list of result dicts."""
     results = []
@@ -1440,15 +1564,27 @@ def phase_3_extensions(vault_path, extension_checks, config):
         desc = check.get('description', cid)
         handler = _EXT_HANDLERS.get(cid)
         if handler is None:
-            results.append({'id': cid, 'description': desc, 'findings': [],
-                            'error': f'CONFIG-ERROR: unknown extension check id "{cid}"'})
+            results.append(
+                {
+                    'id': cid,
+                    'description': desc,
+                    'findings': [],
+                    'error': f'CONFIG-ERROR: unknown extension check id "{cid}"',
+                }
+            )
         else:
             try:
                 findings = handler(vault_path, config, check)
                 results.append({'id': cid, 'description': desc, 'findings': findings})
             except Exception as e:
-                results.append({'id': cid, 'description': desc, 'findings': [],
-                                'error': f'ERROR: {type(e).__name__}: {e}'})
+                results.append(
+                    {
+                        'id': cid,
+                        'description': desc,
+                        'findings': [],
+                        'error': f'ERROR: {type(e).__name__}: {e}',
+                    }
+                )
     return results
 
 
@@ -1459,7 +1595,7 @@ def _ext_project_entity_recent_handoff(vault_path, config, check):
 
     handoff_dir = os.path.join(vault_path, 'wiki', 'handoffs', 'coding-handoffs')
     if not os.path.isdir(handoff_dir):
-        return [{'info': f'Handoff directory not found: wiki/handoffs/coding-handoffs/'}]
+        return [{'info': 'Handoff directory not found: wiki/handoffs/coding-handoffs/'}]
 
     cutoff_90d = TODAY - datetime.timedelta(days=90)
     per_project = {p: [] for p in projects}
@@ -1499,13 +1635,15 @@ def _ext_project_entity_recent_handoff(vault_path, config, check):
         most_recent = dates[0] if dates else None
         days_since = (TODAY - most_recent).days if most_recent else None
         status = 'active' if recent_count > 0 else 'quiescent'
-        findings.append({
-            'project': project,
-            'handoffs_last_90d': recent_count,
-            'most_recent': most_recent.isoformat() if most_recent else 'none found',
-            'days_since': days_since,
-            'status': status,
-        })
+        findings.append(
+            {
+                'project': project,
+                'handoffs_last_90d': recent_count,
+                'most_recent': most_recent.isoformat() if most_recent else 'none found',
+                'days_since': days_since,
+                'status': status,
+            }
+        )
 
     if malformed:
         findings.append({'malformed': malformed})
@@ -1525,12 +1663,14 @@ def _ext_cross_vault_reference_format(vault_path, config, check):
                 continue
             for lineno, line in enumerate(flines, 1):
                 if marker in line and re.search(r'\[\[', line):
-                    findings.append({
-                        'file': rp,
-                        'line': lineno,
-                        'text': line.strip()[:200],
-                        'violation': 'uses [[wikilink]] instead of plain labelled path',
-                    })
+                    findings.append(
+                        {
+                            'file': rp,
+                            'line': lineno,
+                            'text': line.strip()[:200],
+                            'violation': 'uses [[wikilink]] instead of plain labelled path',
+                        }
+                    )
     return findings
 
 
@@ -1553,12 +1693,14 @@ def _ext_calendar_staleness_sweep(vault_path, config, check):
         try:
             nr = datetime.date.fromisoformat(str(next_review_str))
             if nr <= TODAY:
-                findings.append({
-                    'page': rp,
-                    'volatility': fm.get('volatility', ''),
-                    'next_review': str(next_review_str),
-                    'status': status,
-                })
+                findings.append(
+                    {
+                        'page': rp,
+                        'volatility': fm.get('volatility', ''),
+                        'next_review': str(next_review_str),
+                        'status': status,
+                    }
+                )
         except (ValueError, TypeError):
             pass
     return findings
@@ -1569,7 +1711,7 @@ _PT_SIGNAL = re.compile(
     r'\b(come-cotas|renda|fixa|variável|Tesouro|Selic|IPCA|Prefixado|debênture|'
     r'marcação|mercado|inventário|previdência|holding|familiar|FII|PGBL|VGBL|'
     r'FGC|IOF|ITCMD)\b',
-    re.IGNORECASE
+    re.IGNORECASE,
 )
 
 
@@ -1620,8 +1762,13 @@ def _ext_english_first_naming(vault_path, config, check):
             continue
         title = fm.get('title', '') or ''
         if _PT_ACCENTED.search(title) or _PT_STOPWORDS.search(title):
-            findings.append({'page': rp, 'title': title,
-                             'reason': 'Portuguese-first title; slug not in terms-of-art allowlist'})
+            findings.append(
+                {
+                    'page': rp,
+                    'title': title,
+                    'reason': 'Portuguese-first title; slug not in terms-of-art allowlist',
+                }
+            )
     return findings
 
 
@@ -1682,18 +1829,31 @@ def _ext_book_entity_backlink(vault_path, config, check):
                 unresolved.setdefault(folder, []).append(rp)
                 continue
             if not re.search(r'\[\[' + re.escape(entity) + r'(?:\]\]|\|)', content):
-                findings.append({'page': rp, 'book': folder, 'entity': entity,
-                                 'reason': f'cites book "{folder}" but does not wikilink its entity [[{entity}]]'})
+                findings.append(
+                    {
+                        'page': rp,
+                        'book': folder,
+                        'entity': entity,
+                        'reason': f'cites book "{folder}" but does not wikilink its entity [[{entity}]]',
+                    }
+                )
 
     for folder in sorted(unresolved):
         citers = unresolved[folder]
-        findings.append({
-            'severity': 'warn', 'book': folder, 'entity': None,
-            'citing_count': len(citers), 'citing_sample': citers[:3],
-            'reason': (f'book "{folder}" is cited by {len(citers)} topic page(s) but no entity '
-                       f'page resolves (expected wiki/entities/books/{folder}.md or '
-                       f'{folder}-book.md) — book mid-ingest, or entity missing/misnamed'),
-        })
+        findings.append(
+            {
+                'severity': 'warn',
+                'book': folder,
+                'entity': None,
+                'citing_count': len(citers),
+                'citing_sample': citers[:3],
+                'reason': (
+                    f'book "{folder}" is cited by {len(citers)} topic page(s) but no entity '
+                    f'page resolves (expected wiki/entities/books/{folder}.md or '
+                    f'{folder}-book.md) — book mid-ingest, or entity missing/misnamed'
+                ),
+            }
+        )
     return findings
 
 
@@ -1746,17 +1906,32 @@ def _ext_merge_tombstone_hygiene(vault_path, config, check):
         slug = os.path.splitext(os.path.basename(rp))[0]
         target = m.group(1).strip()
         if target not in live_slugs:
-            findings.append({'page': rp, 'severity': 'fail',
-                             'reason': f'merge target [[{target}]] is not a live page (broken redirect)'})
+            findings.append(
+                {
+                    'page': rp,
+                    'severity': 'fail',
+                    'reason': f'merge target [[{target}]] is not a live page (broken redirect)',
+                }
+            )
         aliases = fm.get('aliases', []) or []
         if aliases:
-            findings.append({'page': rp, 'severity': 'warn',
-                             'reason': f'tombstone still carries {len(aliases)} alias(es); migrate them to [[{target}]] so each term has one owner'})
+            findings.append(
+                {
+                    'page': rp,
+                    'severity': 'warn',
+                    'reason': f'tombstone still carries {len(aliases)} alias(es); migrate them to [[{target}]] so each term has one owner',
+                }
+            )
         stragglers = sorted(inbound.get(slug, set()))
         if stragglers:
             shown = ', '.join(stragglers[:8]) + ('…' if len(stragglers) > 8 else '')
-            findings.append({'page': rp, 'severity': 'warn',
-                             'reason': f'{len(stragglers)} live page(s) still wikilink this tombstone instead of [[{target}]]: {shown}'})
+            findings.append(
+                {
+                    'page': rp,
+                    'severity': 'warn',
+                    'reason': f'{len(stragglers)} live page(s) still wikilink this tombstone instead of [[{target}]]: {shown}',
+                }
+            )
     return findings
 
 
@@ -1774,6 +1949,7 @@ _EXT_HANDLERS = {
 # ══════════════════════════════════════════════════════════════════════════════
 # §16 REPORT RENDERING
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def _fmt_delta(d):
     return f'+{d}' if d > 0 else str(d)
@@ -1799,18 +1975,20 @@ def render_fatal_report(vault_slug, fatal):
         '|---|---|---|---|',
     ]
     for role in sorted(fatal['delta']):
-        L.append(f'| {role} | {fatal["reported"].get(role,0)} | {fatal["actual"].get(role,0)} | {_fmt_delta(fatal["delta"][role])} |')
+        L.append(
+            f'| {role} | {fatal["reported"].get(role, 0)} | {fatal["actual"].get(role, 0)} | {_fmt_delta(fatal["delta"][role])} |'
+        )
     L += [
         '',
         f'**Watermark date:** {fatal["watermark_date"]}',
         '**Activity since watermark:** zero across all categories (books: 0, articles: 0, other ingests: 0, handoffs: 0)',
         '',
         '**Three possible causes:**',
-        '(a) The current lint\'s counting logic differs from the prior lint\'s — runtime non-determinism in Phase 2.',
+        "(a) The current lint's counting logic differs from the prior lint's — runtime non-determinism in Phase 2.",
         '(b) The vault received page edits outside logged operations (manual frontmatter changes).',
-        '(c) The prior lint\'s counting was wrong.',
+        "(c) The prior lint's counting was wrong.",
         '',
-        '**Recommendation:** Run the deterministic verification script (see Phase 2 calibration notes) against the vault. Compare its output to both the prior lint\'s actuals and this lint\'s actuals. Whichever matches identifies the run with correct counting logic; the other run is the bug. If neither matches, the vault has changed outside logged operations — check `git log` for non-ingest edits since the watermark date.',
+        "**Recommendation:** Run the deterministic verification script (see Phase 2 calibration notes) against the vault. Compare its output to both the prior lint's actuals and this lint's actuals. Whichever matches identifies the run with correct counting logic; the other run is the bug. If neither matches, the vault has changed outside logged operations — check `git log` for non-ingest edits since the watermark date.",
     ]
     return '\n'.join(L)
 
@@ -1831,22 +2009,35 @@ def render_report(vault_slug, findings):
     p3 = findings['p3']
     index_md_text = findings.get('index_md_text', '')
 
-    c8_count = 0 if c8.get('skipped') else (
-        len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
-        len(c8['alias_collision']) + len(c8['alias_shadows']) +
-        (1 if c8.get('skeleton_unseeded') else 0) +
-        (1 if c8.get('authority_type_wrong') else 0) +
-        (1 if c8.get('authority_malformed') else 0)
+    c8_count = (
+        0
+        if c8.get('skipped')
+        else (
+            len(c8['topic_unregistered'])
+            + len(c8['topic_use_preferred'])
+            + len(c8['alias_collision'])
+            + len(c8['alias_shadows'])
+            + (1 if c8.get('skeleton_unseeded') else 0)
+            + (1 if c8.get('authority_type_wrong') else 0)
+            + (1 if c8.get('authority_malformed') else 0)
+        )
     )
 
     # Counts for summary
     ph1 = (
-        len(c1['findings']) + len(c2['orphans']) +
-        len(c3a['dangling']) + len(c3b['candidates']) +
-        min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
-        len(c6['stale_active']) + len(c6['opposing_candidates']) +
-        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions']) +
-        c8_count
+        len(c1['findings'])
+        + len(c2['orphans'])
+        + len(c3a['dangling'])
+        + len(c3b['candidates'])
+        + min(20, len(c4['actionable']))
+        + len(c5['pairs'])
+        + len(c5['alias_resolve'])
+        + len(c6['stale_active'])
+        + len(c6['opposing_candidates'])
+        + len(c7['stubs'])
+        + len(c7['todos'])
+        + len(c7['open_questions'])
+        + c8_count
     )
     drift_n = 0 if p2.get('skipped') else sum(1 for d in p2['delta'].values() if d != 0)
     ph3_n = sum(len(r.get('findings', [])) for r in p3)
@@ -1881,18 +2072,26 @@ def render_report(vault_slug, findings):
     # ── Check 1
     L.append('### Check 1 — Citation-resolution sweep')
     if not c1['findings']:
-        dv = 'depth-validated' if c1['depth_validated'] else 'depth validation skipped — no depth table'
+        dv = (
+            'depth-validated'
+            if c1['depth_validated']
+            else 'depth validation skipped — no depth table'
+        )
         L.append(f'PASS — {c1["total"]} citations checked, all resolving ({dv})')
     else:
         nf = len(c1['findings'])
-        L.append(f'{c1["total"]} citations checked, {c1["resolving"]} resolving, {nf} non-resolving.')
+        L.append(
+            f'{c1["total"]} citations checked, {c1["resolving"]} resolving, {nf} non-resolving.'
+        )
         if not c1['depth_validated']:
             L.append('(depth validation skipped — no depth table)')
         for f in c1['findings']:
             if f['type'] == 'not-found':
                 L.append(f'- **NOT FOUND** `{f["cited"]}` in `{f["file"]}` — {f["defect"]}')
             else:
-                L.append(f'- **WRONG PREFIX** `{f["cited"]}` in `{f["file"]}` — expected `{f["expected_prefix"]}`, got `{f["actual_prefix"]}`')
+                L.append(
+                    f'- **WRONG PREFIX** `{f["cited"]}` in `{f["file"]}` — expected `{f["expected_prefix"]}`, got `{f["actual_prefix"]}`'
+                )
     L.append('')
 
     # ── Check 2
@@ -1919,13 +2118,15 @@ def render_report(vault_slug, findings):
             L.append(f'**Pass A — Dangling wikilinks ({len(c3a["dangling"])} unique targets):**')
             for tgt, citers in sorted(c3a['dangling'].items()):
                 sample = ', '.join(f'`{p}`' for p in citers[:5])
-                overflow = f'… +{len(citers)-5} more' if len(citers) > 5 else ''
+                overflow = f'… +{len(citers) - 5} more' if len(citers) > 5 else ''
                 L.append(f'- `[[{tgt}]]` ← {sample}{overflow}')
         else:
             L.append('Pass A — No dangling wikilinks.')
         if c3b['candidates']:
             L.append('')
-            L.append(f'**Pass B — Recurrent bold terms without a page ({len(c3b["candidates"])} candidates, canonical set: {c3b["canonical_set_size"]}):**')
+            L.append(
+                f'**Pass B — Recurrent bold terms without a page ({len(c3b["candidates"])} candidates, canonical set: {c3b["canonical_set_size"]}):**'
+            )
             for term, plist in sorted(c3b['candidates'].items(), key=lambda x: -len(x[1])):
                 L.append(f'- **{term}** appears in {len(plist)} pages — candidate for a topic page')
         else:
@@ -1940,15 +2141,19 @@ def render_report(vault_slug, findings):
     else:
         n_show = min(20, len(actionable))
         L.append(f'Total pages scanned: {c4["total_pages"]}')
-        L.append(f'Actionable pairs: {len(actionable)} '
-                 '(IDF-weighted; entity/book hubs and stopword neighbors excluded)')
+        L.append(
+            f'Actionable pairs: {len(actionable)} '
+            '(IDF-weighted; entity/book hubs and stopword neighbors excluded)'
+        )
         L.append('')
         L.append(f'Top {n_show} by weighted score:')
         for a, b, weight, shared in actionable[:n_show]:
-            L.append(f'- `{get_slug(a)}` ↔ `{get_slug(b)}`: score {weight} '
-                     f'({len(shared)} distinctive shared, sample: {shared[:3]})')
+            L.append(
+                f'- `{get_slug(a)}` ↔ `{get_slug(b)}`: score {weight} '
+                f'({len(shared)} distinctive shared, sample: {shared[:3]})'
+            )
         if len(actionable) > 20:
-            L.append(f'*Overflow: {len(actionable)-20} additional pairs not shown*')
+            L.append(f'*Overflow: {len(actionable) - 20} additional pairs not shown*')
     L.append('')
 
     # ── Check 5
@@ -1969,7 +2174,9 @@ def render_report(vault_slug, findings):
     alias_resolve = c5.get('alias_resolve', [])
     if alias_resolve:
         L.append(f'**Alias should resolve to dedicated page ({len(alias_resolve)}):**')
-        L.append('*De-alias signal — make the alias a link to the dedicated page; not a duplicate.*')
+        L.append(
+            '*De-alias signal — make the alias a link to the dedicated page; not a duplicate.*'
+        )
         L.append('')
         L.append('| Page | Alias | Dedicated page(s) |')
         L.append('|---|---|---|')
@@ -1986,10 +2193,18 @@ def render_report(vault_slug, findings):
         if c6['stale_active']:
             L.append(f'**Condition A — Stale-active pages ({len(c6["stale_active"])}):**')
             for item in c6['stale_active']:
-                topics_str = ', '.join(item['topics']) if isinstance(item['topics'], list) else str(item['topics'])
-                L.append(f'- `{item["page"]}` — last_updated: {item["last_updated"]} — topics: {topics_str}')
+                topics_str = (
+                    ', '.join(item['topics'])
+                    if isinstance(item['topics'], list)
+                    else str(item['topics'])
+                )
+                L.append(
+                    f'- `{item["page"]}` — last_updated: {item["last_updated"]} — topics: {topics_str}'
+                )
         if c6['opposing_candidates']:
-            L.append(f'**Condition B — Explicit CONTRADICTS: markers ({len(c6["opposing_candidates"])}):**')
+            L.append(
+                f'**Condition B — Explicit CONTRADICTS: markers ({len(c6["opposing_candidates"])}):**'
+            )
             for item in c6['opposing_candidates']:
                 L.append(f'- `{item["page"]}`: {item["line"]}')
                 if item.get('context_before'):
@@ -2012,7 +2227,7 @@ def render_report(vault_slug, findings):
             for item in c7['todos'][:20]:
                 L.append(f'- `{item["page"]}` [{item["marker"]}]: {item["line"]}')
             if len(c7['todos']) > 20:
-                L.append(f'*… and {len(c7["todos"])-20} more*')
+                L.append(f'*… and {len(c7["todos"]) - 20} more*')
         if c7['open_questions']:
             L.append(f'**Explicit gap markers — [?] / ?? / > Q: ({len(c7["open_questions"])}):**')
             for item in c7['open_questions']:
@@ -2022,50 +2237,72 @@ def render_report(vault_slug, findings):
     # ── Check 8 — controlled-vocabulary resolution (topics-authority SOT)
     L.append('### Check 8 — Controlled-vocabulary resolution (topics-authority)')
     if c8.get('skipped'):
-        L.append('SKIPPED — no `wiki/topics-authority.md` in this vault. '
-                 'Add one to control the `topics:` and `aliases:` vocabularies.')
+        L.append(
+            'SKIPPED — no `wiki/topics-authority.md` in this vault. '
+            'Add one to control the `topics:` and `aliases:` vocabularies.'
+        )
     elif c8_count == 0:
-        L.append(f'PASS — all `topics:` resolve against {c8["subject_vocab_size"]} '
-                 f'subject terms; no alias collisions or canonical shadows.')
+        L.append(
+            f'PASS — all `topics:` resolve against {c8["subject_vocab_size"]} '
+            f'subject terms; no alias collisions or canonical shadows.'
+        )
     else:
         if c8.get('authority_type_wrong'):
-            L.append(f'**WARN — wrong type:** `topics-authority.md` declares '
-                     f'`type: {c8.get("authority_declared_type")}` — it should be '
-                     '`type: authority` (a governance record, exempt from topic-page checks).')
+            L.append(
+                f'**WARN — wrong type:** `topics-authority.md` declares '
+                f'`type: {c8.get("authority_declared_type")}` — it should be '
+                '`type: authority` (a governance record, exempt from topic-page checks).'
+            )
             L.append('')
         if c8.get('authority_malformed'):
-            L.append('**WARN — malformed authority file:** `topics-authority.md` is missing '
-                     'a `## Subject categories` and/or `## Concept aliases` section.')
+            L.append(
+                '**WARN — malformed authority file:** `topics-authority.md` is missing '
+                'a `## Subject categories` and/or `## Concept aliases` section.'
+            )
             L.append('')
         if c8.get('skeleton_unseeded'):
-            L.append(f'**WARN — unpopulated SOT ({c8["page_count"]} pages exist):** '
-                     '`topics-authority.md` is still an empty scaffolder skeleton. The '
-                     'first-ingest seed (≤10 subjects, ≤30 aliases) was skipped — seed it '
-                     'now, or remove the file if this vault opts out of vocabulary control.')
+            L.append(
+                f'**WARN — unpopulated SOT ({c8["page_count"]} pages exist):** '
+                '`topics-authority.md` is still an empty scaffolder skeleton. The '
+                'first-ingest seed (≤10 subjects, ≤30 aliases) was skipped — seed it '
+                'now, or remove the file if this vault opts out of vocabulary control.'
+            )
             L.append('')
         if c8['topic_use_preferred']:
-            L.append(f'**Use the preferred term ({len(c8["topic_use_preferred"])}) — '
-                     '`topics:` value is a registered use-for variant:**')
+            L.append(
+                f'**Use the preferred term ({len(c8["topic_use_preferred"])}) — '
+                '`topics:` value is a registered use-for variant:**'
+            )
             for f in c8['topic_use_preferred']:
                 L.append(f'- `{f["page"]}` — `{f["value"]}` → use `{f["canonical"]}`')
         if c8['topic_unregistered']:
             L.append('')
-            L.append(f'**Unregistered `topics:` values ({len(c8["topic_unregistered"])}) — '
-                     'reconcile to a preferred term or register in the SOT:**')
+            L.append(
+                f'**Unregistered `topics:` values ({len(c8["topic_unregistered"])}) — '
+                'reconcile to a preferred term or register in the SOT:**'
+            )
             for f in c8['topic_unregistered']:
-                sug = f' → nearest: `{f["suggestion"]}`' if f['suggestion'] else ' (no close match — new category?)'
+                sug = (
+                    f' → nearest: `{f["suggestion"]}`'
+                    if f['suggestion']
+                    else ' (no close match — new category?)'
+                )
                 L.append(f'- `{f["page"]}` — `{f["value"]}`{sug}')
         if c8['alias_collision']:
             L.append('')
-            L.append(f'**Alias collisions ({len(c8["alias_collision"])}) — '
-                     'one alias claimed by multiple pages (breaks uniqueness):**')
+            L.append(
+                f'**Alias collisions ({len(c8["alias_collision"])}) — '
+                'one alias claimed by multiple pages (breaks uniqueness):**'
+            )
             for f in c8['alias_collision']:
                 pgs = ', '.join(f'`{p}`' for p in f['pages'])
                 L.append(f'- "{f["alias"]}" ← {pgs}')
         if c8['alias_shadows']:
             L.append('')
-            L.append(f'**Alias shadows a canonical ({len(c8["alias_shadows"])}) — '
-                     "alias equals another page's title/slug:**")
+            L.append(
+                f'**Alias shadows a canonical ({len(c8["alias_shadows"])}) — '
+                "alias equals another page's title/slug:**"
+            )
             for f in c8['alias_shadows']:
                 L.append(f'- `{f["page"]}` alias "{f["alias"]}" shadows `{f["canonical_page"]}`')
     L.append('')
@@ -2133,11 +2370,13 @@ def render_report(vault_slug, findings):
 
     if p2['missing_roles']:
         n = len(p2['missing_roles'])
-        L.append(f'**Frontmatter-completeness warnings** ({n} pages missing or empty `roles:` field):')
+        L.append(
+            f'**Frontmatter-completeness warnings** ({n} pages missing or empty `roles:` field):'
+        )
         for pg in p2['missing_roles'][:20]:
             L.append(f'- `{pg}`')
         if n > 20:
-            L.append(f'*… and {n-20} more*')
+            L.append(f'*… and {n - 20} more*')
         L.append('')
 
     if p2['unknown_roles']:
@@ -2199,7 +2438,9 @@ def _render_ext_findings(L, cid, findings):
     elif cid == 'calendar-staleness-sweep':
         for f in findings:
             if 'page' in f:
-                L.append(f'- `{f["page"]}` — volatility: {f["volatility"]} — next_review: {f["next_review"]} — status: {f["status"]}')
+                L.append(
+                    f'- `{f["page"]}` — volatility: {f["volatility"]} — next_review: {f["next_review"]} — status: {f["status"]}'
+                )
 
     elif cid == 'alias-bilingual-coverage':
         for f in findings:
@@ -2241,11 +2482,15 @@ def _render_patch_block(L, p2, index_md_text):
 
     if fmt_type == 'unknown':
         L.append('## READY-TO-APPLY PATCH — wiki/index.md role table')
-        L.append('Could not detect role-page-counts format in index.md — patch cannot be auto-generated.')
+        L.append(
+            'Could not detect role-page-counts format in index.md — patch cannot be auto-generated.'
+        )
         return
 
     if fmt_type == 'list':
-        L.append(f'## READY-TO-APPLY PATCH — wiki/index.md role list (lines {sec_start+1}–{sec_end})')
+        L.append(
+            f'## READY-TO-APPLY PATCH — wiki/index.md role list (lines {sec_start + 1}–{sec_end})'
+        )
         L.append('')
         L.append('Replace the Role Maps of Content section in `wiki/index.md`:')
         L.append('')
@@ -2253,8 +2498,7 @@ def _render_patch_block(L, p2, index_md_text):
         for ln in index_lines[sec_start:sec_end]:
             # Match list item: - [Role — Name](topics/role-<id>.md) — N pages; rest
             m = re.match(
-                r'^(-\s+\[.*?\]\(topics/role-([\w\-]+)\.md\).*?—\s+)(\d+)(\s+pages?.*)',
-                ln
+                r'^(-\s+\[.*?\]\(topics/role-([\w\-]+)\.md\).*?—\s+)(\d+)(\s+pages?.*)', ln
             )
             if m:
                 role_id = m.group(2)
@@ -2266,7 +2510,9 @@ def _render_patch_block(L, p2, index_md_text):
         L.append('```')
 
     elif fmt_type == 'table':
-        L.append(f'## READY-TO-APPLY PATCH — wiki/index.md role table (lines {sec_start+1}–{sec_end})')
+        L.append(
+            f'## READY-TO-APPLY PATCH — wiki/index.md role table (lines {sec_start + 1}–{sec_end})'
+        )
         L.append('')
         L.append('Replace the role table in `wiki/index.md`:')
         L.append('')
@@ -2290,6 +2536,7 @@ def _render_patch_block(L, p2, index_md_text):
 # §17 FILE I/O
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def write_report(report_path, text):
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
     with open(report_path, 'w', encoding='utf-8') as f:
@@ -2311,12 +2558,13 @@ def append_log_entry(log_path, vault_slug, ph1_count, drift_count):
 def clear_pending_marker(log_path, vault_slug):
     """Remove 'lint | pending | <vault-slug>' marker lines from log.md."""
     try:
-        with open(log_path, 'r', encoding='utf-8') as f:
+        with open(log_path, encoding='utf-8') as f:
             text = f.read()
         pattern = re.compile(
-            r'\n?##\s+\[[\d\-]+\]\s+lint\s+\|\s+pending\s+\|\s+' +
-            re.escape(vault_slug) + r'[^\n]*',
-            re.MULTILINE
+            r'\n?##\s+\[[\d\-]+\]\s+lint\s+\|\s+pending\s+\|\s+'
+            + re.escape(vault_slug)
+            + r'[^\n]*',
+            re.MULTILINE,
         )
         new_text, n = pattern.subn('', text)
         if n > 0:
@@ -2329,6 +2577,7 @@ def clear_pending_marker(log_path, vault_slug):
 # ══════════════════════════════════════════════════════════════════════════════
 # §18 MAIN
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def main():
     if len(sys.argv) < 2:
@@ -2370,7 +2619,7 @@ def main():
         with open(index_md_path, encoding='utf-8') as f:
             index_md_text = f.read()
     else:
-        print(f'WARNING: wiki/index.md not found', file=sys.stderr)
+        print('WARNING: wiki/index.md not found', file=sys.stderr)
 
     log_md_path = os.path.join(vault_path, 'wiki', 'log.md')
     log_md_text = ''
@@ -2378,7 +2627,7 @@ def main():
         with open(log_md_path, encoding='utf-8') as f:
             log_md_text = f.read()
     else:
-        print(f'WARNING: wiki/log.md not found', file=sys.stderr)
+        print('WARNING: wiki/log.md not found', file=sys.stderr)
 
     print(f'[vault-lint] vault: {vault_slug} | date: {TODAY_STR}')
     print(f'[vault-lint] canonical roles ({len(canonical_roles)}): {canonical_roles}')
@@ -2411,25 +2660,33 @@ def main():
     print(f'  Check 4 (cross-refs):   {len(c4["actionable"])} actionable pairs (IDF-weighted)')
 
     c5 = check_5_duplicates(pages)
-    print(f'  Check 5 (duplicates):   {len(c5["pairs"])} pairs, '
-          f'{len(c5["alias_resolve"])} alias-resolve')
+    print(
+        f'  Check 5 (duplicates):   {len(c5["pairs"])} pairs, '
+        f'{len(c5["alias_resolve"])} alias-resolve'
+    )
 
     c6 = check_6_stale_claims(pages)
-    print(f'  Check 6 (stale):        {len(c6["stale_active"])} stale-active, {len(c6["opposing_candidates"])} CONTRADICTS: markers')
+    print(
+        f'  Check 6 (stale):        {len(c6["stale_active"])} stale-active, {len(c6["opposing_candidates"])} CONTRADICTS: markers'
+    )
 
     c7 = check_7_data_gaps(pages)
-    print(f'  Check 7 (data gaps):    {len(c7["stubs"])} stubs, {len(c7["todos"])} TODOs, {len(c7["open_questions"])} questions')
+    print(
+        f'  Check 7 (data gaps):    {len(c7["stubs"])} stubs, {len(c7["todos"])} TODOs, {len(c7["open_questions"])} questions'
+    )
 
     authority = parse_topics_authority(vault_path)
     c8 = check_8_vocabulary(pages, authority)
     if c8.get('skipped'):
         print('  Check 8 (vocabulary):   skipped — no wiki/topics-authority.md')
     else:
-        print(f'  Check 8 (vocabulary):   {len(c8["topic_unregistered"])} unregistered, '
-              f'{len(c8["topic_use_preferred"])} use-preferred, '
-              f'{len(c8["alias_collision"])} alias collisions, '
-              f'{len(c8["alias_shadows"])} shadows'
-              f'{"; SOT skeleton unseeded" if c8.get("skeleton_unseeded") else ""}')
+        print(
+            f'  Check 8 (vocabulary):   {len(c8["topic_unregistered"])} unregistered, '
+            f'{len(c8["topic_use_preferred"])} use-preferred, '
+            f'{len(c8["alias_collision"])} alias collisions, '
+            f'{len(c8["alias_shadows"])} shadows'
+            f'{"; SOT skeleton unseeded" if c8.get("skeleton_unseeded") else ""}'
+        )
 
     # ── Phase 1.5 ─────────────────────────────────────────────
     print('[vault-lint] Phase 1.5 — activity since last lint')
@@ -2467,8 +2724,19 @@ def main():
 
     # ── Render and write report ────────────────────────────────
     all_findings = dict(
-        c1=c1, c2=c2, c3a=c3a, c3b=c3b, c4=c4, c5=c5, c6=c6, c7=c7, c8=c8,
-        p15=p15, p2=p2, p3=p3, index_md_text=index_md_text,
+        c1=c1,
+        c2=c2,
+        c3a=c3a,
+        c3b=c3b,
+        c4=c4,
+        c5=c5,
+        c6=c6,
+        c7=c7,
+        c8=c8,
+        p15=p15,
+        p2=p2,
+        p3=p3,
+        index_md_text=index_md_text,
     )
     report_text = render_report(vault_slug, all_findings)
     report_path = os.path.join(vault_path, 'wiki', 'digests', f'lint-{TODAY_STR}.md')
@@ -2476,20 +2744,33 @@ def main():
     print(f'[vault-lint] report written: {report_path}')
 
     # ── Log entry + pending marker cleanup ─────────────────────
-    c8_total = 0 if c8.get('skipped') else (
-        len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
-        len(c8['alias_collision']) + len(c8['alias_shadows']) +
-        (1 if c8.get('skeleton_unseeded') else 0) +
-        (1 if c8.get('authority_type_wrong') else 0) +
-        (1 if c8.get('authority_malformed') else 0)
+    c8_total = (
+        0
+        if c8.get('skipped')
+        else (
+            len(c8['topic_unregistered'])
+            + len(c8['topic_use_preferred'])
+            + len(c8['alias_collision'])
+            + len(c8['alias_shadows'])
+            + (1 if c8.get('skeleton_unseeded') else 0)
+            + (1 if c8.get('authority_type_wrong') else 0)
+            + (1 if c8.get('authority_malformed') else 0)
+        )
     )
     ph1_total = (
-        len(c1['findings']) + len(c2['orphans']) +
-        len(c3a['dangling']) + len(c3b['candidates']) +
-        min(20, len(c4['actionable'])) + len(c5['pairs']) + len(c5['alias_resolve']) +
-        len(c6['stale_active']) + len(c6['opposing_candidates']) +
-        len(c7['stubs']) + len(c7['todos']) + len(c7['open_questions']) +
-        c8_total
+        len(c1['findings'])
+        + len(c2['orphans'])
+        + len(c3a['dangling'])
+        + len(c3b['candidates'])
+        + min(20, len(c4['actionable']))
+        + len(c5['pairs'])
+        + len(c5['alias_resolve'])
+        + len(c6['stale_active'])
+        + len(c6['opposing_candidates'])
+        + len(c7['stubs'])
+        + len(c7['todos'])
+        + len(c7['open_questions'])
+        + c8_total
     )
     drift_count = len(drift_roles)
     append_log_entry(log_md_path, vault_slug, ph1_total, drift_count)
@@ -2498,7 +2779,8 @@ def main():
 
     # ── Summary stdout ─────────────────────────────────────────
     quiescent = sum(
-        1 for r in p3
+        1
+        for r in p3
         if r.get('id') == 'project-entity-recent-handoff'
         for f in r.get('findings', [])
         if isinstance(f, dict) and f.get('status') == 'quiescent'
@@ -2508,10 +2790,12 @@ def main():
     print(f'Lint complete: {vault_slug} {TODAY_STR}')
     print(f'  Phase 1 findings:    {ph1_total}')
     print(f'  Role drift:          {drift_count} roles')
-    print(f'  Structural signals:  {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned')
-    print(f'  Phase 3 findings:    {sum(len(r.get("findings",[])) for r in p3)}')
+    print(
+        f'  Structural signals:  {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned'
+    )
+    print(f'  Phase 3 findings:    {sum(len(r.get("findings", [])) for r in p3)}')
     print(f'  Quiescent projects:  {quiescent}')
-    print(f'  FATAL:               no')
+    print('  FATAL:               no')
     print(f'  Report:              {report_path}')
     return 0
 
