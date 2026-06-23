@@ -1,0 +1,16 @@
+# Ruff configuration for the Python tooling (linter + formatter).
+# The Python here is dependency-free stdlib; keep the rule set lean and the
+# formatter faithful to the existing single-quote style to avoid churn.
+
+target-version = "py310"
+line-length = 100
+
+[lint]
+# Default rules (Pyflakes `F`, pycodestyle `E`/`W`) plus a few high-signal sets.
+select = ["E", "F", "W", "I", "UP", "B"]
+# The formatter owns line width; don't also hand-flag long strings/comments
+# it can't split. E501 stays off so `ruff check` and `ruff format` don't fight.
+ignore = ["E501"]
+
+[format]
+quote-style = "single"
