@@ -296,7 +296,7 @@ This vault exists for documentation only. Its job is to enrich the human's excha
 - `raw-input/` — immutable source materials. Read-only for existing content; add new files only via intake/ingest. Never modify, never delete existing files.
   - `_pending/` — staging area. Intake and Obsidian Web Clipper write here; ingest empties it.
   - `articles/` — web-clipped articles (Obsidian Web Clipper).
-  - `books/` — one subfolder per book, each containing the source PDF and a `meta.md` (title, author, chapter->page map, ingest status). No per-chapter subfolders.
+  - `books/` — one subfolder per book, each containing the source PDF and a `meta.md` (title, author, edition/identifier, chapter->page map, ingest status). No per-chapter subfolders.
   - `{{EXEC_HANDOFF}}s/` — raw outputs of {{EXEC_NOUN}} sessions.
   - `notes/` — research, references, misc material the human writes.
   - `planning-handoffs/` — raw outputs (e.g. chat exports) of thinking/sparring sessions.
@@ -310,7 +310,7 @@ This vault exists for documentation only. Its job is to enrich the human's excha
     - `planning-handoffs/` — one distillation page per thinking/sparring session.
   - `entities/` — pages about specific things, in two families. Subdirs are listed only when they exist; add a new subdir when a type is first created, not speculatively.
     - **Source entities** — one page per ingested source, one subdir per source type. Each page's filename carries a **type suffix** so its wikilink is self-describing and never collides with a concept page (and gives the source-entity-backlink lint check a deterministic source→entity mapping):
-      - `books/` → `<slug>-book.md` — one overview page per book (chapter index + ingest progress).
+      - `books/` → `<slug>-book.md` — one overview page per book (chapter index, ingest progress, and the edition/identifier it was ingested from).
       - `papers/` → `<slug>-paper.md` — one page per scientific article.
       - `blog-posts/` → `<slug>-blog-post.md` — one page per blog post.
       - `whitepapers/` → `<slug>-whitepaper.md` — one page per whitepaper.
@@ -402,6 +402,12 @@ A page drawing from multiple tiers carries the LOWEST tier present. A page with 
 
 Existing pages (synthesized from books only) are all source_tier: 1. The field is required on new pages; backfill existing pages lazily when they are next updated, not as a bulk pass.
 
+**Source-identity fields (source-entity pages only).** Pages of `type: book | paper | blog-post | whitepaper` additionally record the bibliographic identity of the specific manifestation they describe, so every citation resolves against a known edition:
+- `edition:` — the printing/edition actually ingested (e.g. `2nd ed., 2018`), or `null` for a single-version work with no edition statement.
+- `isbn:` (books) / `doi:` (papers) — a stable external identifier when one exists; `null` otherwise.
+
+This is what protects each `#page=N` anchor over time: if a different printing is ever ingested, the discriminator makes the manifestation explicit instead of letting page anchors silently drift from the `p. M` tail. These fields are optional and backfilled lazily on existing source entities when they are next updated, not as a bulk pass.
+
 Other conventions:
 
 - Cross-references use Obsidian `[[wikilink]]` syntax.
@@ -413,10 +419,12 @@ Other conventions:
   - `#page=N` — the PDF page on which the cited sentence actually appears.
   - `, p. N` — the printed page **containing** the sentence (the block holding it), not the printed page that merely begins on PDF page N.
   Because a printed page overflows onto the next PDF page, the two values may legitimately differ. Do not infer the tail from a PDF→printed offset: the offset drifts within a chapter, and the tail must reflect the printed page of the block holding the sentence.
+  - **Canonical locator.** `, p. M` (the printed page) is the canonical, edition-stable reference — it resolves in any copy of the same edition. `#page=N` is a resolver hint into one specific digitised manifestation (this PDF); across a different printing or edition it may drift while `p. M` does not. If the two ever conflict, trust `p. M` and re-derive `#page=N`. This is why the source entity records the edition it was ingested from (see Source-identity fields below).
 - **Ground-truth precedence for the printed-page tail.** Derive the tail from, in order:
   1. The PDF's own printed page numbers, when the digitisation preserves them.
   2. Otherwise, for an EPUB-derived PDF that strips them, the EPUB `page0NNN` page-div containing the sentence (one div = one printed page). Maintain `raw-input/books/<slug>/printed-page-map.md` — a div → printed → PDF mapping — and derive every tail from it.
   3. If neither is available, record the tail as **unverifiable** rather than guessing.
+- **Same author, same year.** When two cited works share an author and year, disambiguate them with a letter suffix on the year — `[Author 2004a]`, `[Author 2004b]` — assigned in order of first appearance on the page and used identically in the inline citation and the `## Sources` block. Each suffix maps to a distinct `[[<slug>-book]]` source entity.
 - Page filenames in `kebab-case.md`.
 - Topic page size: aim for 2,000–5,000 tokens per page. Pages exceeding 8,000 tokens are candidates for splitting or for aggressive negative-space review. Cross-book convergence pages may legitimately exceed this — flag them explicitly in frontmatter with a note explaining why.
 - `log.md` entries use the format:
