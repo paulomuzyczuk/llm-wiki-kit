@@ -38,7 +38,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 ## Ingest status
 
 - [x] Ch.1 — Introduction  (batch 2: full synthesis → [[free-software-vs-open-source]], [[open-source-culture]]) ✓ reviewed-clean
-- [~] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]]; batch 3: §Starting From What You Have + §Choosing a License → [[launching-an-open-source-project]], [[open-source-licensing]]; Ch.2b §Setting the Tone etc. pending batch 4)
+- [x] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]]; batch 3: §Starting From What You Have + §Choosing a License → [[launching-an-open-source-project]], [[open-source-licensing]]; batch 4: §Setting the Tone + §Opening a Formerly Closed Project + §Announcing → [[setting-the-tone]], [[developing-in-the-open]], enriched [[launching-an-open-source-project]]) ✓ reviewed-clean
 - [~] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]])
 - [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [ ] Ch.5 — Organizations and Money
@@ -49,5 +49,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 
 > This is a public **example** vault. As of 2026-06-23 it is being ingested in full
 > across 17 batches (see `ingestion-plan.md`) so the complete book-ingest workflow is
-> reproduced end to end. Batch 1 (Ch.3 §Version Control + Ch.2 §Code Review) and Batch 2
-> (Ch.1 + Ch.4) are done; the remaining chapters follow under the plan.
+> reproduced end to end. Batches 1–4 are done — Batch 1 (Ch.3 §Version Control + Ch.2
+> §Code Review), Batch 2 (Ch.1 + Ch.4), Batch 3 (Ch.2a launch + licensing), Batch 4 (Ch.2b
+> setting the tone + opening a closed project + announcing, completing Chapter 2); the
+> remaining chapters follow under the plan.
