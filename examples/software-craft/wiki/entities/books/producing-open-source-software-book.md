@@ -2,7 +2,7 @@
 title: Producing Open Source Software — How to Run a Successful Free Software Project
 aliases: []
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: book
 edition: 2nd Edition (v2.3300, 05 Feb 2023)
 isbn: null
@@ -45,8 +45,10 @@ chat, wikis, translation, social networking). Chapters 1–4 are now fully inges
 opened Ch.5 (the economics of open source, corporate/government involvement, hiring for the
 long term, and contracting) as full synthesis; Batch 8 added the non-code half of Ch.5 —
 funding non-programming activities (testing, docs, UX, infra, security, events) and marketing
-(the vendor-lock-in advantage, "you are being watched," open core / terminology integrity). Ch.5
-concludes in Batch 9.
+(the vendor-lock-in advantage, "you are being watched," open core / terminology integrity). Batch 9
+completed Ch.5 with "Open Source and the Organization" (foster pools of expertise, publicity-vs-schedule,
+middle management), innersourcing, hiring open-source developers, evaluating projects, and
+crowdfunding/bounties — Chapter 5 is now fully ingested.
 
 ## Chapter Index
 
@@ -56,7 +58,7 @@ concludes in Batch 9.
 | 2 | Getting Started | 22–42 | ✓ batch 1, 3, 4 | [[code-review]], [[launching-an-open-source-project]], [[open-source-licensing]], [[setting-the-tone]], [[developing-in-the-open]] |
 | 3 | Technical Infrastructure | 43–71 | ✓ batch 1, 5, 6 | [[version-control]], [[project-infrastructure]], [[project-hosting]], [[message-forums]], [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]] |
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
-| 5 | Organizations and Money | 80–106 | ◐ batch 7 (5a), 8 (5b) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]] |
+| 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
 | 6 | Communications | 107–131 | — | |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
 | 8 | Managing Participants | 149–170 | — | |

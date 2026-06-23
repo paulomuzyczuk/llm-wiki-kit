@@ -3,12 +3,13 @@ title: Topics Authority — software craft
 type: authority
 status: active
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 ---
 
 <!-- batch 6 (2026-06-23): registered concepts bug-tracking, real-time-chat, wikis, translation-infrastructure -->
 <!-- batch 7 (2026-06-23): registered subject open-source-economics; concepts open-source-economics, corporate-open-source-participation, government-and-open-source, open-source-contracting -->
 <!-- batch 8 (2026-06-23): registered concepts funding-non-programming-activities, open-source-marketing -->
+<!-- batch 9 (2026-06-24): registered concepts innersourcing, evaluating-open-source-projects, hiring-open-source-developers, crowdfunding-and-bounties -->
 
 # Topics Authority — software craft
 
@@ -76,6 +77,10 @@ pages or shadow another page's canonical title/slug.
 | open-source-contracting | contracting, contractors, osqa, open-source-quality-assurance |
 | funding-non-programming-activities | non-code-funding, funding-non-programming-work, professional-testing |
 | open-source-marketing | oss-marketing, freedom-from-vendor-lock-in, cost-of-total-ownership |
+| innersourcing | innersource, inner-source |
+| evaluating-open-source-projects | project-evaluation, evaluating-projects, project-health-signals |
+| hiring-open-source-developers | hiring-for-influence, open-source-resume, portable-resume-test |
+| crowdfunding-and-bounties | crowdfunding, bounties, bounty-funding |
 
 ## Reserved non-subject tags
 
