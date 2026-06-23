@@ -303,7 +303,7 @@ This vault exists for documentation only. Its job is to enrich the human's excha
   - `planning-handoffs/` — raw outputs (e.g. chat exports) of thinking/sparring sessions.
 
 - `wiki/` — your domain.
-  - `index.md` — catalogue of every wiki page with one-line summaries, organised by category.
+  - `index.md` — catalogue of every wiki page with one-line summaries. Group entries by a small, **stable subject-category** set — the retrieval surface exists for collocation (like things together), so organise it by *what pages are about*, not by the source or batch they arrived in (an ingestion ledger belongs in `log.md`). Curated **role maps-of-content** (`wiki/topics/role-<name>.md` — see sanctioned region 10) are the expected browse layer *above* this flat list: each curates the highest-value pages for one role as a navigation entry point. Role MOCs are navigation surfaces rather than content, so `/vault-lint` treats them as top-level entry points and exempts them from the orphan check.
   - `topics-authority.md` — controlled-vocabulary source of truth: the preferred `topics:` subject terms and the registered `aliases:`, each with their accepted variants (a lightweight thesaurus). `/vault-lint` resolves every `topics:`/`aliases:` value against it. Scaffolded as an unpopulated skeleton and seeded by the first ingest (see Conventions → *First-ingest seed*).
   - `log.md` — append-only chronological log of operations.
   - `gaps.md` — field-level open questions and missing source coverage tracker; two sections: §1 explicit knowledge gaps found in ingested content, §2 books not yet in the vault.
