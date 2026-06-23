@@ -115,6 +115,22 @@ this flat list.
   being watched" (audit every claim), don't bash competing vendors, and "commercial vs
   proprietary" terminology integrity (don't mislabel open core as "Community/Enterprise Edition").
 
+### Open-source communication & conflict
+
+- [[written-communication]] — clear writing as the load-bearing open-source skill: "you are
+  what you write," plain-text/formatting and content conventions, terseness leavened because
+  "feelings affect productivity," what counts as rude (direct criticism and blunt questions
+  don't; skimping on promised criticism does), and the consistent screen name as your online
+  "face."
+- [[facilitating-online-discussion]] — keeping group threads productive: post only with a
+  purpose, steer with "we" and a positive next action, the Bikeshed Effect (debate grows as
+  topic complexity shrinks), defusing holy wars, countering the noisy-minority effect with
+  quantitative evidence, and why not to bash competing projects.
+- [[difficult-people]] — the obstructionist who manipulates process rather than being overtly
+  rude (filibuster, sealioning, summary-blocking); usually driven by insecurity, often best
+  tolerated, and when not, defeated by an archive-grounded quantitative case — never an
+  accusation.
+
 ### Open-source ecosystem & participation
 
 - [[open-source-participation]] — who actually makes open-source code: a small,
@@ -144,7 +160,8 @@ this flat list.
   developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
   opened Ch.5 "Organizations and Money" — economics, corporate/government involvement, hiring,
   contracting; Batch 8 added Ch.5's non-code half — funding non-programming activities and
-  marketing; Ch.5 concludes in batch 9, Ch.6–9 pending).
+  marketing; Batch 9 completed Ch.5. Batch 10 opened Ch.6 "Communications" (6a) — written
+  culture, facilitating discussion, difficult people; Ch.6 concludes in batch 11, Ch.7–9 pending).
 
 ### Papers
 

@@ -48,7 +48,12 @@ funding non-programming activities (testing, docs, UX, infra, security, events) 
 (the vendor-lock-in advantage, "you are being watched," open core / terminology integrity). Batch 9
 completed Ch.5 with "Open Source and the Organization" (foster pools of expertise, publicity-vs-schedule,
 middle management), innersourcing, hiring open-source developers, evaluating projects, and
-crowdfunding/bounties — Chapter 5 is now fully ingested.
+crowdfunding/bounties — Chapter 5 is now fully ingested. Batch 10 opens Chapter 6
+(Communications) with its first half — written culture (clear writing as the load-bearing
+skill, "you are what you write," recognizing rudeness, the online "face"), avoiding common
+pitfalls (the Bikeshed Effect, holy wars, the noisy-minority effect), and handling difficult
+people (obstructionists who manipulate process rather than merely being rude); Ch.6 concludes
+in batch 11.
 
 ## Chapter Index
 
@@ -59,13 +64,13 @@ crowdfunding/bounties — Chapter 5 is now fully ingested.
 | 3 | Technical Infrastructure | 43–71 | ✓ batch 1, 5, 6 | [[version-control]], [[project-infrastructure]], [[project-hosting]], [[message-forums]], [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]] |
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
 | 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
-| 6 | Communications | 107–131 | — | |
+| 6 | Communications | 107–131 | ◐ batch 10 (6a) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
 | 8 | Managing Participants | 149–170 | — | |
 | 9 | Legal Matters | 171–190 | — | |
 
 ## Negative Space
 
-- **Chapters 5–9, and the remainder of Ch.2–3** (`source-underdeveloped`): not yet
-  ingested — scheduled across Batches 3–17 in `ingestion-plan.md`. The chapter index
+- **Chapters 7–9, and the second half of Ch.6** (`source-underdeveloped`): not yet
+  ingested — scheduled across Batches 11–17 in `ingestion-plan.md`. The chapter index
   above tracks live progress; un-ticked chapters are pending, not deliberately excluded.
