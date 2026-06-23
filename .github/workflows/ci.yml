@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Conformance test suite
+        run: python3 -m pytest -q check-conformance/tests/
+
+      - name: Scaffolder round-trip smoke test
+        # A freshly scaffolded vault must pass the conformance checker with exit 0.
+        # This guards the template/subs/scaffolder against the kind of drift the
+        # lint-path and token-set fixes addressed.
+        run: |
+          ./new-vault.sh --subs check-conformance/subs/software-craft.json --dest "$RUNNER_TEMP/ci-vault"
+          python3 check-conformance/check-conformance.py \
+            --vault "$RUNNER_TEMP/ci-vault/CLAUDE.md" \
+            --template CLAUDE.template.md \
+            --subs check-conformance/subs/software-craft.json
