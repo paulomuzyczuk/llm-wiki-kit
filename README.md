@@ -34,6 +34,7 @@ One template, many vaults. A "fleet" of domain vaults (software craft, finance, 
 
 | Tool | What it does |
 |------|--------------|
+| [`new-vault.sh`](new-vault.sh) | Scaffolds a new vault from `CLAUDE.template.md` + a subs file: validates the token set, substitutes every `{{PLACEHOLDER}}`, writes `CLAUDE.md`, and creates the folder tree. A freshly scaffolded vault passes `check-conformance.py` with exit 0. |
 | [`vault-lint/lint.py`](vault-lint/lint.py) | Reference implementation of the lint spec. `python3 lint.py <vault-path>` → writes a dated digest and appends to the vault log. |
 | [`check-conformance/check-conformance.py`](check-conformance/check-conformance.py) | Mechanical template-vs-vault diff that respects the sanctioned-divergence regions. Has a pytest suite under `check-conformance/tests/`. |
 
@@ -56,7 +57,13 @@ for skill in article-extractor book-ingestion book-planner book-review vault-eva
 done
 ```
 
-Then create a vault by copying `CLAUDE.template.md` into your vault root as `CLAUDE.md` and substituting the `{{PLACEHOLDER}}` values — the instantiation header at the top of the template walks through it.
+Then create a vault with the scaffolder, reusing the same subs format the conformance checker consumes:
+
+```sh
+./new-vault.sh --subs check-conformance/subs/software-craft.json --dest ~/vaults/my-vault
+```
+
+It substitutes the tokens, writes `CLAUDE.md`, and builds the folder tree; it then prints the judgment calls it deliberately leaves to you (the roles table, the optional notation/extension blocks, the lint config). Prefer to do it by hand? Copy `CLAUDE.template.md` into your vault root as `CLAUDE.md` and substitute the `{{PLACEHOLDER}}` values yourself — the instantiation header at the top of the template walks through it.
 
 The Python tools require Python 3 and no third-party dependencies; run their test suites with `pytest`.
 

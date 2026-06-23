@@ -1,10 +1,13 @@
 {
-  "_provenance": "Example subs file for the `software-craft` vault. A subs file records the token substitutions a vault's CLAUDE.md was instantiated with, so check-conformance.py can re-derive the expected template output and diff it against the live CLAUDE.md. The token values below are the canonical inputs; this `_provenance` field is free-form notes (ignored by the tool) where you record per-vault ratification decisions and accepted divergences. `software-craft` is an exec-split vault: `coding-handoff` is its execution-session record type, rolling into `projects/` entity pages.",
+  "_provenance": "Example subs file for the `software-craft` vault. A subs file records the token substitutions a vault's CLAUDE.md was instantiated with, so check-conformance.py can re-derive the expected template output and diff it against the live CLAUDE.md, and new-vault.sh can scaffold a fresh vault from the same inputs. The token values below are the canonical inputs; this `_provenance` field is free-form notes (ignored by the tools) where you record per-vault ratification decisions and accepted divergences. `software-craft` is an exec-split, project-segmented vault: `coding-handoff` is its execution-session record type rolling into `projects/` entity pages, and its log entries are classified by `project`. Every token the template body uses must appear here — both tools discover the full token set from the template and error on any that are missing.",
   "DOMAIN": "software craft",
   "VAULT_PREFIX": "sc",
+  "VAULT_SLUG": "software-craft",
   "EXEC_HANDOFF": "coding-handoff",
   "EXEC_NOUN": "coding",
   "ENTITY_SUBJECT": "projects",
   "ENTITY_SUBJECT-singular": "project",
-  "EXTERNAL_WORK_PATH": "~/projects/<name>/"
+  "EXTERNAL_WORK_PATH": "~/projects/<name>/",
+  "LOG_CLASSIFIER": "project",
+  "SCHEDULE_TIME": "08:02"
 }
