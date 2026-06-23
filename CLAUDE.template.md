@@ -368,7 +368,7 @@ title: <human-readable>
 aliases: [<alternate names>]
 date: <YYYY-MM-DD created>
 last_updated: <YYYY-MM-DD>
-type: entity | topic | {{EXEC_HANDOFF}} | planning-handoff | book | paper | blog-post | whitepaper | digest
+type: entity | topic | {{EXEC_HANDOFF}} | planning-handoff | book | paper | blog-post | whitepaper | digest | authority
 topics: [<list of topic tags>]
 roles: [<one or more role labels defined for this vault>]
 source_tier: 1 | 2 | 3
@@ -382,7 +382,7 @@ The `aliases:` field is an optional list of alternate names a page may be search
 
 The `roles:` field is required on every topic page. It is orthogonal to `topics:` — `topics:` answers *what is this about*, `roles:` answers *who reaches for this page at work*. Assignment rule: assign a role when a page's primary value is for someone in that working context, not merely when the page is incidentally relevant. Every page gets at least one role; pages with 4+ roles signal a definition problem.
 
-The `roles:` field is required on topic pages only; on `type: digest` artifacts it is optional, since digests are process/QA records, not knowledge pages reached for at work.
+The `roles:` field is required on topic pages only; on `type: digest` artifacts it is optional, since digests are process/QA records, not knowledge pages reached for at work. `type: authority` files — controlled-vocabulary source-of-truth artifacts such as `topics-authority.md` — likewise carry **no** `roles:`, `source_tier:`, or `topics:`: they are governance records, not knowledge pages reached for at work, and the topic-page checks do not apply to them.
 
 **Roles for this vault:**
 

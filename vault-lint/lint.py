@@ -1080,6 +1080,7 @@ def parse_topics_authority(vault_path):
         print(f'WARNING: could not read topics-authority.md: {e}', file=sys.stderr)
         return None
 
+    fm = parse_frontmatter(text) or {}
     subj_pref, subj_var = _parse_authority_table(
         _extract_authority_section(text, 'Subject categories', 'Subjects'))
     conc_pref, conc_var = _parse_authority_table(
@@ -1094,6 +1095,12 @@ def parse_topics_authority(vault_path):
         'subjects': {'preferred': subj_pref, 'variants': subj_var},
         'concepts': {'preferred': conc_pref, 'variants': conc_var},
         'reserved': reserved,
+        # The file's declared type — should be `authority` (governance record).
+        'declared_type': fm.get('type'),
+        # A well-formed authority file has both vocabulary sections.
+        'has_sections': bool(
+            re.search(r'^#{2,}\s+Subject categories', text, re.M)
+            and re.search(r'^#{2,}\s+Concept aliases', text, re.M)),
         # Unpopulated scaffolder skeleton: no vocabulary registered at all.
         'is_skeleton': not subj_pref and not conc_pref,
     }
@@ -1189,6 +1196,11 @@ def check_8_vocabulary(pages, authority):
     skeleton_unseeded = bool(
         authority.get('is_skeleton') and len(pages) >= SKELETON_UNSEEDED_MIN_PAGES)
 
+    # Authority-file checks (this category is exempt from the topic-page checks,
+    # so it is validated here instead): correct declared type + well-formed.
+    authority_type_wrong = authority.get('declared_type') != 'authority'
+    authority_malformed = not authority.get('has_sections')
+
     return {
         'skipped': False,
         'topic_unregistered': topic_unregistered,
@@ -1196,6 +1208,9 @@ def check_8_vocabulary(pages, authority):
         'alias_collision': alias_collision,
         'alias_shadows': alias_shadows,
         'skeleton_unseeded': skeleton_unseeded,
+        'authority_type_wrong': authority_type_wrong,
+        'authority_declared_type': authority.get('declared_type'),
+        'authority_malformed': authority_malformed,
         'page_count': len(pages),
         'subject_vocab_size': len(subj['preferred']),
         'concept_vocab_size': len(authority['concepts']['preferred']),
@@ -1811,7 +1826,9 @@ def render_report(vault_slug, findings):
     c8_count = 0 if c8.get('skipped') else (
         len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
         len(c8['alias_collision']) + len(c8['alias_shadows']) +
-        (1 if c8.get('skeleton_unseeded') else 0)
+        (1 if c8.get('skeleton_unseeded') else 0) +
+        (1 if c8.get('authority_type_wrong') else 0) +
+        (1 if c8.get('authority_malformed') else 0)
     )
 
     # Counts for summary
@@ -2003,6 +2020,15 @@ def render_report(vault_slug, findings):
         L.append(f'PASS — all `topics:` resolve against {c8["subject_vocab_size"]} '
                  f'subject terms; no alias collisions or canonical shadows.')
     else:
+        if c8.get('authority_type_wrong'):
+            L.append(f'**WARN — wrong type:** `topics-authority.md` declares '
+                     f'`type: {c8.get("authority_declared_type")}` — it should be '
+                     '`type: authority` (a governance record, exempt from topic-page checks).')
+            L.append('')
+        if c8.get('authority_malformed'):
+            L.append('**WARN — malformed authority file:** `topics-authority.md` is missing '
+                     'a `## Subject categories` and/or `## Concept aliases` section.')
+            L.append('')
         if c8.get('skeleton_unseeded'):
             L.append(f'**WARN — unpopulated SOT ({c8["page_count"]} pages exist):** '
                      '`topics-authority.md` is still an empty scaffolder skeleton. The '
@@ -2445,7 +2471,9 @@ def main():
     c8_total = 0 if c8.get('skipped') else (
         len(c8['topic_unregistered']) + len(c8['topic_use_preferred']) +
         len(c8['alias_collision']) + len(c8['alias_shadows']) +
-        (1 if c8.get('skeleton_unseeded') else 0)
+        (1 if c8.get('skeleton_unseeded') else 0) +
+        (1 if c8.get('authority_type_wrong') else 0) +
+        (1 if c8.get('authority_malformed') else 0)
     )
     ph1_total = (
         len(c1['findings']) + len(c2['orphans']) +

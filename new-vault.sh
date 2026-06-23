@@ -127,7 +127,7 @@ if [ ! -e "$dest/wiki/topics-authority.md" ]; then
   cat > "$dest/wiki/topics-authority.md" <<EOF
 ---
 title: Topics Authority — ${domain}
-type: topic
+type: authority
 status: stub
 date: ${today}
 last_updated: ${today}
