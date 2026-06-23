@@ -34,11 +34,13 @@ VAULT_ROLES_TABLE = """\
 
 
 def _strip_header(text: str) -> str:
-    """Remove all leading HTML comment blocks (version comments + instantiation header) and blank lines."""
-    while text.startswith("<!--"):
-        end = text.index("-->")
-        text = text[end + 3:].lstrip("\n")
-    return text
+    """Cut to the contract's first top-level '# ' heading — mirrors
+    check-conformance.py's _strip_header. The header body contains literal
+    '-->' strings, so it can't be parsed by comment delimiters."""
+    m = re.search(r"(?m)^# ", text)
+    if m is None:
+        raise ValueError("no top-level '# ' heading found in template")
+    return text[m.start():]
 
 
 def _substitute(text: str, subs: dict) -> str:

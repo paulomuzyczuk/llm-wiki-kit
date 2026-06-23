@@ -52,10 +52,13 @@ These are Claude Code skills. Clone the repo, then symlink (or copy) each skill 
 ```sh
 git clone https://github.com/paulomuzyczuk/llm-wiki-kit.git
 cd llm-wiki-kit
+mkdir -p "$HOME/.claude/skills"
 for skill in article-extractor book-ingestion book-planner book-review vault-evaluator vault-lint; do
-  ln -s "$PWD/$skill" "$HOME/.claude/skills/$skill"
+  ln -sfn "$PWD/$skill" "$HOME/.claude/skills/$skill"
 done
 ```
+
+(`mkdir -p` creates the skills directory if it doesn't exist yet; `ln -sfn` makes the loop safe to re-run — it replaces an existing symlink instead of erroring or nesting a new link inside it.)
 
 Then create a vault with the scaffolder, reusing the same subs format the conformance checker consumes:
 
@@ -72,6 +75,11 @@ The Python tools require Python 3 and no third-party dependencies; run their tes
 - [Claude Code](https://claude.com/claude-code)
 - [Obsidian](https://obsidian.md) (the vaults are plain Markdown, so any editor works, but the conventions assume Obsidian-style `[[wikilinks]]`)
 - Python 3.10+ for the linter and conformance checker
+- [Calibre](https://calibre-ebook.com/) (its `ebook-convert` CLI) — only if you ingest non-PDF books; `book-planner` uses it to convert `.epub`/`.mobi`/`.azw` sources to PDF. Not needed for PDF sources or article ingestion.
+
+### Scheduling (optional, macOS only)
+
+The "Scheduled Operations" pipeline (`scheduled-job.plist.template`, `freshness-job.plist.template`) is **macOS-only** — it uses [launchd](https://www.launchd.info/). On Linux use `cron` or a systemd timer; on Windows use Task Scheduler. The job just invokes Claude Code against the vault on a cadence, so any scheduler that can run a command works — the plist files are a convenience for macOS, not a requirement. Everything else (skills, linter, conformance checker, scaffolder) is cross-platform.
 
 ## License
 
