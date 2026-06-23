@@ -37,15 +37,17 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 
 ## Ingest status
 
-- [ ] Ch.1 — Introduction
+- [x] Ch.1 — Introduction  (batch 2: full synthesis → [[free-software-vs-open-source]], [[open-source-culture]]) ✓ reviewed-clean
 - [~] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]])
 - [~] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]])
-- [ ] Ch.4 — Social and Political Infrastructure
+- [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [ ] Ch.5 — Organizations and Money
 - [ ] Ch.6 — Communications
 - [ ] Ch.7 — Packaging, Releasing, and Daily Development
 - [ ] Ch.8 — Managing Participants
 - [ ] Ch.9 — Legal Matters
 
-> This is a public **example** vault. Only batch 1 (a focused slice of Ch.3) is
-> ingested, to demonstrate real output without reproducing the whole book.
+> This is a public **example** vault. As of 2026-06-23 it is being ingested in full
+> across 17 batches (see `ingestion-plan.md`) so the complete book-ingest workflow is
+> reproduced end to end. Batch 1 (Ch.3 §Version Control + Ch.2 §Code Review) and Batch 2
+> (Ch.1 + Ch.4) are done; the remaining chapters follow under the plan.

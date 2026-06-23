@@ -33,18 +33,19 @@ Where most craft books are about writing better code, this one is about building
 collaborative machine *around* the code — which makes it the natural spine for this
 vault's open-source-collaboration topics.
 
-This book is also the worked **example source** for the kit: only a focused slice of
-Chapter 3 (Version Control + Code Review) is ingested here, enough to demonstrate the
-pipeline's real output without reproducing the whole text.
+This book is also the worked **example source** for the kit. It is being ingested in
+full across 17 batches (see `ingestion-plan.md`) so the complete book-ingest workflow is
+reproduced end to end; permitted because the source is CC BY-SA 4.0. Batches 1–2 (Ch.3
+§Version Control + Ch.2 §Code Review; then Ch.1 + Ch.4) are complete.
 
 ## Chapter Index
 
 | Ch. | Title | PDF pp. | Status | Wiki pages |
 |---|---|---|---|---|
-| 1 | Introduction | 14–21 | — | |
+| 1 | Introduction | 14–21 | ✓ batch 2 | [[free-software-vs-open-source]], [[open-source-culture]] |
 | 2 | Getting Started | 22–42 | ◑ batch 1 (focused) | [[code-review]] |
 | 3 | Technical Infrastructure | 43–71 | ◑ batch 1 (focused) | [[version-control]] |
-| 4 | Social and Political Infrastructure | 72–79 | — | |
+| 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
 | 5 | Organizations and Money | 80–106 | — | |
 | 6 | Communications | 107–131 | — | |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
@@ -53,7 +54,6 @@ pipeline's real output without reproducing the whole text.
 
 ## Negative Space
 
-- **Chapters 1, 4–9, and the remainder of Ch.2–3** (`source-underdeveloped`): not
-  ingested in this example vault — only the Code Review (Ch.2) and Version Control (Ch.3)
-  slice is synthesized. The rest of the book is real content deliberately left out of the
-  showcase, not absent from the source.
+- **Chapters 5–9, and the remainder of Ch.2–3** (`source-underdeveloped`): not yet
+  ingested — scheduled across Batches 3–17 in `ingestion-plan.md`. The chapter index
+  above tracks live progress; un-ticked chapters are pending, not deliberately excluded.
