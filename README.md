@@ -30,7 +30,7 @@ Underneath all four is Glushko's tradeoff (*The Discipline of Organizing*, 2013)
 
 One honest caveat: this is a **reference base, not a thinking tool**. In the Zettelkasten tradition (Ahrens, *How to Take Smart Notes*, 2017) the value comes from *you* doing the writing — elaboration is how you learn. Here the LLM writes, so the vault is optimised for retrieval; it sharpens your exchanges with Claude but doesn't teach you the material the way writing your own notes would. It's Karpathy's "distilled wiki" — a store of understanding to draw on, not a substitute for thinking.
 
-→ The full rationale, with the supporting theory and sources, is in **[THEORY.md](THEORY.md)**.
+→ The full rationale, with the supporting theory and sources, is in **[docs/theory.md](docs/theory.md)** — part of the **[docs/](docs/)** set (theory, architecture, and pipeline).
 
 ## What's here
 
