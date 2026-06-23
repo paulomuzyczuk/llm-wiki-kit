@@ -86,7 +86,17 @@ this flat list.
   open-from-day-one matters even more for public-sector projects.
 - [[open-source-contracting]] — you can buy work but not its acceptance: best-effort
   integration clauses, hire-from-within vs. -outside, contract transparency, community review
-  as a "free design board," RFP/RFI language, and Open Source Quality Assurance (OSQA).
+  as a "free design board," RFP/RFI language, and Open Source Quality Assurance (OSQA),
+  including the New Developer Test.
+- [[funding-non-programming-activities]] — where a funder's money does the most good off the
+  code path: professional testing (dual-ticket bridging), legal counsel engaged early,
+  documentation by a medium-level user, UX as an attitude not a checkbox, donated CI/build
+  farms, security audits, and sponsoring in-person meetings — all unified by the
+  translate-between-worlds bridging principle.
+- [[open-source-marketing]] — marketing open source under public scrutiny: the vendor-lock-in
+  advantage ("product and vendor are not the same") and "cost of total ownership," "you are
+  being watched" (audit every claim), don't bash competing vendors, and "commercial vs
+  proprietary" terminology integrity (don't mislabel open core as "Community/Enterprise Edition").
 
 ### Open-source ecosystem & participation
 
@@ -116,7 +126,8 @@ this flat list.
   (Batches 1–6: Ch.1–Ch.4 fully ingested — code review, launch, licensing, setting the tone,
   developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
   opened Ch.5 "Organizations and Money" — economics, corporate/government involvement, hiring,
-  contracting; Ch.5 continues in batches 8–9, Ch.6–9 pending).
+  contracting; Batch 8 added Ch.5's non-code half — funding non-programming activities and
+  marketing; Ch.5 concludes in batch 9, Ch.6–9 pending).
 
 ### Papers
 

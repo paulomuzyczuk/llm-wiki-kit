@@ -8,6 +8,7 @@ last_updated: 2026-06-23
 
 <!-- batch 6 (2026-06-23): registered concepts bug-tracking, real-time-chat, wikis, translation-infrastructure -->
 <!-- batch 7 (2026-06-23): registered subject open-source-economics; concepts open-source-economics, corporate-open-source-participation, government-and-open-source, open-source-contracting -->
+<!-- batch 8 (2026-06-23): registered concepts funding-non-programming-activities, open-source-marketing -->
 
 # Topics Authority — software craft
 
@@ -73,6 +74,8 @@ pages or shadow another page's canonical title/slug.
 | corporate-open-source-participation | corporate-involvement, being-a-good-corporate-citizen, appear-as-many-not-one, money-cant-buy-love |
 | government-and-open-source | government-open-source, public-sector-open-source, open-source-in-government |
 | open-source-contracting | contracting, contractors, osqa, open-source-quality-assurance |
+| funding-non-programming-activities | non-code-funding, funding-non-programming-work, professional-testing |
+| open-source-marketing | oss-marketing, freedom-from-vendor-lock-in, cost-of-total-ownership |
 
 ## Reserved non-subject tags
 

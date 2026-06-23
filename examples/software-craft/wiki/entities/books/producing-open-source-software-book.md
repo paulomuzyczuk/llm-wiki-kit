@@ -43,7 +43,10 @@ infrastructure remainder (what a project needs, web site, canned hosting, messag
 forums) as principles + decision criteria; Batch 6 completed Ch.3 (bug tracker, real-time
 chat, wikis, translation, social networking). Chapters 1–4 are now fully ingested. Batch 7
 opened Ch.5 (the economics of open source, corporate/government involvement, hiring for the
-long term, and contracting) as full synthesis; Ch.5 continues across Batches 8–9.
+long term, and contracting) as full synthesis; Batch 8 added the non-code half of Ch.5 —
+funding non-programming activities (testing, docs, UX, infra, security, events) and marketing
+(the vendor-lock-in advantage, "you are being watched," open core / terminology integrity). Ch.5
+concludes in Batch 9.
 
 ## Chapter Index
 
@@ -53,7 +56,7 @@ long term, and contracting) as full synthesis; Ch.5 continues across Batches 8�
 | 2 | Getting Started | 22–42 | ✓ batch 1, 3, 4 | [[code-review]], [[launching-an-open-source-project]], [[open-source-licensing]], [[setting-the-tone]], [[developing-in-the-open]] |
 | 3 | Technical Infrastructure | 43–71 | ✓ batch 1, 5, 6 | [[version-control]], [[project-infrastructure]], [[project-hosting]], [[message-forums]], [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]] |
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
-| 5 | Organizations and Money | 80–106 | ◐ batch 7 (5a) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]] |
+| 5 | Organizations and Money | 80–106 | ◐ batch 7 (5a), 8 (5b) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]] |
 | 6 | Communications | 107–131 | — | |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
 | 8 | Managing Participants | 149–170 | — | |
