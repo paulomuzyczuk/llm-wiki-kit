@@ -6,6 +6,51 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff==0.15.18
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: ShellCheck
+        # shellcheck ships preinstalled on ubuntu-latest runners.
+        run: shellcheck install.sh new-vault.sh */regenerate-clones.sh
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install bandit
+        run: pip install bandit==1.9.4
+
+      - name: Bandit (Python SAST, gate on medium+ severity)
+        # The tools are dependency-free stdlib; low-severity findings (defensive
+        # try/except, the 'PASS' dict-key false positive) are noise here, so the
+        # build fails only on medium-or-higher severity issues.
+        run: bandit -r check-conformance vault-lint -x '*/tests/*' --severity-level medium
+
+      - name: Gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test:
     runs-on: ubuntu-latest
     steps:
