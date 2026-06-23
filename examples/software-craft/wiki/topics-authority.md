@@ -6,6 +6,8 @@ date: 2026-06-23
 last_updated: 2026-06-23
 ---
 
+<!-- batch 6 (2026-06-23): registered concepts bug-tracking, real-time-chat, wikis, translation-infrastructure -->
+
 # Topics Authority — software craft
 
 Controlled-vocabulary source of truth for this vault — a lightweight thesaurus
@@ -61,6 +63,10 @@ pages or shadow another page's canonical title/slug.
 | project-infrastructure | technical-infrastructure, collaboration-tools, what-a-project-needs |
 | project-hosting | canned-hosting, project-hosting-site, code-hosting |
 | message-forums | mailing-lists, discussion-forums |
+| bug-tracking | issue-tracking, issue-tracker, ticket-tracker, defect-tracker |
+| real-time-chat | project-chat, chat-rooms, irc |
+| wikis | project-wiki, wiki |
+| translation-infrastructure | i18n, l10n, internationalization, localization, translation-platform |
 
 ## Reserved non-subject tags
 

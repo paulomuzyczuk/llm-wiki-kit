@@ -32,13 +32,27 @@ this flat list.
 
 - [[project-infrastructure]] — the collaboration-tool spine of a project: information
   management as the antidote to Brooks' Law, the minimum standard toolset (web site,
-  forums, version control, bug tracking, chat), and "beware over-automation."
+  forums, version control, bug tracking, chat), "beware over-automation," and social
+  networking as return-on-attention (microblogs yes, mainstream platforms rarely).
 - [[project-hosting]] — the build-vs-buy decision for project infrastructure: canned
   hosting's convenience-vs-control trade-off, "if unsure, use canned hosting," GitHub as
   default, and the durable no-lock-in criterion (data export + programmatic access).
 - [[message-forums]] — when a project needs dedicated forums vs. the bug tracker, forum
   software/archiving selection criteria, mandatory layered spam prevention, and the
   "settle tooling debates early" governance lesson (the Reply-to debate).
+- [[bug-tracking]] — the tracker as a project's public face: it holds "tickets" (bugs,
+  features, tasks), reproduction as the pivotal life-cycle moment, acknowledge-every-ticket,
+  feature criteria (email, optional identity, APIs/no-lock-in), and pre-filtering via the
+  buddy system + knowledgeable watchers.
+- [[real-time-chat]] — choosing chat (imitate neighbors, prefer Matrix/IRC bridging, avoid
+  Slack), nick-flagging as the convention that makes busy rooms usable, start-with-one-room
+  growth, pastes out of band, and bots/commit-notifications as social utility.
+- [[wikis]] — collaborative editing doesn't auto-aggregate to quality (organize early,
+  prime with content), never allow anonymous editing (spam), and default to the hosting
+  site's built-in wiki / prefer Markdown over wiki syntax.
+- [[translation-infrastructure]] — when to adopt a translation platform (recruit
+  non-developer linguists), open-vs-proprietary platform choice, and the i18n
+  (code-prepared-for-translation) vs. l10n (the actual locale translation) distinction.
 
 ### Open-source governance & culture
 
@@ -82,8 +96,9 @@ this flat list.
 
 - [[producing-open-source-software-book]] — Karl Fogel, *Producing Open Source Software*
   (2nd ed., CC BY-SA 4.0). The example's primary source; full-book ingest in progress
-  (Batches 1–4: Ch.1, Ch.4, and all of Ch.2 — code review, launch, licensing, setting the
-  tone, developing in the open — plus the Ch.3 version-control slice).
+  (Batches 1–6: Ch.1, Ch.2, Ch.3, and Ch.4 fully ingested — code review, launch, licensing,
+  setting the tone, developing in the open, and the complete Ch.3 technical-infrastructure
+  toolset; Chapters 5–9 pending).
 
 ### Papers
 
