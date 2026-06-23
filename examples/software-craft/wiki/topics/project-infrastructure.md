@@ -108,6 +108,24 @@ welcoming overview of the project and to *bind together* the collaboration tools
 simply use a [[project-hosting]] service for the developer-facing entry point
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=45), p. 32).
 
+## Social Networking Services: Projects Already Do It
+
+Open-source projects make surprisingly limited use of mainstream "social
+networking" platforms — but that is a definitional artifact, not an omission. Most
+of the infrastructure these projects have refined for decades (forums, trackers,
+chat) *is* social-networking software; it predates the term and is well-tuned to
+what projects actually need. The reason a project rarely has much of a presence on,
+say, Facebook is simply that Facebook's services are *not* tuned to those needs
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=71), p. 58).
+
+The decision criterion is return on attention. Lightweight services pay off:
+microblogs (Twitter and similar) suit short announcements that are easily forwarded
+and replied to, giving a project a conversational channel with its community; event
+services help arrange in-person meetups. Beyond those, most projects do not invest
+in a large mainstream-social-media presence — individual developers may, but for
+the *project* the reward does not appear high enough to justify the time and
+attention ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=71), p. 58).
+
 ## Negative Space
 
 - **The parliamentary-procedure analogy** (`conceptual-tool-not-concept`): Fogel
@@ -118,10 +136,13 @@ simply use a [[project-hosting]] service for the developer-facing entry point
 - **The LibreOffice "Get Involved" / "Developers" walkthrough** (`illustrative-scaffolding`):
   a specific worked example of the two-audience gateway idea; the principle, not
   the example, is retained.
-- **Bug tracker and real-time chat as developed treatments** (`foreshadowing`):
-  named here as part of the minimum toolset but developed in the next batch
-  (Ch.3b); linked as [[bug-tracking]] and [[real-time-chat]] dead links until
-  then.
+- **Bug tracker and real-time chat as developed treatments** (`subsumed-by`):
+  named here as part of the minimum toolset and now developed on their own pages
+  ([[bug-tracking]], [[real-time-chat]]) as of batch 6; this page keeps only the
+  one-line toolset entries.
+- **Named microblog/event services** (`tool-specific/perishable`): Twitter,
+  @AskLibreOffice, Eventbrite, and Meetup are perishable examples cited for the
+  social-networking section; the return-on-attention criterion is what generalizes.
 - **Generic web-hosting setup mechanics** (`tool-specific/perishable`): "web
   hosting is easy to come by" and layout particulars are not generalizable
   infrastructure principles.
@@ -130,9 +151,10 @@ simply use a [[project-hosting]] service for the developer-facing entry point
 
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch.3 "Technical
   Infrastructure" — chapter introduction, "What a Project Needs," and "Web Site"
-  (PDF pp. 43–45 / printed pp. 30–32).
+  (PDF pp. 43–45 / printed pp. 30–32); "Social Networking Services" (PDF p. 71 /
+  printed p. 58, batch 6).
 - **Source entities:** [[producing-open-source-software-book]]
 
 ## See Also
 
-- [[version-control]] · [[message-forums]] · [[project-hosting]] · [[bug-tracking]] · [[real-time-chat]]
+- [[version-control]] · [[message-forums]] · [[project-hosting]] · [[bug-tracking]] · [[real-time-chat]] · [[wikis]] · [[translation-infrastructure]]

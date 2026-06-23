@@ -39,7 +39,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 
 - [x] Ch.1 — Introduction  (batch 2: full synthesis → [[free-software-vs-open-source]], [[open-source-culture]]) ✓ reviewed-clean
 - [x] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]]; batch 3: §Starting From What You Have + §Choosing a License → [[launching-an-open-source-project]], [[open-source-licensing]]; batch 4: §Setting the Tone + §Opening a Formerly Closed Project + §Announcing → [[setting-the-tone]], [[developing-in-the-open]], enriched [[launching-an-open-source-project]]) ✓ reviewed-clean
-- [~] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]]; batch 5: §What a Project Needs + §Web Site + §Canned Hosting + §Message Forums/Mailing Lists [principles + decision criteria] → [[project-infrastructure]], [[project-hosting]], [[message-forums]])
+- [x] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]]; batch 5: §What a Project Needs + §Web Site + §Canned Hosting + §Message Forums/Mailing Lists [principles + decision criteria] → [[project-infrastructure]], [[project-hosting]], [[message-forums]]; batch 6: §Bug Tracker + §Real-Time Chat + §Wikis + §Translation + §Social Networking [principles + decision criteria] → [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]], enriched [[project-infrastructure]]) ✓ reviewed-clean
 - [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [ ] Ch.5 — Organizations and Money
 - [ ] Ch.6 — Communications
@@ -53,4 +53,6 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 > §Code Review), Batch 2 (Ch.1 + Ch.4), Batch 3 (Ch.2a launch + licensing), Batch 4 (Ch.2b
 > setting the tone + opening a closed project + announcing, completing Chapter 2), Batch 5
 > (Ch.3a remainder — what a project needs, web site, canned hosting, message forums, as
-> principles + decision criteria); the remaining chapters follow under the plan.
+> principles + decision criteria), Batch 6 (Ch.3b remainder — bug tracker, real-time chat,
+> wikis, translation, social networking, completing Chapter 3); the remaining chapters
+> (5–9) follow under the plan.
