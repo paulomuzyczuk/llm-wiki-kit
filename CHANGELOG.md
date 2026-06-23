@@ -17,6 +17,10 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   job (Bandit Python SAST gated at medium+ severity, plus Gitleaks secret scan).
 - `ruff.toml` — Ruff configuration (single-quote formatter, `E`/`F`/`W`/`I`/`UP`/`B`
   rule sets; `E501` left to the formatter).
+- `SECURITY.md` — security policy (private vulnerability reporting, scope, and the
+  project's security model).
+- `CONTRIBUTING.md` — contributor guide (setup, local check commands, the skill-clone
+  and template-contract rules, commit/PR conventions).
 - This changelog.
 
 ### Changed
