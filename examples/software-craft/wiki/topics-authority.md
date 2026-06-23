@@ -33,6 +33,7 @@ Use-for column.
 | software-collaboration | collaboration, distributed-development |
 | open-source-governance | governance, project-governance |
 | open-source-participation | participation, contributors, contribution, community |
+| open-source-culture | free-software, open-source-philosophy, hacker-ethic, foss-culture |
 | bug-tracking | issue-tracking, bug-tracker, defect-tracking |
 | release-engineering | releasing, packaging, release-management |
 | code-quality | quality, software-quality |
@@ -49,6 +50,9 @@ pages or shadow another page's canonical title/slug.
 | code-review | peer-review, conspicuous-code-review |
 | continuous-integration | ci, ci-cd |
 | open-source-participation | contributor-base, who-contributes |
+| free-software-vs-open-source | open-source-definition, free-vs-open-source |
+| open-source-governance | governance-model, benevolent-dictator, consensus-democracy |
+| forkability | right-to-fork |
 
 ## Reserved non-subject tags
 

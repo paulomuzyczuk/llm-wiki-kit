@@ -82,6 +82,22 @@ request is literally "an invitation" to examine a branch before merging it ([Fog
 which is the hand-off point to [[code-review]] and, downstream, to
 [[continuous-integration]].
 
+## Version control means you can relax (governance effect)
+
+Beyond coordination, version control has a *governance* effect: because the source is under
+version control, "most decisions can be easily unmade." Any change "can be reverted, at
+least until dependent changes are introduced," which "gives the project a way to undo the
+effects of bad or hasty judgement" and "frees people to trust their instincts about how much
+feedback is necessary before doing something" ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=74), p. 61).
+This reversibility is what lets [[open-source-governance]] keep consensus informal: minor
+changes "can go in with no discussion," while for changes "with the potential to destabilize
+a lot of code" people should "wait a day or two before assuming there is consensus," so that
+no one is "marginalized in an important conversation simply because he didn't check email
+frequently enough" ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=74), p. 61).
+The standing caveat: reverting is "not usually the way to start a conversation" — discuss
+first, because momentum favors action and people are "slightly more reluctant to revert a
+change than to prevent it in the first place" ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=74), p. 61).
+
 ## Negative Space
 
 - **VCS vocabulary glossary** (`too-granular`): the source's per-term definitions
@@ -104,4 +120,5 @@ which is the hand-off point to [[code-review]] and, downstream, to
 **Source entities:** [[producing-open-source-software-book]]
 
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 3 "Technical
-  Infrastructure", §Version Control (printed pp. 42–47).
+  Infrastructure", §Version Control (printed pp. 42–47); Ch. 4 "Social and Political
+  Infrastructure", §Version Control Means You Can Relax (printed p. 61).
