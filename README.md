@@ -17,6 +17,21 @@ A vault is governed by a single `CLAUDE.md` contract instantiated from [`CLAUDE.
 
 One template, many vaults. A "fleet" of domain vaults (software craft, finance, sports science, …) all share the contract and are kept conformant by tooling.
 
+## Why it's shaped this way
+
+The contract's more opinionated rules aren't arbitrary — several are deliberate borrowings from library, archival, and information science, disciplines that have spent over a century on keeping a *growing* collection findable, trustworthy, and honest about its own limits:
+
+- **Negative space is recorded, not silently absent** — documenting what was deliberately left out, and why, is **appraisal** in the archival sense: a selection judgement made accountable rather than invisible (Foscarini, *Currents of Archival Thinking*, 2017).
+- **Citations are surrogate records, not just links** — the two-part page reference plus the `[[<slug>-book]]` entity backlink give each claim a stable, location-independent identity instead of a fragile file path that rots when things move (Svenonius 2000; Joudrey & Taylor 2018; "cool URIs don't change").
+- **A human reviews what the machine describes** — judging what a source is *about* is the task automated describers fail at, so `book-review` is mandatory and independent: the LLM proposes, a reviewer and the human dispose (Svenonius 2000; Joudrey & Taylor 2018).
+- **Nothing is deleted; stale pages are archived** — for a digital collection, retention beats pruning, and the **records-continuum** model treats disposition as a transition, not an endpoint (Upward via Oliver, *Currents of Archival Thinking*, 2017).
+
+Underneath all four is Glushko's tradeoff (*The Discipline of Organizing*, 2013): effort spent organizing "on the way in" is repaid as trust and findability "on the way out" — and the bet here is that an LLM can afford that upfront effort where a human maintaining notes by hand often can't.
+
+One honest caveat: this is a **reference base, not a thinking tool**. In the Zettelkasten tradition (Ahrens, *How to Take Smart Notes*, 2017) the value comes from *you* doing the writing — elaboration is how you learn. Here the LLM writes, so the vault is optimised for retrieval; it sharpens your exchanges with Claude but doesn't teach you the material the way writing your own notes would. It's Karpathy's "distilled wiki" — a store of understanding to draw on, not a substitute for thinking.
+
+→ The full rationale, with the supporting theory and sources, is in **[THEORY.md](THEORY.md)**.
+
 ## What's here
 
 ### Skills (`~/.claude/skills/`)
