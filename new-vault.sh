@@ -118,6 +118,61 @@ seed "$dest/wiki/gaps.md"          $'# Gaps\n\n## \xc2\xa71 \xe2\x80\x94 Knowled
 seed "$dest/wiki/quality-debt.md"  "# Quality debt"
 seed "$dest/claude/_provenance.md" $'# Provenance \xe2\x80\x94 audit trail for vault-specific CLAUDE.md amendments'
 
+# --- topics-authority.md: controlled-vocabulary SOT skeleton.
+#     Created unpopulated; the FIRST ingest (book-planner Phase 0 or the first
+#     article/notes ingest) seeds it with up to 10 subjects and 30 aliases.
+if [ ! -e "$dest/wiki/topics-authority.md" ]; then
+  domain="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["DOMAIN"])' "$subs")"
+  today="$(date +%Y-%m-%d)"
+  cat > "$dest/wiki/topics-authority.md" <<EOF
+---
+title: Topics Authority — ${domain}
+type: authority
+status: stub
+date: ${today}
+last_updated: ${today}
+---
+
+# Topics Authority — ${domain}
+
+Controlled-vocabulary source of truth for this vault — a lightweight thesaurus
+(a preferred term plus its use-for variants). \`/vault-lint\` Check 8 resolves
+every \`topics:\` value against **Subjects** and validates \`aliases:\` against
+**Concepts**. Report-only.
+
+<!-- SEED-ME: unpopulated skeleton. The FIRST ingest into this vault — book-planner
+     Phase 0 if a book is added first, otherwise the first article/notes ingest —
+     seeds this file with up to 10 subject categories and up to 30 aliases drawn
+     from that first content and the domain. The 10/30 caps apply to the INITIAL
+     SEED ONLY: afterwards, resolve every new term against this file before minting
+     it, grow the vocabulary as the vault grows, and let /vault-lint reconcile any
+     scatter. Set status: active and delete this comment once seeded. -->
+
+## Subject categories
+
+Governs \`topics:\`. A value must be a preferred term below (or a reserved tag).
+List variant spellings/synonyms that should resolve to a preferred term in its
+Use-for column.
+
+| Preferred | Use-for (variants that resolve to it) |
+|---|---|
+
+## Concept aliases
+
+Governs \`aliases:\` / page identity — each topic page is a preferred concept and
+its frontmatter \`aliases:\` are its use-for variants. No alias may belong to two
+pages or shadow another page's canonical title/slug.
+
+| Preferred (page) | Use-for (aliases) |
+|---|---|
+
+## Reserved non-subject tags
+
+Tags legal in the topics field but not subject categories: \`stub\`.
+EOF
+  echo "wrote $dest/wiki/topics-authority.md (controlled-vocabulary skeleton)"
+fi
+
 echo
 echo "Scaffolded vault at: $dest"
 echo
