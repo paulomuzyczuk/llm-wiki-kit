@@ -53,9 +53,17 @@ import json, os, re, sys
 template_path, subs_path, out_path = sys.argv[1:4]
 
 raw = open(template_path, encoding="utf-8").read()
-# Strip every leading HTML comment block (version comment + instantiation header).
-while raw.startswith("<!--"):
-    raw = raw[raw.index("-->") + 3:].lstrip("\n")
+# Cut the leading template header (version comment + instantiation-header HTML
+# comment block) by jumping to the contract's first top-level "# " heading.
+# The header body contains literal "-->" strings (documented marker examples),
+# so it can't be parsed by comment delimiters — index("-->") would stop at the
+# first embedded example and leak ~190 header lines into CLAUDE.md. This matches
+# check-conformance.py's _strip_header so a fresh scaffold diffs clean.
+m = re.search(r"(?m)^# ", raw)
+if m is None:
+    print("ERROR: template has no top-level '# ' heading", file=sys.stderr)
+    sys.exit(2)
+raw = raw[m.start():]
 
 discovered = set(re.findall(r"\{\{([^}]+)\}\}", raw))
 subs = json.load(open(subs_path, encoding="utf-8"))
@@ -108,7 +116,7 @@ seed "$dest/wiki/index.md"         "# Index"
 seed "$dest/wiki/log.md"           "# Log"
 seed "$dest/wiki/gaps.md"          $'# Gaps\n\n## \xc2\xa71 \xe2\x80\x94 Knowledge gaps found in ingested content\n\n## \xc2\xa72 \xe2\x80\x94 Books not yet in the vault'
 seed "$dest/wiki/quality-debt.md"  "# Quality debt"
-seed "$dest/claude/_provenance.md" "# Provenance \xe2\x80\x94 audit trail for vault-specific CLAUDE.md amendments"
+seed "$dest/claude/_provenance.md" $'# Provenance \xe2\x80\x94 audit trail for vault-specific CLAUDE.md amendments'
 
 echo
 echo "Scaffolded vault at: $dest"

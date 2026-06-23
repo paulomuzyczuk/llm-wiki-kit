@@ -89,6 +89,7 @@ Run all nine in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FA
 - Concepts named more than once in a page are linked on first mention.
 - Every modified page has ≥1 `## See also` section with at least one wikilink.
 - **Source-entity backlink** — for each book a modified page cites (every distinct `raw-input/books/<slug>` PDF reference on the page), the page must contain a wikilink to that book's entity page, canonically `[[<slug>-book]]` in a `**Source entities:**` line in `## Sources` (see book-ingestion Full-synthesis rule). The entity filename carries a `-book` type suffix, so the cited folder `<slug>` maps to entity `<slug>-book` (older un-migrated entities may still be `<slug>` — resolve to whichever entity file exists). A page that cites a book PDF but never wikilinks its entity is a **FAIL** — it orphans the entity (the orphan check excludes `index.md`). The check is on the edge: any wikilink resolving to the book's entity satisfies it, regardless of form.
+- **Pair-and-split** — if the chapter introduced two paired or contrasting concepts (see the canonical pair-and-split definition in book-ingestion), verify they were split into separate pages bridged by reciprocal wikilinks, not conflated onto one page. A single page covering both halves of a genuine concept pair is a **WARN**: suggest splitting into one page per concept with reciprocal `[[wikilinks]]`.
 
 ### Check 3 — Negative-space discipline
 

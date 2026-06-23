@@ -141,7 +141,7 @@ concept that warrants its own page. Apply all discipline rules from CLAUDE.md:
   or a structured list, then cite the figure by name.
 - **Enrichment-not-replacement:** for pages that already exist, add new content
   as new H2 sections preserving all prior content and citations.
-- **Pair-and-split:** paired concepts get separate pages bridged by wikilinks.
+- **Pair-and-split (canonical definition):** when a chapter presents two paired or contrasting concepts (e.g. *precision* vs. *recall*; *encapsulation* vs. *inheritance*), give each its own page and bridge them with reciprocal wikilinks — never conflate the pair onto a single page. Each concept stays independently retrievable while the relationship is preserved by the cross-links. This bullet is the canonical definition; book-review (Check 2) enforces it and vault-lint points back here.
 - **Source-entity backlink:** every topic page created or enriched from the book
   must link the book entity page (`wiki/entities/books/<slug>-book.md`), so the entity
   is not left orphaned. The orphan check excludes `index.md`, so the catalogue

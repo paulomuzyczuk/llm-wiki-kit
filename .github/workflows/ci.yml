@@ -21,6 +21,9 @@ jobs:
       - name: Conformance test suite
         run: python3 -m pytest -q check-conformance/tests/
 
+      - name: Vault-lint test suite
+        run: python3 -m pytest -q vault-lint/tests/
+
       - name: Scaffolder round-trip smoke test
         # A freshly scaffolded vault must pass the conformance checker with exit 0.
         # This guards the template/subs/scaffolder against the kind of drift the
@@ -31,3 +34,24 @@ jobs:
             --vault "$RUNNER_TEMP/ci-vault/CLAUDE.md" \
             --template CLAUDE.template.md \
             --subs check-conformance/subs/software-craft.json
+
+      - name: Scaffolded CLAUDE.md is clean (header fully stripped, all tokens substituted)
+        # Independent of the conformance diff: that check shares the header-strip
+        # logic, so if the strip ever regresses the leaked header cancels on both
+        # sides and conformance stays green (the bug this guards against). Assert
+        # the contract directly — it must start at the real title, carry none of
+        # the instantiation header's unique prose, and have no unsubstituted
+        # {{TOKEN}}. (Sanctioned-region markers like <!-- VAULT-LINT-EXTENSIONS-...
+        # --> legitimately remain in the body, so we do NOT blanket-reject '<!--'.)
+        run: |
+          claude="$RUNNER_TEMP/ci-vault/CLAUDE.md"
+          head -1 "$claude" | grep -qx '# Vault Schema — software craft Knowledge Wiki' \
+            || { echo "FAIL: CLAUDE.md does not start with the contract title"; head -5 "$claude"; exit 1; }
+          ! grep -qE 'INSTANTIATION HEADER|FOLDER STRUCTURE TO CREATE|delete after substitution' "$claude" \
+            || { echo "FAIL: leftover instantiation-header prose in CLAUDE.md"; grep -nE 'INSTANTIATION HEADER|FOLDER STRUCTURE TO CREATE' "$claude" | head; exit 1; }
+          ! grep -qE '\{\{[^}]+\}\}' "$claude" \
+            || { echo "FAIL: unsubstituted token(s) in CLAUDE.md"; grep -nE '\{\{[^}]+\}\}' "$claude" | head; exit 1; }
+          # Provenance seed must contain a real em dash, not a literal escape (F7).
+          ! grep -q '\\x' "$RUNNER_TEMP/ci-vault/claude/_provenance.md" \
+            || { echo "FAIL: literal escape bytes in seeded _provenance.md"; cat "$RUNNER_TEMP/ci-vault/claude/_provenance.md"; exit 1; }
+          echo "OK: scaffolded CLAUDE.md is clean."

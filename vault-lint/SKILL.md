@@ -71,6 +71,7 @@ If exit code 2 (crash), report the error from stdout and stop. Do NOT attempt to
 - Does NOT contain reference implementations. Past attempts to embed reference Python in this skill produced inconsistent results across sessions; the script architecture eliminates this variance.
 - Does NOT reimplement any check. If you find yourself writing inline Python here that does what the script already does, stop. Use the script.
 - Does NOT modify the vault directly. Only the script writes to disk.
+- Does NOT detect pair-and-split violations (two paired concepts conflated onto one page). That needs semantic judgment the mechanical linter can't apply: `lint.py` Check 5 catches the *inverse* — duplicate pages — not under-splitting. The discipline is defined in book-ingestion and enforced adversarially by book-review (Check 2); consult those when a lint pass makes you suspect a page is doing two concepts' jobs.
 
 ## Calibration notes
 
