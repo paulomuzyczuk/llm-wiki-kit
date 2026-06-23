@@ -80,7 +80,24 @@ this flat list.
   the taxonomy of corporate-involvement goals.
 - [[corporate-open-source-participation]] — the behavioral playbook for a funder: hire for the
   long term, "appear as many, not as one," be open about your motivations (honest-broker
-  behavior), and "money can't buy you love" — make the company the same size as everyone else.
+  behavior), "money can't buy you love," plus organizational engagement — retire the
+  instant-adoption and casual-code-reuse myths, foster pools of expertise (avoid single-vendor
+  lock-in), don't let publicity drive the schedule, and the key role of middle management.
+- [[innersourcing]] — open-source practices inside one company's boundary: real benefits (less
+  context-switching, morale, a first step to real participation) but not true open source, because
+  it removes the "external supply of freedom" (forkability) and fails the "portable résumé" test.
+- [[hiring-open-source-developers]] — the public-résumé hiring advantage: ask for the candidate's
+  open-source profile, read the social record (review tone, bug-ticket conduct) not just commits,
+  treat missing experience as a question; and "hiring for influence" with its dual loyalty —
+  influence travels with the person, not the employer.
+- [[evaluating-open-source-projects]] — reading project health (an art, not a science): bug-tracker
+  activity first ("more bug reports is better," close-rate misleads), commit *diversity* not rate,
+  organizational diversity / bus factor, forum tone, and recent news — also how to call the two
+  sides of a fork.
+- [[crowdfunding-and-bounties]] — marginal funding modes: all-or-nothing vs. keep-it-all
+  crowdfunding and one-time bounties; both mismatch open source's ongoing-process nature; useful at
+  launch, not for sustained development; borrowable techniques and the "don't sell early access"
+  pitfall.
 - [[government-and-open-source]] — why "government is different" (outsourced expertise, slow
   procurement, risk-aversion, publicity hunger) and the adjustments that follow, including why
   open-from-day-one matters even more for public-sector projects.
