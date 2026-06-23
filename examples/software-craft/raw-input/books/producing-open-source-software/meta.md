@@ -38,7 +38,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 ## Ingest status
 
 - [x] Ch.1 — Introduction  (batch 2: full synthesis → [[free-software-vs-open-source]], [[open-source-culture]]) ✓ reviewed-clean
-- [~] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]])
+- [~] Ch.2 — Getting Started  (batch 1: §Practice Conspicuous Code Review → [[code-review]]; batch 3: §Starting From What You Have + §Choosing a License → [[launching-an-open-source-project]], [[open-source-licensing]]; Ch.2b §Setting the Tone etc. pending batch 4)
 - [~] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]])
 - [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [ ] Ch.5 — Organizations and Money

@@ -1,5 +1,9 @@
 # Log
 
+## [2026-06-23] digest | producing-open-source-software ch.2 review | 8/8 applicable PASS, 0 warn, 0 fail (batch 3; Check 9 N/A)
+
+## [2026-06-23] book-ingest | producing-open-source-software ch.2 | Getting Started (batch 3: §Starting From What You Have + §Choosing a License and Applying It) — created [[launching-an-open-source-project]], [[open-source-licensing]]; negative-space: per-item tooling mechanics (tool-specific/perishable), alpha/beta definitions (too-granular), FAQ maintenance (too-granular), Scanley/Hadoop/Gnome examples (illustrative-scaffolding), bug-count-as-good-news essay (supporting-argument), verbatim GPL header text (too-granular), detailed license legal implications (foreshadowing), copyrights/trademarks/patents (foreshadowing)
+
 ## [2026-06-23] book-ingest | producing-open-source-software ch.3 | Technical Infrastructure (focused: Version Control; + Code Review from Ch.2 §Practice Conspicuous Code Review) → [[version-control]], [[code-review]]
 
 ## [2026-06-23] digest | producing-open-source-software ch.3 review | 8/8 PASS, 0 warn, 0 fail

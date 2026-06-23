@@ -48,13 +48,23 @@ this flat list.
   organizationally-weighted "GitHub-elite" core, and the hybridisation of commercial and
   open-source production.
 
+### Project launch & licensing
+
+- [[launching-an-open-source-project]] — turning a private vision into a public one:
+  scaled presentation, "appearances matter," hacktivation energy, and the newcomer
+  checklist (name, mission, license, status, downloads, repo, docs) — captured as what
+  each item *signals*.
+- [[open-source-licensing]] — Fogel's quick license guide: "free" and "open source"
+  name the same approved set; the one-question choice (permissive MIT vs. copyleft GPL
+  vs. network-use AGPL); and how to apply a license. Anchor to be enriched by Ch.9.
+
 ## Source entities
 
 ### Books
 
 - [[producing-open-source-software-book]] — Karl Fogel, *Producing Open Source Software*
   (2nd ed., CC BY-SA 4.0). The example's primary source; full-book ingest in progress
-  (Batches 1–2: Ch.1, Ch.4, and the Ch.2–3 slice).
+  (Batches 1–3: Ch.1, Ch.4, the Ch.2–3 slice, and Ch.2a launch + licensing).
 
 ### Papers
 
