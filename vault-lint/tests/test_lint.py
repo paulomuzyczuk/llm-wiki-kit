@@ -770,7 +770,13 @@ def test_ext_merge_tombstone_hygiene_violations(tmp_path):
 # 8. CHECK 8 — CONTROLLED-VOCABULARY RESOLUTION (topics-authority SOT)
 # ===========================================================================
 
-AUTHORITY_MD = """# Topics Authority
+AUTHORITY_MD = """---
+title: Topics Authority
+type: authority
+status: active
+---
+
+# Topics Authority
 
 ## Subject categories
 | Preferred | Use-for |
@@ -885,7 +891,13 @@ def test_check_8_end_to_end_skip_clean(tmp_path):
 
 # --- Check 8: unseeded-skeleton backstop -----------------------------------
 
-SKELETON_MD = """# Topics Authority
+SKELETON_MD = """---
+title: Topics Authority
+type: authority
+status: stub
+---
+
+# Topics Authority
 
 <!-- SEED-ME: unpopulated skeleton -->
 
@@ -947,3 +959,35 @@ def test_check_8_skeleton_not_flagged_when_empty_vault(tmp_path):
     auth = lint.parse_topics_authority(str(_write_skeleton(tmp_path)))
     r = lint.check_8_vocabulary({}, auth)
     assert r["skeleton_unseeded"] is False
+
+
+# --- Check 8: authority-file category validation ---------------------------
+
+def test_check_8_authority_type_correct_not_flagged(tmp_path):
+    auth = lint.parse_topics_authority(str(_write_authority(tmp_path)))
+    assert auth["declared_type"] == "authority"
+    r = lint.check_8_vocabulary({}, auth)
+    assert r["authority_type_wrong"] is False
+    assert r["authority_malformed"] is False
+
+
+def test_check_8_authority_type_wrong_flagged(tmp_path):
+    vault = build_vault(tmp_path)
+    md = AUTHORITY_MD.replace("type: authority", "type: topic")
+    (vault / "wiki" / "topics-authority.md").write_text(md, encoding="utf-8")
+    auth = lint.parse_topics_authority(str(vault))
+    assert auth["declared_type"] == "topic"
+    r = lint.check_8_vocabulary({}, auth)
+    assert r["authority_type_wrong"] is True
+    assert r["authority_declared_type"] == "topic"
+
+
+def test_check_8_authority_malformed_flagged(tmp_path):
+    vault = build_vault(tmp_path)
+    (vault / "wiki" / "topics-authority.md").write_text(
+        "---\ntitle: T\ntype: authority\n---\n\n# Topics Authority\n\n"
+        "## Reserved non-subject tags\n`stub`\n",
+        encoding="utf-8")
+    auth = lint.parse_topics_authority(str(vault))
+    r = lint.check_8_vocabulary({}, auth)
+    assert r["authority_malformed"] is True
