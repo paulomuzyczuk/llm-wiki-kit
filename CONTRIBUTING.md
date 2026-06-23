@@ -18,7 +18,7 @@ should **not** be filed as public issues — see [`SECURITY.md`](SECURITY.md).
   `vault-evaluator/`, `vault-lint/`.
 - **The contract** — `CLAUDE.template.md`. Changes here are the most sensitive; see
   [The contract](#the-contract-claudetemplatemd) below.
-- **Docs** — README, THEORY, this file.
+- **Docs** — the README, the [`docs/`](docs/) set (theory, architecture, pipeline), and this file.
 
 The populated example vault under `examples/software-craft/` is a curated showcase
 built by running the real pipeline. Please don't hand-edit it casually — it must stay

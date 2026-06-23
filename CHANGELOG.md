@@ -28,5 +28,8 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 - Reformatted the Python tooling (`check-conformance/`, `vault-lint/`) with Ruff
   and removed dead code flagged by the linter. No behavior change; all test
   suites still pass.
+- Moved `THEORY.md` into a `docs/` set and expanded it: `docs/theory.md` (the why),
+  `docs/architecture.md` (the structure), `docs/pipeline.md` (the workflow), and a
+  `docs/README.md` index. README and CONTRIBUTING links updated accordingly.
 
 [Unreleased]: https://github.com/paulomuzyczuk/llm-wiki-kit/commits/main
