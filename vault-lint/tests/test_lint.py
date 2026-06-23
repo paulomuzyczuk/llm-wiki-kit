@@ -268,6 +268,21 @@ def test_check_2_orphan_found():
     assert "wiki/topics/b.md" not in res["orphans"]
 
 
+def test_check_2_role_moc_not_orphan():
+    # Role MOCs (wiki/topics/role-*.md) are navigation surfaces reached from the
+    # index's role surface (which the orphan scan does not treat as a source), so
+    # they must not be flagged as orphans even with no inbound wikilinks. A normal
+    # page with no inbound links is still an orphan.
+    pages, slug_index = make_pages({
+        "wiki/topics/role-code-craftsperson.md": "# Role MOC\nlinks to [[a]]\n",
+        "wiki/topics/a.md": "# A\nlinked by the MOC, links nowhere\n",
+        "wiki/topics/b.md": "# B\nplain page, no inbound\n",
+    })
+    res = lint.check_2_orphans("/nonexistent", pages, slug_index)
+    assert "wiki/topics/role-code-craftsperson.md" not in res["orphans"]
+    assert "wiki/topics/b.md" in res["orphans"]
+
+
 # --- check_3_pass_a (dangling wikilinks) -----------------------------------
 
 def test_check_3a_clean():
