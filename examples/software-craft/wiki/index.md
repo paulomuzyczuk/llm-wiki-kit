@@ -64,12 +64,29 @@ this flat list.
   cultural navigation.
 - [[open-source-governance]] — how projects actually decide: benevolent-dictator vs.
   consensus-democracy, consensus-by-default, voting/vetoes as last resort, maintainers
-  beyond coders, and writing it down.
+  beyond coders, and writing it down. Also: how *funding* strains the benevolent-dictator
+  model (Ch.5).
 - [[forkability]] — the right to fork as the ceiling on all project power; why the
   *possibility* matters more than the rare act, and why there are no true dictators.
 - [[setting-the-tone]] — culture is transmitted, not legislated: set precedents early so
   useful behaviors become self-perpetuating "in-group" norms; public-by-default discussion,
   nipping rudeness in the bud, and codes of conduct.
+
+### Open-source economics & organizations
+
+- [[open-source-economics]] — why most free software is written by paid developers (companies
+  need software maintained, not monopolized), informal subsidy and "unofficial consortia,"
+  why money buys *credibility* (convertible to influence) rather than influence directly, and
+  the taxonomy of corporate-involvement goals.
+- [[corporate-open-source-participation]] — the behavioral playbook for a funder: hire for the
+  long term, "appear as many, not as one," be open about your motivations (honest-broker
+  behavior), and "money can't buy you love" — make the company the same size as everyone else.
+- [[government-and-open-source]] — why "government is different" (outsourced expertise, slow
+  procurement, risk-aversion, publicity hunger) and the adjustments that follow, including why
+  open-from-day-one matters even more for public-sector projects.
+- [[open-source-contracting]] — you can buy work but not its acceptance: best-effort
+  integration clauses, hire-from-within vs. -outside, contract transparency, community review
+  as a "free design board," RFP/RFI language, and Open Source Quality Assurance (OSQA).
 
 ### Open-source ecosystem & participation
 
@@ -96,9 +113,10 @@ this flat list.
 
 - [[producing-open-source-software-book]] — Karl Fogel, *Producing Open Source Software*
   (2nd ed., CC BY-SA 4.0). The example's primary source; full-book ingest in progress
-  (Batches 1–6: Ch.1, Ch.2, Ch.3, and Ch.4 fully ingested — code review, launch, licensing,
-  setting the tone, developing in the open, and the complete Ch.3 technical-infrastructure
-  toolset; Chapters 5–9 pending).
+  (Batches 1–6: Ch.1–Ch.4 fully ingested — code review, launch, licensing, setting the tone,
+  developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
+  opened Ch.5 "Organizations and Money" — economics, corporate/government involvement, hiring,
+  contracting; Ch.5 continues in batches 8–9, Ch.6–9 pending).
 
 ### Papers
 
