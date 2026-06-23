@@ -94,7 +94,10 @@ from it). Stub contents:
 
 Set the entity's source-identity frontmatter — `edition` and `isbn`/`doi` for the
 manifestation (copied from `meta.md`; `null` when unavailable) — so this page is the
-edition-stable anchor every `#page=N` citation resolves through.
+edition-stable anchor every `#page=N` citation resolves through. If the vault has a
+`wiki/topics-authority.md`, resolve any alias you give the entity (title variants,
+acronyms) against it first and register new ones there — the same
+resolve-before-minting rule the ingest skill applies to topic pages.
 
 This page is the living hub for the book's synthesis. It is updated after each ingested
 chapter; Phase 4 of the ingestion skill ticks the chapter index and `meta.md` together.
