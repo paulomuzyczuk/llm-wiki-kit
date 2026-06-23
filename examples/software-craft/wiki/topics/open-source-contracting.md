@@ -161,6 +161,26 @@ decisive design constraint: "the reviewer is responsible to the customer, not to
 development vendor." Cost runs "on the order of 5% to 10%" of the main contract
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=90), p. 77); ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=91), p. 78).
 
+## The New Developer Test
+
+The most concrete OSQA technique is what Fogel calls "the new developer test: have a competent
+developer who is entirely unfamiliar with the project approach it through its front door, by
+trying to get an instance up and running, and perhaps even contributing a minor bugfix or
+documentation patch." The decisive constraint is the absence of privilege: "the new developer
+doesn't get any special access." She is "simply told the project's home page, and perhaps pointed
+to a suitable bug report," and her mission is "to become a participant… by following the project's
+own documented procedures." If the install docs fall short "she files a ticket in the issue
+tracker and tries to get a constructive response — there are no behind-the-scenes telephone calls
+or special requests… because those would reduce the value of the exercise"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=92), p. 79).
+
+A successful test yields two outputs: "a flurry of forum posts, new tickets, and documentation
+patches that show the project the difference between where they thought they were in terms of
+welcoming new participants and where they actually are," and "a heightened appreciation on the
+part of the project's developers of the effort required to make open source software that is truly
+approachable by strangers." It is the empirical measurement of onboarding quality that the rest of
+OSQA presumes ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=92), p. 79).
+
 ## Negative Space
 
 - **CVS password-auth / Subversion contractor case specifics** (`case-study-specifics`): the
@@ -184,6 +204,8 @@ development vendor." Cost runs "on the order of 5% to 10%" of the main contract
 - [[developing-in-the-open]] — "in the open from the start," the first and load-bearing RFP
   requirement.
 - [[code-review]] — the public review process a best-effort clause commits the contractor to.
+- [[funding-non-programming-activities]] — the non-code counterpart: testing, docs, UX, and infra
+  a funder can resource, where the New Developer Test's onboarding lessons get acted on.
 
 ## Sources
 
@@ -192,4 +214,5 @@ development vendor." Cost runs "on the order of 5% to 10%" of the main contract
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 5 "Organizations and Money" —
   "Contracting," "Hiring From Within / Outside the Community," "Contracting and Transparency,"
   "Review and Acceptance of Changes," "Update Your RFI, RFP and Contract Language," "Open
-  Source Quality Assurance (OSQA)" (printed pp. 74–78).
+  Source Quality Assurance (OSQA)" (printed pp. 74–78); "The 'New Developer' Test" (batch 8,
+  printed p. 79).
