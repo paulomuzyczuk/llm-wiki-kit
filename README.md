@@ -42,7 +42,7 @@ One honest caveat: this is a **reference base, not a thinking tool**. In the Zet
 | [`book-ingestion`](book-ingestion/) | Ingests one approved batch of chapters into the vault — synthesized topic pages, entity updates, index/log entries, negative-space records. One batch per invocation, never headless. |
 | [`book-review`](book-review/) | Verifies a freshly ingested chapter against the vault's discipline rules. Reports only — never modifies wiki files. |
 | [`vault-evaluator`](vault-evaluator/) | Benchmarks how much a vault actually helps: runs question sets across three conditions (no context / raw source / vault) and multiple model classes, then reports comparative performance. |
-| [`article-extractor`](article-extractor/) | Extracts clean article text from a URL into a Markdown note with provenance frontmatter, ready to drop into a vault. |
+| [`article-ingestion`](article-ingestion/) | Owns the article path: **fetches** a URL into a provenance-stamped Markdown note, and **ingests** a pending article into the wiki (topic/entity synthesis, vocabulary resolution, index/log, lint trigger). Interactive or headless. |
 | [`vault-lint`](vault-lint/) | Health-check sweep — citation-resolution failures, orphan pages, missing cross-references, duplicate concepts, stale claims, role-count drift, plus per-vault extension checks. |
 
 ### Tools
@@ -68,7 +68,7 @@ These are Claude Code skills. Clone the repo, then symlink (or copy) each skill 
 git clone https://github.com/paulomuzyczuk/llm-wiki-kit.git
 cd llm-wiki-kit
 mkdir -p "$HOME/.claude/skills"
-for skill in article-extractor book-ingestion book-planner book-review vault-evaluator vault-lint; do
+for skill in article-ingestion book-ingestion book-planner book-review vault-evaluator vault-lint; do
   ln -sfn "$PWD/$skill" "$HOME/.claude/skills/$skill"
 done
 ```

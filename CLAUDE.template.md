@@ -566,7 +566,7 @@ Triggered by: scheduled job (5-day cadence) OR human request.
    `## [YYYY-MM-DD] intake | scheduled | <filename>` to `log.md`.
 4. If interactive: list moved files. If headless: write `wiki/digests/intake-<YYYY-MM-DD>.md`.
 
-> Web Clipper writes articles directly into `_pending/`; they bypass this Downloads filter and are picked up at ingest. Books are NOT handled here — see book-ingest.
+> Web Clipper writes articles directly into `_pending/`; they bypass this Downloads filter and are picked up at ingest (article synthesis is delegated to `/article-ingestion` — see `### Article-ingest`). Books are NOT handled here — see book-ingest.
 
 ---
 
@@ -574,7 +574,7 @@ Triggered by: scheduled job (5-day cadence) OR human request.
 
 Triggered by: scheduled job (after intake) OR human request. Processes ALL `_pending/` types.
 
-> **First-ingest vocabulary seed (one-time).** If `wiki/topics-authority.md` is still an unpopulated skeleton (`status: stub` + `SEED-ME` comment) and this is the first content entering the vault, seed it per the Conventions *First-ingest seed* rule (≤10 subjects, ≤30 aliases from this content + the domain) before synthesising pages, so the pages you write resolve against it.
+> **First-ingest vocabulary seed (one-time).** If `wiki/topics-authority.md` is still an unpopulated skeleton (`status: stub` + `SEED-ME` comment) and this notes/handoff content is the first to enter the vault, seed it per the Conventions *First-ingest seed* rule (≤10 subjects, ≤30 aliases from this content + the domain) before synthesising pages, so the pages you write resolve against it. (When an article is the first content, `/article-ingestion` performs this seed — see `### Article-ingest`.)
 
 For each file in `_pending/`:
 
@@ -584,21 +584,24 @@ For each file in `_pending/`:
 
    - **{{EXEC_HANDOFF}}** -> write a cross-referenced summary page at `wiki/handoffs/{{EXEC_HANDOFF}}s/<YYYY-MM-DD>-<{{ENTITY_SUBJECT-singular}}>.md` (summary + wikilinks, not a copy of the raw). Then REVISE `wiki/entities/{{ENTITY_SUBJECT}}/<name>.md` to reflect new current state (living synthesis, bounded). Link the entity page to the new handoff page.
    - **planning-handoff** -> write or update `wiki/handoffs/planning-handoffs/<YYYY-MM-DD>-<topic>.md` in distillation format: decisions, rationale, open questions. Cross-reference entities/topics mentioned.
-   - **article** -> read it; write or update relevant `wiki/topics/` and `wiki/entities/` pages with what it contributes; cite via relative path. Compression and cross-reference, never displacing paraphrase.
+   - **article** -> invoke `/article-ingestion` (Phase 2) to synthesise it into the wiki. The skill owns the article path end to end — synthesis, resolve-before-minting, index/log updates, the article lint trigger, and the headless digest. See `### Article-ingest`. (Do the steps below — index, cross-refs, log, lint trigger — only for the non-article types in this loop.)
    - **notes** -> identify topic(s); write or update `wiki/topics/` or `wiki/entities/` pages.
 
 4. Update `wiki/index.md`.
 5. Update cross-references; flag contradictions inline with `<!-- CONTRADICTS: [[page]] section X -->`.
-6. Append to `log.md`. Format varies by type:
-   - article: `## [YYYY-MM-DD] ingest | article | <source-title>`
-   - all other types: `## [YYYY-MM-DD] ingest | <topic-or-{{LOG_CLASSIFIER}}> | <source-title>`
-
-7. **Article lint trigger** (articles only). After writing the article log entry:
-   a. Find the most recent `## [YYYY-MM-DD] lint | {{VAULT_SLUG}} |` entry in `log.md`. If none, treat the start of the file as the watermark.
-   b. Count all `## [YYYY-MM-DD] ingest | article |` entries strictly after that watermark (do not count `lint | pending` lines).
-   c. If count >= 4 and no `lint | pending | {{VAULT_SLUG}}` entry exists after the most recent `lint | {{VAULT_SLUG}} |` entry, append: `## [YYYY-MM-DD] lint | pending | {{VAULT_SLUG}}`
+6. Append to `log.md`: `## [YYYY-MM-DD] ingest | <topic-or-{{LOG_CLASSIFIER}}> | <source-title>`. (The article branch logs its own `ingest | article |` entry and runs the article lint trigger inside `/article-ingestion`.)
 
 When headless, also write `wiki/digests/ingest-<YYYY-MM-DD>.md` listing sources processed, pages created/updated, contradictions flagged, and any unclassified files left in `_pending/`.
+
+---
+
+### Article-ingest (URL or pending clipping -> wiki updates)
+
+Triggered by: the Ingest operation's article branch, a human giving an article URL or asking to ingest a clipped article, OR a scheduled/headless run. Supports headless — articles are straightforward, single-pass sources.
+
+Invoke: `/article-ingestion`. The skill has two entry points: **Phase 1 (Fetch)** turns a URL into a provenance-stamped Markdown note in `raw-input/_pending/`; **Phase 2 (Ingest)** synthesises a pending article note into the wiki — page writes, resolve-before-minting against `topics-authority.md`, the first-ingest vocabulary seed when an article is the vault's first content, `index.md`/cross-reference updates, the `ingest | article |` log entry, the article lint trigger, and the headless `wiki/digests/ingest-<date>.md`.
+
+The full procedure lives in `article-ingestion-skill.md`. This contract delegates the article path to it the same way the book path is delegated to `book-ingestion-skill.md`. Articles still arrive in `_pending/` via the Obsidian Web Clipper as well as via the skill's fetch phase.
 
 ---
 
@@ -723,7 +726,7 @@ Cron/launchd invokes Claude Code headless and runs:
 3. **Commit (run-touched files only).** Compute the run-touched set: the dirty paths in scope after step 2 minus the pre-run snapshot from step 2. Pre-existing WIP — files already dirty before the run started — is intentionally excluded even if the run further modified them; the user resolves any such files manually on the next interactive session in this vault. If the run-touched set is empty, skip the commit (no empty commits). Otherwise commit ONLY the run-touched paths using pathspec commit: `git commit -m "content: scheduled run <YYYY-MM-DD> | <one-line summary>" -- <each-run-touched-path>`, where the summary is built from the digest (e.g., "no-op (0 candidates)" or "3 articles ingested, 5 pages updated"). For any newly-created (untracked) files in the run-touched set, `git add <file>` them before the pathspec commit since pathspec commit doesn't capture untracked files on its own. Never commit `CLAUDE.md` or any path outside scope.
 4. Exit.
 
-Book-ingest is never run headless. To change cadence, edit the day count in step 1.
+The Ingest step delegates each `_pending/` article to `/article-ingestion` (Phase 2), which is headless-capable and runs in this scheduled context; book-ingest is never run headless. To change cadence, edit the day count in step 1.
 launchd label for this vault: `com.user.vault-{{VAULT_PREFIX}}-scheduled`.
 Scheduled to fire daily at `{{SCHEDULE_TIME}}`.
 vault-lint is never invoked from scheduled operations; it requires interactive human authorisation via the skill's Step 0a gate.
