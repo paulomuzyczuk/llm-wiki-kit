@@ -89,8 +89,17 @@ selection criterion, revoking access privately, partial/dormant access, and "avo
 publishing the rules and roster), credit and attribution (credit as "the primary currency of the
 free software world," distributed accurately through the records the VCS already keeps), and forks
 (development vs. hard forks, why perception decides which side is "the fork," handling a fork
-non-vindictively, and initiating one only as a last resort). Chapters 1–8 are now fully ingested;
-Chapter 9 (Legal Matters) follows across Batches 16–17 under the plan.
+non-vindictively, and initiating one only as a last resort). Chapters 1–8 are now fully ingested.
+Batch 16 opens Chapter 9 (Legal Matters) with its first half — the licensing terminology that
+affects decisions (commercial≠proprietary, public domain vs. a license, FOSS/FLOSS), the *aspects*
+on which licenses differ (proprietary-compatibility, free-license-compatibility, attribution,
+trademark protection, patent snapback), copyleft (the GPL's two requirements that make "freedom
+contagious," LGPL/AGPL reciprocity strength, the sole-copyright-holder exemption), permissive
+licensing (MIT/BSD/Apache, MIT as default), license compatibility (GPL-compatibility as the
+dominant axis; the DFSG/OSI/FSF certification tests), and choosing a well-recognized existing
+license. Captured as principles + decision criteria (no per-license mechanics pages). Chapter 9
+concludes in Batch 17 — contributor agreements, proprietary relicensing, trademarks, patents, and
+Creative Commons licenses.
 
 ## Chapter Index
 
@@ -104,12 +113,13 @@ Chapter 9 (Legal Matters) follows across Batches 16–17 under the plan.
 | 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | ✓ batch 12 (7a), 13 (7b) | [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]], [[releasing-and-signing]], [[maintaining-multiple-release-lines]], [[security-releases]], [[atomic-commits]], [[release-planning]] |
 | 8 | Managing Participants | 149–170 | ✓ batch 14 (8a), 15 (8b) | [[contributor-motivation]], [[delegation-in-open-source]], [[praise-and-criticism]], [[preventing-territoriality]], [[the-automation-ratio]], [[treating-users-as-participants]], [[sharing-project-management]], [[transitions]], [[committers]], [[credit-and-attribution]], [[forks]] |
-| 9 | Legal Matters | 171–190 | — | |
+| 9 | Legal Matters | 171–190 | ⏳ batch 16 (9a) | [[copyleft]], [[permissive-licensing]], [[license-compatibility]] (+ enriched [[open-source-licensing]]) |
 
 ## Negative Space
 
-- **Chapter 9** (`source-underdeveloped`): Chapters 1–8 are now fully ingested. Ch.9 (Legal
-  Matters — licenses, copyrights, trademarks, patents) remains, scheduled as reference-catalog
-  synthesis (principles + decision criteria) across Batches 16–17 in `ingestion-plan.md`. The
-  chapter index above tracks live progress; the un-ticked chapter is pending, not deliberately
-  excluded.
+- **Chapter 9b** (`source-underdeveloped`): Ch.9a (licensing terminology, aspects, copyleft/
+  permissive, compatibility, choosing a license) landed in Batch 16. The Ch.9 remainder —
+  contributor agreements (CLA/CA/DCO), proprietary relicensing, trademarks, patents, and the
+  Creative Commons public licenses — is scheduled as reference-catalog synthesis (principles +
+  decision criteria) for Batch 17 in `ingestion-plan.md`. The chapter index above tracks live
+  progress; the partially-ticked chapter is in progress, not deliberately excluded.
