@@ -2,7 +2,7 @@
 title: Bug Tracking
 aliases: [issue-tracking, ticket-tracker, defect-tracker, issue-tracker]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [bug-tracking, project-infrastructure, software-collaboration]
 roles: [tech-lead]
@@ -152,6 +152,11 @@ maintenance, best spread across as many people as possible ([Fogel 2023](../../r
   the Bug Tracker" (PDF pp. 63–66 / printed pp. 50–53).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[message-forums]] · [[version-control]] · [[project-hosting]] · [[real-time-chat]]
+- [[project-infrastructure]] — the minimum toolset a tracker is one slot of.
+- [[message-forums]] — the discussion list a tracker deliberately is *not*; tickets are
+  state, conversation belongs on the list.
+- [[version-control]] — where commits reference ticket IDs, closing the report-to-fix loop.
+- [[project-hosting]] — the canned-hosting site that usually bundles the tracker.
+- [[real-time-chat]] — the ephemeral venue whose decisions still need to land back on a ticket.

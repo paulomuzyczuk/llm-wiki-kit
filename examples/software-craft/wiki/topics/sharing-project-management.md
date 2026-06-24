@@ -102,6 +102,8 @@ told of technical changes. (The supporting tooling is in [[translation-infrastru
 - [[stabilizing-a-release]] — the release-manager/release-owner role deferred to here.
 - [[translation-infrastructure]] — the tooling the translation manager coordinates.
 - [[contributor-motivation]] — "attention is the currency" the patch manager protects.
+- [[committers]] — the formal commit-access class, the most consequential standing
+  responsibility distributed this way.
 
 ## Sources
 

@@ -123,6 +123,7 @@ hurt" — and it was a poor start for the new managers too
 - [[difficult-people]] — the related but distinct case of someone obstructing rather than merely
   underperforming.
 - [[committers]] — the parallel, harder transition of revoking commit access.
+- [[open-source-governance]] — the authority structure a transition reshuffles.
 
 ## Sources
 

@@ -2,7 +2,7 @@
 title: Project Infrastructure
 aliases: [technical-infrastructure, collaboration-tools, what-a-project-needs]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure, software-collaboration]
 roles: [tech-lead]
@@ -155,6 +155,14 @@ attention ([Fogel 2023](../../raw-input/books/producing-open-source-software/pro
   printed p. 58, batch 6).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[version-control]] · [[message-forums]] · [[project-hosting]] · [[bug-tracking]] · [[real-time-chat]] · [[wikis]] · [[translation-infrastructure]]
+- [[version-control]] — the load-bearing core of the minimum toolset.
+- [[message-forums]] — the primary discussion channel.
+- [[project-hosting]] — how the toolset is most often provisioned (canned hosting).
+- [[bug-tracking]] — the issue tracker in the toolset.
+- [[real-time-chat]] — the synchronous channel in the toolset.
+- [[wikis]] — the lightweight documentation surface.
+- [[translation-infrastructure]] — the localization tooling for non-code contributors.
+- [[choosing-the-right-forum]] — how to route a given discussion among these venues once
+  they exist.

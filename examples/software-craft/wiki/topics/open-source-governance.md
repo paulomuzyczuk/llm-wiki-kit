@@ -221,6 +221,10 @@ shared roles — is in [[delegation-in-open-source]], [[praise-and-criticism]],
   size as everyone else") that the funding-strains-BD section turns on.
 - [[open-source-economics]] — how money becomes credibility and then influence within these
   decision processes.
+- [[contributor-motivation]] — why people seek the influence these structures allocate; the
+  attention/credibility currency informal authority runs on.
+- [[transitions]] — how role-holders are moved in and out of the positions these structures
+  define (the last-resort, hardest governance act).
 
 ## Sources
 
