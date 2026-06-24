@@ -43,7 +43,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 - [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [x] Ch.5 — Organizations and Money  (batch 7 [5a]: full synthesis → [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]]; enriched [[open-source-governance]]. batch 8 [5b]: full synthesis → [[funding-non-programming-activities]], [[open-source-marketing]]; enriched [[open-source-contracting]] (New Developer Test). batch 9 [5c]: full synthesis → [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]]; enriched [[corporate-open-source-participation]] (Open Source and the Organization — foster pools of expertise, publicity-vs-schedule, middle management) — completes Ch.5) ✓ reviewed-clean
 - [x] Ch.6 — Communications  (batch 10 [6a]: full synthesis → [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]]; batch 11 [6b]: full synthesis → [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]]; enriched [[facilitating-online-discussion]] (pair-link to forum choice) — completes Ch.6) ✓ reviewed-clean
-- [x] Ch.7 — Packaging, Releasing, and Daily Development  (batch 12 [7a]: §Release Numbering + §Release Branches + §Stabilizing a Release + §Packaging [principle] → [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]]; enriched [[version-control]] (release branches). Ch.7 continues in batch 13)
+- [x] Ch.7 — Packaging, Releasing, and Daily Development  (batch 12 [7a]: §Release Numbering + §Release Branches + §Stabilizing a Release + §Packaging [principle] → [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]]; enriched [[version-control]] (release branches). batch 13 [7b]: §Testing and Releasing + §Maintaining Multiple Release Lines + §Security Releases + §Releases and Daily Development + §Planning Releases → [[releasing-and-signing]], [[maintaining-multiple-release-lines]], [[security-releases]], [[atomic-commits]], [[release-planning]]; enriched [[source-packaging]] (build conventions + binary packages), [[version-control]] (atomic-commits link), [[security-vulnerability-disclosure]] (repointed → [[security-releases]]) — completes Ch.7) ✓ reviewed-clean
 - [ ] Ch.8 — Managing Participants
 - [ ] Ch.9 — Legal Matters
 
@@ -60,4 +60,6 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 > 6b (scaling project communication, choosing the right forum, publicity, security vulnerability
 > disclosure). Batch 12 opens Chapter 7 (Packaging, Releasing, and Daily Development) with its
 > first half — release numbering, release branches, stabilizing a release, and the packaging
-> principle. Chapter 7 continues in batch 13; the remaining chapters (8–9) follow under the plan.
+> principle. Batch 13 completes Chapter 7 with its second half — releasing and signing,
+> maintaining multiple release lines, security releases, atomic commits, and release planning.
+> Chapters 1–7 are now fully ingested; the remaining chapters (8–9) follow under the plan.

@@ -13,6 +13,7 @@ last_updated: 2026-06-24
 <!-- batch 10 (2026-06-24): registered subject open-source-communication; concepts written-communication, facilitating-online-discussion, difficult-people -->
 <!-- batch 11 (2026-06-24): registered subject software-security; concepts scaling-project-communication, choosing-the-right-forum, open-source-publicity, security-vulnerability-disclosure (completes Ch.6) -->
 <!-- batch 12 (2026-06-24): registered concepts release-numbering, release-branches, stabilizing-a-release, source-packaging (subject release-engineering already seeded) -->
+<!-- batch 13 (2026-06-24): registered concepts releasing-and-signing, maintaining-multiple-release-lines, security-releases, atomic-commits, release-planning (subjects release-engineering, version-control, software-security already seeded) -->
 
 # Topics Authority — software craft
 
@@ -97,6 +98,11 @@ pages or shadow another page's canonical title/slug.
 | release-branches | release-branch, branching-for-release, maintenance-branch |
 | stabilizing-a-release | release-stabilization, release-owner, change-voting, release-manager, time-based-releases |
 | source-packaging | packaging, source-distribution, release-packaging, source-package |
+| releasing-and-signing | release-testing, digital-signatures, release-checksums, candidate-releases, release-approval |
+| maintaining-multiple-release-lines | parallel-release-lines, release-lines, end-of-life, support-window, maintenance-releases |
+| security-releases | security-release, security-fix-release, security-only-release |
+| atomic-commits | single-logical-change, one-change-per-commit, commit-hygiene, semantically-unified-commit |
+| release-planning | planning-releases, release-cadence, decoupling-contents-from-dates, release-frequency |
 
 ## Reserved non-subject tags
 

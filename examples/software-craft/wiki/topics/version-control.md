@@ -126,6 +126,9 @@ change than to prevent it in the first place" ([Fogel 2023](../../raw-input/book
 
 - [[code-review]] — the human-judgment layer that rides on the branch/pull-request workflow.
 - [[continuous-integration]] — the mechanical pre-commit/pre-merge safety net layered on version control.
+- [[atomic-commits]] — the daily-development discipline that keeps "a change is the basic
+  unit of information" true: one logical change per commit, so merge/cherry-pick/revert
+  stay clean.
 
 ## Sources
 
