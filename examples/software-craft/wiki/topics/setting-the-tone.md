@@ -2,7 +2,7 @@
 title: Setting the Tone
 aliases: [project-culture, setting-precedents, codes-of-conduct, in-group-behaviors]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-culture, software-collaboration]
 roles: [tech-lead]
@@ -126,8 +126,8 @@ lurk on the mailing list, see that it takes a thick skin to participate … and 
 against getting involved at all." It is "easier to do when the project is still small,"
 and once it is part of the culture, "it will be maintained by everyone"
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=36), p. 23).
-Fuller treatment of recurring conflict and disruptive individuals is deferred to the
-[[communications]] chapter (Ch.6).
+Fuller treatment of recurring conflict and disruptive individuals is developed in
+[[difficult-people]] (Ch.6).
 
 ## Codes of conduct
 
@@ -175,10 +175,10 @@ This anticipates the corporate-participation tensions developed in Ch.5
   Covenant URL, the Arches Commercial guidelines, and the Bytecode Alliance draft OCoC are
   named only as examples; the decision criteria (when a CCoC/OCoC is warranted, who
   enforces) are captured, the documents are not.
-- **Recurring-conflict and difficult-people mechanics** (`foreshadowing`): zero-tolerance
-  here is the *early-precedent* form; the scaling treatment of conflict, "Difficult People,"
-  and "Recognizing Rudeness" is deferred to Ch.6 [[communications]] — a dead link until that
-  chapter is ingested.
+- **Recurring-conflict and difficult-people mechanics**: zero-tolerance here is the
+  *early-precedent* form; the scaling treatment of conflict, "Difficult People," and
+  "Recognizing Rudeness" (Ch.6) is developed in [[difficult-people]], [[written-communication]],
+  and [[scaling-project-communication]].
 
 ## See also
 

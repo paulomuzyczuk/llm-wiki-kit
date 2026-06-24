@@ -138,7 +138,7 @@ and the principle behind it, not its mechanics (tooling specifics belong to
   it is "proof that the software works"
   ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=31), p. 18).
 - **Hosting** — early on the user-facing and developer-facing sites need not be separate;
-  most new projects "just use one of the 'canned hosting' sites." See [[canned-hosting]]
+  most new projects "just use one of the 'canned hosting' sites." See [[project-hosting]]
   ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=32), p. 19).
 
 ## Honest status beats hype

@@ -2,7 +2,7 @@
 title: Translation Infrastructure
 aliases: [i18n, l10n, internationalization, localization, translation-platform]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure, software-collaboration, open-source-participation]
 roles: [tech-lead]
@@ -90,6 +90,8 @@ content work.
   (i18n) and Localization (l10n)" sidebar (PDF p. 70 / printed p. 57).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[open-source-participation]] · [[project-hosting]]
+- [[project-infrastructure]] — the toolset translation tooling extends past code.
+- [[open-source-participation]] — translators as a major non-code contributor class.
+- [[project-hosting]] — where the translation platform is provisioned alongside the repo.

@@ -89,6 +89,7 @@ pointers — that fall on the writer for the reader's benefit.
   (Strategy 1 there is the structural version of forum choice).
 - [[message-forums]] / [[real-time-chat]] / [[bug-tracking]] — the venues being chosen
   between.
+- [[project-infrastructure]] — the catalog of venues this routing decision operates over.
 
 ## Sources
 

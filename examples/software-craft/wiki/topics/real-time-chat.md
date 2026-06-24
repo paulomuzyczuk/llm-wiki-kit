@@ -2,7 +2,7 @@
 title: Real-Time Chat Systems
 aliases: [project-chat, chat-rooms, irc]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure, software-collaboration]
 roles: [tech-lead]
@@ -122,6 +122,10 @@ spot. It is worth enabling ([Fogel 2023](../../raw-input/books/producing-open-so
   and "Commit Notifications in Chat" (PDF pp. 66–68 / printed pp. 53–55).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[message-forums]] · [[bug-tracking]] · [[version-control]]
+- [[project-infrastructure]] — the toolset chat is one (ephemeral) channel within.
+- [[message-forums]] — the persistent counterpart; chat is synchronous and disposable,
+  forums are the archive.
+- [[bug-tracking]] — where decisions reached in chat must be recorded to persist.
+- [[version-control]] — the durable record chat conversation is *not*.

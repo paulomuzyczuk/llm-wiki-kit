@@ -2,7 +2,7 @@
 title: Open-Source Culture
 aliases: []
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-culture, open-source-participation]
 roles: [tech-lead]
@@ -81,9 +81,9 @@ developers are regularly exposed to people and ideas outside your organizational
 
 ## Negative Space
 
-- **Organization-fit specifics (govt vs. corporate vs. non-profit)** (`foreshadowing`):
-  named here as a cultural-navigation sub-case; the developed treatment is Ch. 5
-  (Organizations and Money), left as the dead wikilink [[organizations-and-money]].
+- **Organization-fit specifics (govt vs. corporate vs. non-profit)**: named here as a
+  cultural-navigation sub-case; the developed treatment is Ch. 5 (Organizations and Money),
+  now in [[government-and-open-source]] and [[corporate-open-source-participation]].
 - **Zawinski "magic pixie dust" anecdote** (`illustrative-scaffolding`): the Mozilla
   cautionary quote illustrates "not a panacea," captured as that point rather than paged.
 - **The "oxygen of computing" framing** (`conceptual-tool-not-concept`): a rhetorical
