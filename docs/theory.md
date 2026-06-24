@@ -1,6 +1,6 @@
 # Why it's shaped this way — the theory behind the contract
 
-The contract's more opinionated rules aren't arbitrary — several are deliberate borrowings from library, archival, and information science, disciplines that have spent more than a century on the problem this project runs into immediately: how do you keep a *growing* collection findable, trustworthy, and honest about its own limits? This page walks through the lineage behind four of the design choices people most often ask about, the single tradeoff that ties them together, and one blunt clarification about what the system is and isn't. The README carries a short version; this is the long one.
+The contract's more opinionated rules aren't arbitrary — several are deliberate borrowings from library, archival, and information science, disciplines that have spent more than a century on the problem this project runs into immediately: how do you keep a *growing* collection findable, trustworthy, and honest about its own limits? This page walks through the lineage behind four of the design choices people most often ask about, the single tradeoff that ties them together, and one blunt clarification about what the system is and isn't. The README carries a short version; this is the long one. For *what* a vault is made of see [architecture.md](architecture.md), and for *how* content flows into it see [pipeline.md](pipeline.md).
 
 ## Negative space is recorded, not silently absent
 

@@ -1,4 +1,5 @@
 """Shared helpers for check-conformance tests."""
+
 import json
 import re
 import subprocess
@@ -6,25 +7,25 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TEMPLATE_PATH = REPO_ROOT / "CLAUDE.template.md"
-SCRIPT_PATH = REPO_ROOT / "check-conformance" / "check-conformance.py"
+TEMPLATE_PATH = REPO_ROOT / 'CLAUDE.template.md'
+SCRIPT_PATH = REPO_ROOT / 'check-conformance' / 'check-conformance.py'
 
 # Fixed substitution table covering every {{TOKEN}} in the template body.
 TEST_SUBS = {
-    "DOMAIN": "pair programming",
-    "VAULT_PREFIX": "pp",
-    "VAULT_SLUG": "pair-programming",
-    "EXEC_HANDOFF": "coding-handoff",
-    "EXEC_NOUN": "coding",
-    "ENTITY_SUBJECT": "projects",
-    "ENTITY_SUBJECT-singular": "project",
-    "EXTERNAL_WORK_PATH": "~/projects/<name>/",
-    "LOG_CLASSIFIER": "subject",
-    "SCHEDULE_TIME": "08:00",
+    'DOMAIN': 'pair programming',
+    'VAULT_PREFIX': 'pp',
+    'VAULT_SLUG': 'pair-programming',
+    'EXEC_HANDOFF': 'coding-handoff',
+    'EXEC_NOUN': 'coding',
+    'ENTITY_SUBJECT': 'projects',
+    'ENTITY_SUBJECT-singular': 'project',
+    'EXTERNAL_WORK_PATH': '~/projects/<name>/',
+    'LOG_CLASSIFIER': 'subject',
+    'SCHEDULE_TIME': '08:00',
 }
 
 # Roles table that replaces the template's example block in a conformant vault.
-VAULT_ROLES_HEADING = "**Roles for this vault:**"
+VAULT_ROLES_HEADING = '**Roles for this vault:**'
 VAULT_ROLES_TABLE = """\
 | Role | Definition | Assign when… |
 |---|---|---|
@@ -37,15 +38,15 @@ def _strip_header(text: str) -> str:
     """Cut to the contract's first top-level '# ' heading — mirrors
     check-conformance.py's _strip_header. The header body contains literal
     '-->' strings, so it can't be parsed by comment delimiters."""
-    m = re.search(r"(?m)^# ", text)
+    m = re.search(r'(?m)^# ', text)
     if m is None:
         raise ValueError("no top-level '# ' heading found in template")
-    return text[m.start():]
+    return text[m.start() :]
 
 
 def _substitute(text: str, subs: dict) -> str:
     for token, value in subs.items():
-        text = text.replace("{{" + token + "}}", value)
+        text = text.replace('{{' + token + '}}', value)
     return text
 
 
@@ -55,8 +56,8 @@ def _swap_roles_table(lines: list) -> list:
     Start anchor: line starting with '**Roles for this vault:**'
     End anchor: blank line immediately before 'The `source_tier:` field is required'
     """
-    start_pat = re.compile(r"^\*\*Roles for this vault:\*\*")
-    end_sentinel = "The `source_tier:` field is required"
+    start_pat = re.compile(r'^\*\*Roles for this vault:\*\*')
+    end_sentinel = 'The `source_tier:` field is required'
 
     # Find start
     start_idx = None
@@ -65,20 +66,20 @@ def _swap_roles_table(lines: list) -> list:
             start_idx = i
             break
     if start_idx is None:
-        raise ValueError("Roles table start anchor not found in template body")
+        raise ValueError('Roles table start anchor not found in template body')
 
     # Find end: blank line immediately before end_sentinel paragraph
     end_idx = None
     for i in range(start_idx + 1, len(lines)):
-        if lines[i].rstrip() == "" and i + 1 < len(lines) and lines[i + 1].startswith(end_sentinel):
+        if lines[i].rstrip() == '' and i + 1 < len(lines) and lines[i + 1].startswith(end_sentinel):
             end_idx = i  # the blank line itself is the boundary (exclusive end)
             break
     if end_idx is None:
-        raise ValueError("Roles table end anchor not found in template body")
+        raise ValueError('Roles table end anchor not found in template body')
 
     replacement = [
-        VAULT_ROLES_HEADING + "\n",
-        "\n",
+        VAULT_ROLES_HEADING + '\n',
+        '\n',
         VAULT_ROLES_TABLE,
     ]
     return lines[:start_idx] + replacement + lines[end_idx:]
@@ -102,33 +103,41 @@ def make_vault(
     lines = _swap_roles_table(lines)
 
     if out_of_scope_suffix is not None:
-        oos_pat = re.compile(r"^(\|\s*`out-of-scope`\s*\|\s*Outside\s+\S.*?)(\s*\|)")
+        oos_pat = re.compile(r'^(\|\s*`out-of-scope`\s*\|\s*Outside\s+\S.*?)(\s*\|)')
         for i, line in enumerate(lines):
-            m = oos_pat.match(line.rstrip("\n"))
+            m = oos_pat.match(line.rstrip('\n'))
             if m:
-                lines[i] = m.group(1) + out_of_scope_suffix + " |\n"
+                lines[i] = m.group(1) + out_of_scope_suffix + ' |\n'
                 break
 
     if mutations:
         for mut in mutations:
             lines = mut(lines)
 
-    return "".join(lines)
+    return ''.join(lines)
 
 
-def run_check(vault_text: str, subs: dict | None = None, tmp_path=None) -> subprocess.CompletedProcess:
+def run_check(
+    vault_text: str, subs: dict | None = None, tmp_path=None
+) -> subprocess.CompletedProcess:
     """Write temp files and invoke check-conformance.py; return CompletedProcess."""
     if subs is None:
         subs = TEST_SUBS
-    vault_file = tmp_path / "CLAUDE.md"
-    subs_file = tmp_path / "subs.json"
+    vault_file = tmp_path / 'CLAUDE.md'
+    subs_file = tmp_path / 'subs.json'
     vault_file.write_text(vault_text)
     subs_file.write_text(json.dumps(subs))
     return subprocess.run(
-        [sys.executable, str(SCRIPT_PATH),
-         "--vault", str(vault_file),
-         "--template", str(TEMPLATE_PATH),
-         "--subs", str(subs_file)],
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            '--vault',
+            str(vault_file),
+            '--template',
+            str(TEMPLATE_PATH),
+            '--subs',
+            str(subs_file),
+        ],
         capture_output=True,
         text=True,
     )
