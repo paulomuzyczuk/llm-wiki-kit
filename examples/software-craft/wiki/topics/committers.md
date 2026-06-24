@@ -162,6 +162,8 @@ acknowledgements file"
 - [[credit-and-attribution]] — the public record of contribution from which committers are
   typically drawn.
 - [[forks]] — why committers keep their access even when they work on a fork.
+- [[sharing-project-management]] — commit access as one slice of distributing responsibility
+  without ownership across the project.
 
 ## Sources
 

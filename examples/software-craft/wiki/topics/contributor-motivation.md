@@ -96,6 +96,8 @@ caps every other kind of project power, does *not* dissolve the competition for 
 - [[treating-users-as-participants]] — converting a user's first interaction into
   participation.
 - [[forkability]] — why influence, unlike code, cannot simply be copied.
+- [[open-source-governance]] — the structures through which accrued influence is actually
+  exercised; the decision-making side of the same attention economy.
 
 ## Sources
 

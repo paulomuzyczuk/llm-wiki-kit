@@ -2,7 +2,7 @@
 title: Message Forums / Mailing Lists
 aliases: [mailing-lists, discussion-forums]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure, software-collaboration]
 roles: [tech-lead]
@@ -162,6 +162,9 @@ it ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-
   Debate," and "Archiving" (PDF pp. 48–54 / printed pp. 35–41).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[project-hosting]] · [[bug-tracking]]
+- [[project-infrastructure]] — the toolset forums are the primary discussion channel of.
+- [[project-hosting]] — the canned-hosting site that typically provisions the lists.
+- [[bug-tracking]] — the structured-state counterpart; the list is conversation, the
+  tracker is state.

@@ -2,7 +2,7 @@
 title: Wikis
 aliases: [project-wiki, wiki]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure, software-collaboration]
 roles: [tech-lead]
@@ -94,6 +94,8 @@ The decision criterion is integration over independence ([Fogel 2023](../../raw-
   (PDF pp. 68–70 / printed pp. 55–57).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[message-forums]] · [[project-hosting]]
+- [[project-infrastructure]] — the toolset a wiki is the lightweight-documentation slot of.
+- [[message-forums]] — the discussion venue a wiki distills durable conclusions out of.
+- [[project-hosting]] — the canned-hosting site that often supplies the wiki.
