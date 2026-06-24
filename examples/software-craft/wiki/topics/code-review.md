@@ -105,6 +105,8 @@ top of it.
 - [[continuous-integration]] — the mechanical complement to human review.
 - [[committers]] — who is granted the authority to commit; review is what makes that grant a
   low-stakes, conduct-based decision rather than a code-quality gate.
+- [[llm-assisted-maintenance]] — an additional, never-fatigued reviewer layered above human
+  review and CI: audit the code not the PR description, with the human signing off.
 
 ## Sources
 
