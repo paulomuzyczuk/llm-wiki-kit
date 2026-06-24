@@ -11,6 +11,7 @@ topics: [open-source-governance, project-infrastructure, open-source-participati
 project: null
 source_count: 0
 status: active
+ingest_status: complete (2026-06-24)
 ---
 
 # Producing Open Source Software — How to Run a Successful Free Software Project
@@ -97,9 +98,17 @@ trademark protection, patent snapback), copyleft (the GPL's two requirements tha
 contagious," LGPL/AGPL reciprocity strength, the sole-copyright-holder exemption), permissive
 licensing (MIT/BSD/Apache, MIT as default), license compatibility (GPL-compatibility as the
 dominant axis; the DFSG/OSI/FSF certification tests), and choosing a well-recognized existing
-license. Captured as principles + decision criteria (no per-license mechanics pages). Chapter 9
-concludes in Batch 17 — contributor agreements, proprietary relicensing, trademarks, patents, and
-Creative Commons licenses.
+license. Captured as principles + decision criteria (no per-license mechanics pages). Batch 17
+completes Chapter 9 — and the book — with the legal matters *beyond* the code license:
+contributor agreements (the do-nothing / CLA / copyright-assignment choice, and the DCO as the
+minimal inbound=outbound CLA), proprietary relicensing (selling exceptions to copyleft vs. open
+core, the "can't sue yourself" mechanic, and why it corrodes community), trademarks (a
+name/logo regime separate from copyright — "what you may call things, not what you may do with
+them" — and a centrally-controlled non-forkable resource), software patents ("the only real
+threat" a project cannot route around; license patent-snapback clauses, non-enforcement pledges,
+and the Open Invention Network as partial defenses), and Creative Commons licensing (the
+instrument for a project's non-code assets, with ShareAlike as copyleft-for-content). All nine
+chapters are now fully ingested; the book is complete.
 
 ## Chapter Index
 
@@ -113,13 +122,21 @@ Creative Commons licenses.
 | 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | ✓ batch 12 (7a), 13 (7b) | [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]], [[releasing-and-signing]], [[maintaining-multiple-release-lines]], [[security-releases]], [[atomic-commits]], [[release-planning]] |
 | 8 | Managing Participants | 149–170 | ✓ batch 14 (8a), 15 (8b) | [[contributor-motivation]], [[delegation-in-open-source]], [[praise-and-criticism]], [[preventing-territoriality]], [[the-automation-ratio]], [[treating-users-as-participants]], [[sharing-project-management]], [[transitions]], [[committers]], [[credit-and-attribution]], [[forks]] |
-| 9 | Legal Matters | 171–190 | ⏳ batch 16 (9a) | [[copyleft]], [[permissive-licensing]], [[license-compatibility]] (+ enriched [[open-source-licensing]]) |
+| 9 | Legal Matters | 171–190 | ✓ batch 16 (9a), 17 (9b) | [[copyleft]], [[permissive-licensing]], [[license-compatibility]], [[contributor-agreements]], [[proprietary-relicensing]], [[trademarks-in-open-source]], [[software-patents]], [[creative-commons-licensing]] (+ enriched [[open-source-licensing]], [[forkability]]) |
+
+**Ingest complete (2026-06-24)** — all 9 chapters `✓ reviewed-clean`. End-of-book rollup:
+[ingest-report-producing-open-source-software-2026-06-24](../../digests/ingest-report-producing-open-source-software-2026-06-24.md).
 
 ## Negative Space
 
-- **Chapter 9b** (`source-underdeveloped`): Ch.9a (licensing terminology, aspects, copyleft/
-  permissive, compatibility, choosing a license) landed in Batch 16. The Ch.9 remainder —
-  contributor agreements (CLA/CA/DCO), proprietary relicensing, trademarks, patents, and the
-  Creative Commons public licenses — is scheduled as reference-catalog synthesis (principles +
-  decision criteria) for Batch 17 in `ingestion-plan.md`. The chapter index above tracks live
-  progress; the partially-ticked chapter is in progress, not deliberately excluded.
+- **Full CC BY-SA 4.0 legal deed (Appendix A)** (`book-metadata`): the appendix reproduces the
+  complete public-license text; Batch 17 captured the load-bearing concepts (license elements,
+  ShareAlike-as-content-copyleft, the patent/trademark carve-out) on [[creative-commons-licensing]]
+  rather than transcribing the section-by-section legalese.
+- **Per-item legal mechanics across Ch.9** (`too-granular`): consistent with the chapter's
+  principles + decision criteria strategy, CLA/DCO form wording, trademark registration
+  procedure, and general patent-law doctrine were rejected in favour of the governing principle
+  and decision criteria on each page.
+- **All nine chapters are now ingested.** Chapter 9 is the final chapter; once its `/book-review`
+  is clean, the book reaches completion and the end-of-book ingest report is generated and linked
+  under the chapter index.

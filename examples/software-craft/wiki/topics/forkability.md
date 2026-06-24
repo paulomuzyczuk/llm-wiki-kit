@@ -63,6 +63,22 @@ is why a fork is "usually bad for everyone" and why politics over influence pers
 the forkability ceiling — the subject of [[contributor-motivation]] and the people-management
 craft in [[open-source-governance]]'s "politics is inevitable" framing.
 
+## More non-forkable resources: the trademark (Ch. 9b)
+
+Ch. 9b adds a second class of non-forkable resource alongside attention and influence: the
+project's **trademarked name and logo**. Fogel classes a trademark as "any other
+centrally-controlled non-forkable resource" — you can fork the *code* away from an abusive
+holder, but you cannot fork the *name*. The governing consequence is the same as for influence:
+use the mark "in a way that harms a significant portion of the project's community" and "expect
+complaints and pushback"; use it to support the project's goals and the community treats that
+"as itself a form of contribution"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=182), p. 169).
+Conversely, forkability is itself the *backstop* against the one legal threat people fear most —
+central copyright ownership: even if a copyright-holding entity relicensed everything
+restrictively, "the other developers could start a fork based on the latest free copy of the
+code," so the code's freedom survives the ownership change (see [[contributor-agreements]])
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=178), p. 165).
+
 ## A ceiling on power, not a substitute for governance
 
 Forkability sets an *upper limit* on how much power anyone can exert, but "doesn't mean
@@ -94,6 +110,10 @@ The day-to-day decision machinery that lives *below* that ceiling is the subject
 - [[open-source-culture]] — the "culture by choice," whose free exit forkability formalizes.
 - [[contributor-motivation]] — the attention, credibility, and influence that, unlike code,
   cannot be forked.
+- [[trademarks-in-open-source]] — the project name/logo as a centrally-controlled, non-forkable
+  resource governed by the same community-political logic.
+- [[contributor-agreements]] — why even central copyright ownership leaves the code forkable
+  from its latest free copy.
 
 ## Sources
 
@@ -102,4 +122,6 @@ The day-to-day decision machinery that lives *below* that ceiling is the subject
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 4 "Social and Political
   Infrastructure", §Forkability (printed pp. 59–60); Ch. 8 "Managing Participants" — chapter
   introduction on the non-forkability of attention, credibility, and influence (printed
-  p. 136).
+  p. 136); Ch. 9 "Legal Matters" — trademarks as a "centrally-controlled non-forkable resource"
+  (printed p. 169) and the contributor-agreements backstop that keeps centrally-owned code
+  forkable (printed p. 165).

@@ -236,7 +236,8 @@ this flat list.
 - [[open-source-licensing]] — the licensing anchor: "free" and "open source" name the same
   approved set; the one-question choice (permissive MIT vs. copyleft GPL vs. network-use AGPL);
   how to apply a license; plus the Ch.9 deepening — terminology (commercial≠proprietary, public
-  domain), what licenses vary on (aspects), and choosing a well-recognized existing license.
+  domain), what licenses vary on (aspects), choosing a well-recognized existing license, and the
+  "Beyond the code license" map to the Ch.9b legal regimes below.
 - [[copyleft]] — reciprocal licensing: the GPL's two requirements that make "freedom
   contagious"; the copyleft-vs-everything-else dividing line; LGPL/AGPL reciprocity strength;
   the sole-copyright-holder exemption; and why to skip the "is the GPL really free?" holy war.
@@ -245,15 +246,30 @@ this flat list.
   trade-off.
 - [[license-compatibility]] — whether differently-licensed code can be combined; GPL-compatibility
   as the dominant axis; and the DFSG/OSI/FSF/SPDX certification tests that answer it.
+- [[contributor-agreements]] — establishing the project's right to its contributions: do nothing
+  (risky), a CLA (recommended), or copyright assignment (heavy); the DCO as the minimal CLA that
+  sets inbound license = outbound license. Central ownership never un-frees already-published code.
+- [[proprietary-relicensing]] — offering a paid proprietary version of copyleft code: selling
+  exceptions vs. open core/freemium; the "can't sue yourself" mechanic; and why the asymmetry,
+  "shakedown" drift, and motivational spiral keep the open side shallow.
+- [[trademarks-in-open-source]] — the name/logo regime, separate from copyright: it governs what
+  you may *call* things, not what you may *do* with them (Firefox→Iceweasel, the GNOME logo); a
+  centrally-controlled non-forkable resource.
+- [[software-patents]] — "the only real threat" a project cannot route around; defensive coding,
+  the patenting arms race, license patent-snapback clauses, non-enforcement pledges, and the Open
+  Invention Network as partial defenses.
+- [[creative-commons-licensing]] — the licensing instrument for a project's *non-code* assets
+  (docs, art, media); the BY/SA license-elements model, ShareAlike as copyleft-for-content, and
+  the patent/trademark carve-out.
 
 ## Source entities
 
 ### Books
 
 - [[producing-open-source-software-book]] — Karl Fogel, *Producing Open Source Software*
-  (2nd ed., CC BY-SA 4.0). The example's primary source; full-book ingest in progress
-  (Batches 1–6: Ch.1–Ch.4 fully ingested — code review, launch, licensing, setting the tone,
-  developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
+  (2nd ed., CC BY-SA 4.0). The example's primary source; **full-book ingest complete** across
+  17 batches (Batches 1–6: Ch.1–Ch.4 fully ingested — code review, launch, licensing, setting the
+  tone, developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
   opened Ch.5 "Organizations and Money" — economics, corporate/government involvement, hiring,
   contracting; Batch 8 added Ch.5's non-code half — funding non-programming activities and
   marketing; Batch 9 completed Ch.5. Batches 10–11 ingested all of Ch.6 "Communications" —
@@ -264,8 +280,10 @@ this flat list.
   commits, release planning (7b). Batches 14–15 ingested all of Ch.8 "Managing Participants" —
   contributor motivation, delegation, praise & criticism, preventing territoriality, the automation
   ratio, treating users as participants, sharing project management (8a); transitions, committers,
-  credit & attribution, forks (8b). Ch.1–8 complete; Ch.9 (Legal Matters) pending across batches
-  16–17).
+  credit & attribution, forks (8b). Batches 16–17 ingested all of Ch.9 "Legal Matters" —
+  terminology, license aspects, copyleft/permissive, compatibility, choosing a license (9a);
+  contributor agreements, proprietary relicensing, trademarks, patents, Creative Commons (9b).
+  All nine chapters complete — see the end-of-book ingest report linked from the entity page).
 
 ### Papers
 

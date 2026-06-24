@@ -74,9 +74,9 @@ This holds only while you own the *whole* copyright. Once you incorporate others
 code and distribute the result, you are no longer the sole holder and are "as bound by the
 original terms as anyone else"
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=177), p. 164).
-This asymmetry is the legal hinge that makes *proprietary relicensing* possible — the
+This asymmetry is the legal hinge that makes [[proprietary-relicensing]] possible — the
 owner-only exemption a company exploits to sell a closed version of its own copyleft code
-(developed in Ch. 9b).
+(Ch. 9b).
 
 ## Tuning reciprocity strength: LGPL and AGPL
 
@@ -113,6 +113,23 @@ people from imposing further restrictions" — so calling that *less* freedom "h
 perverse"
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=178), p. 165).
 
+## Reciprocity beyond code: ShareAlike and selling exceptions (Ch. 9b)
+
+Two Ch. 9b developments extend the copyleft idea in opposite directions:
+
+- **ShareAlike is copyleft for *content*.** Creative Commons' ShareAlike element applies the same
+  "derivatives must stay equally free" rule to non-code works (documentation, art, media): an
+  adaptation must carry "a Creative Commons license with the same License Elements … or a BY-SA
+  Compatible License"
+  ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=188), p. 175).
+  The copyleft principle is license-family-agnostic — see [[creative-commons-licensing]].
+- **Copyleft is the *only* license family you can "sell exceptions" to.** Because the reciprocal
+  terms are what a downstream proprietary user needs waived, the sole-copyright-holder exemption
+  above is exactly what a company exploits to offer a paid proprietary version of its own
+  copyleft code. There is nothing to sell under a permissive license. The scheme and its
+  community costs are developed in [[proprietary-relicensing]]
+  ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=179), p. 166).
+
 ## Negative Space
 
 - **Full GPL clause text / per-clause walkthrough** (`too-granular`): the page captures the
@@ -138,6 +155,9 @@ perverse"
 - [[forkability]] — copyleft guarantees the *right* a fork relies on, even against the original
   author's wishes.
 - [[free-software-vs-open-source]] — Stallman's GPL "legal judo" as the origin of copyleft.
+- [[proprietary-relicensing]] — the business scheme the sole-copyright-holder exemption enables;
+  "selling exceptions" works only on copyleft code.
+- [[creative-commons-licensing]] — ShareAlike as copyleft transposed from code to content.
 
 ## Sources
 
