@@ -130,6 +130,20 @@ this flat list.
   rude (filibuster, sealioning, summary-blocking); usually driven by insecurity, often best
   tolerated, and when not, defeated by an archive-grounded quantitative case — never an
   accusation.
+- [[scaling-project-communication]] — why massively-parallelized support doesn't scale (the
+  quiet negative-feedback failure, not an explosion), and the two responses: split forums
+  before they choke, and make information durable/findable via conspicuous archives, the
+  "treat all resources like archives" properties, and codifying tradition.
+- [[choosing-the-right-forum]] — matching the conversation to the venue (chat vs. dev list
+  vs. bug ticket), the convergent/divergent rule for when to move a discussion, cross-linking
+  the old and new venue, and open source as a writer-responsible culture.
+- [[open-source-publicity]] — the internal-to-PR continuum, the announcement channels and
+  why they fire simultaneously, scaling the noise to an event's real importance, and
+  engineering a "meant-to-be-quoted" lead so word of mouth stays accurate.
+- [[security-vulnerability-disclosure]] — the coordinated openness-vs-secrecy process:
+  private intake on a controlled channel, develop the fix quietly (never commit publicly
+  early), CVE/CVSS naming and scoring, pre-notification of high-value users, and a
+  simultaneous public fix-and-announce.
 
 ### Open-source ecosystem & participation
 
@@ -160,8 +174,9 @@ this flat list.
   developing in the open, and the complete Ch.3 technical-infrastructure toolset. Batch 7
   opened Ch.5 "Organizations and Money" — economics, corporate/government involvement, hiring,
   contracting; Batch 8 added Ch.5's non-code half — funding non-programming activities and
-  marketing; Batch 9 completed Ch.5. Batch 10 opened Ch.6 "Communications" (6a) — written
-  culture, facilitating discussion, difficult people; Ch.6 concludes in batch 11, Ch.7–9 pending).
+  marketing; Batch 9 completed Ch.5. Batches 10–11 ingested all of Ch.6 "Communications" —
+  written culture, facilitating discussion, difficult people (6a); scaling communication, forum
+  choice, publicity, security vulnerability disclosure (6b). Ch.1–6 complete; Ch.7–9 pending).
 
 ### Papers
 

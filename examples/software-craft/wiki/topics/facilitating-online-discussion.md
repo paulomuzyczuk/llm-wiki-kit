@@ -183,6 +183,8 @@ fun* at the marketing message to keep the community grounded.
 
 - [[written-communication]] — the individual-level companion: how one person writes well,
   prerequisite to facilitating a forum of them.
+- [[choosing-the-right-forum]] — the paired venue-selection skill: this page keeps a
+  discussion productive, that one decides *which forum* it belongs in and how to move it.
 - [[difficult-people]] — when unproductive discussion is *deliberate* process manipulation
   rather than ordinary thread drift.
 - [[open-source-governance]] — the consensus-and-voting machinery that bikeshedding and holy

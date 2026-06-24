@@ -52,8 +52,14 @@ crowdfunding/bounties — Chapter 5 is now fully ingested. Batch 10 opens Chapte
 (Communications) with its first half — written culture (clear writing as the load-bearing
 skill, "you are what you write," recognizing rudeness, the online "face"), avoiding common
 pitfalls (the Bikeshed Effect, holy wars, the noisy-minority effect), and handling difficult
-people (obstructionists who manipulate process rather than merely being rude); Ch.6 concludes
-in batch 11.
+people (obstructionists who manipulate process rather than merely being rude). Batch 11
+completed Chapter 6 with its second half — scaling project communication (the quiet
+negative-feedback failure of massively-parallelized support, splitting forums, conspicuous
+archives, codifying tradition), choosing the right forum (forum-appropriateness, the
+convergent/divergent rule, writer-responsible culture), open-source publicity (announcement
+channels and the meant-to-be-quoted portion), and security vulnerability disclosure (the
+coordinated openness-vs-secrecy process: private intake, quiet fix, CVE/CVSS, pre-notification,
+simultaneous public release). Chapters 1–6 are now fully ingested; Chapters 7–9 follow.
 
 ## Chapter Index
 
@@ -64,13 +70,13 @@ in batch 11.
 | 3 | Technical Infrastructure | 43–71 | ✓ batch 1, 5, 6 | [[version-control]], [[project-infrastructure]], [[project-hosting]], [[message-forums]], [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]] |
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
 | 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
-| 6 | Communications | 107–131 | ◐ batch 10 (6a) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]] |
+| 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
 | 8 | Managing Participants | 149–170 | — | |
 | 9 | Legal Matters | 171–190 | — | |
 
 ## Negative Space
 
-- **Chapters 7–9, and the second half of Ch.6** (`source-underdeveloped`): not yet
-  ingested — scheduled across Batches 11–17 in `ingestion-plan.md`. The chapter index
-  above tracks live progress; un-ticked chapters are pending, not deliberately excluded.
+- **Chapters 7–9** (`source-underdeveloped`): not yet ingested — scheduled across
+  Batches 12–17 in `ingestion-plan.md`. The chapter index above tracks live progress;
+  un-ticked chapters are pending, not deliberately excluded.
