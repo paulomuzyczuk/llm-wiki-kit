@@ -2772,6 +2772,12 @@ def main():
         + len(c7['open_questions'])
         + c8_total
     )
+    # Check 4 (cross-references) emits advisory "consider linking these" pairs,
+    # not failures: any populated vault surfaces some, so they never reach zero.
+    # gating_total excludes them so CI keys off real problems (broken links,
+    # orphans, duplicates, stale claims, vocabulary) while the report still
+    # shows the full count.
+    gating_total = ph1_total - min(20, len(c4['actionable']))
     drift_count = len(drift_roles)
     append_log_entry(log_md_path, vault_slug, ph1_total, drift_count)
     clear_pending_marker(log_md_path, vault_slug)
@@ -2789,6 +2795,7 @@ def main():
     print('─' * 60)
     print(f'Lint complete: {vault_slug} {TODAY_STR}')
     print(f'  Phase 1 findings:    {ph1_total}')
+    print(f'  Gating findings:     {gating_total}  (excludes advisory cross-ref suggestions)')
     print(f'  Role drift:          {drift_count} roles')
     print(
         f'  Structural signals:  {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned'
