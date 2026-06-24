@@ -21,6 +21,9 @@ this flat list.
 - [[code-review]] — conspicuous commit review as standing peer-review practice: review
   changes as they arrive, keep it public, more eyes → fewer bugs. Enriched with empirical
   CI/PR-pipeline findings.
+- [[atomic-commits]] — one logical change per commit, nothing unrelated mixed in; the
+  daily-development discipline that keeps merge, cherry-pick, change-voting, and revert
+  clean, made near-mandatory by parallel release maintenance.
 
 ### Continuous integration & delivery
 
@@ -161,7 +164,22 @@ this flat list.
   and the release-manager (logistics) vs. release-owner (authority) distinction.
 - [[source-packaging]] — source code as the canonical distribution form that
   unambiguously defines a release, and the "follow the conventional standard" principle
-  (archive format + name-carries-the-release-number).
+  (archive format + name-carries-the-release-number; conform to build/install
+  conventions; binary packages must derive from an official source release).
+- [[releasing-and-signing]] — the public release gate: approval by real testing (build on
+  a clean system, run the suite), personal-key OpenPGP signing + checksums for tamper
+  verification and web-of-trust paths, candidate releases for wide pre-blessing exposure,
+  and release-announcement specifics.
+- [[maintaining-multiple-release-lines]] — running several release lines in parallel: why
+  a new line doesn't kill the old one, shipping a late bugfix on both, officially
+  announced end-of-life, pledged vs. demand-gauged support windows, and per-line bug-tracker
+  targets.
+- [[security-releases]] — the release that can't be publicly tested: existing release plus
+  the fix only, the "minor deception" of an in-flight release, and security-only numbering;
+  the release-mechanics half of [[security-vulnerability-disclosure]].
+- [[release-planning]] — decoupling release *contents* from *dates* to defuse the
+  corporate-vs-community deadline tension, the inertial bias against scope creep, separate
+  interim releases as a valve, and releasing often (every 3–6 months) to lower the stakes.
 
 ### Open-source ecosystem & participation
 
