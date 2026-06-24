@@ -233,9 +233,18 @@ this flat list.
 - [[developing-in-the-open]] — be open from Day One: "you open source your code, not your
   time"; why closed-then-open accumulates incompatible choices and a single large exposure
   event; and managing the siege mentality when opening a formerly closed project.
-- [[open-source-licensing]] — Fogel's quick license guide: "free" and "open source"
-  name the same approved set; the one-question choice (permissive MIT vs. copyleft GPL
-  vs. network-use AGPL); and how to apply a license. Anchor to be enriched by Ch.9.
+- [[open-source-licensing]] — the licensing anchor: "free" and "open source" name the same
+  approved set; the one-question choice (permissive MIT vs. copyleft GPL vs. network-use AGPL);
+  how to apply a license; plus the Ch.9 deepening — terminology (commercial≠proprietary, public
+  domain), what licenses vary on (aspects), and choosing a well-recognized existing license.
+- [[copyleft]] — reciprocal licensing: the GPL's two requirements that make "freedom
+  contagious"; the copyleft-vs-everything-else dividing line; LGPL/AGPL reciprocity strength;
+  the sole-copyright-holder exemption; and why to skip the "is the GPL really free?" holy war.
+- [[permissive-licensing]] — non-reciprocal licensing (MIT/BSD/Apache): proprietary-compatible,
+  often with attribution requirements; MIT as the default permissive choice and the MIT-vs-Apache
+  trade-off.
+- [[license-compatibility]] — whether differently-licensed code can be combined; GPL-compatibility
+  as the dominant axis; and the DFSG/OSI/FSF/SPDX certification tests that answer it.
 
 ## Source entities
 

@@ -16,6 +16,7 @@ last_updated: 2026-06-24
 <!-- batch 13 (2026-06-24): registered concepts releasing-and-signing, maintaining-multiple-release-lines, security-releases, atomic-commits, release-planning (subjects release-engineering, version-control, software-security already seeded) -->
 <!-- batch 14 (2026-06-24): registered concepts contributor-motivation, delegation-in-open-source, praise-and-criticism, preventing-territoriality, the-automation-ratio, treating-users-as-participants, sharing-project-management (subjects open-source-participation, open-source-culture, open-source-communication, open-source-governance, project-infrastructure, continuous-integration all already seeded) -->
 <!-- batch 15 (2026-06-24): registered concepts committers, transitions, forks, credit-and-attribution (completes Ch.8; subjects open-source-governance, open-source-participation, open-source-culture all already seeded) -->
+<!-- batch 16 (2026-06-24): registered concepts copyleft, permissive-licensing, license-compatibility (Ch.9a; subject open-source-licensing already seeded) -->
 
 # Topics Authority — software craft
 
@@ -116,6 +117,9 @@ pages or shadow another page's canonical title/slug.
 | transitions | role-transitions, asking-someone-to-step-down, succession, replacing-a-role-holder |
 | forks | hard-forks, forking, development-forks, handling-a-fork, initiating-a-fork |
 | credit-and-attribution | credit, attribution, crediting-contributors, giving-credit |
+| copyleft | reciprocal-licensing, share-alike, viral-license |
+| permissive-licensing | non-copyleft, non-reciprocal-license, permissive-license, mit-style-license, bsd-style-license |
+| license-compatibility | gpl-compatibility, mixing-licenses, dfsg-compliant, osi-approved, license-certification |
 
 ## Reserved non-subject tags
 

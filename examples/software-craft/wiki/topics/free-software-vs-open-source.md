@@ -2,7 +2,7 @@
 title: Free Software vs. Open Source
 aliases: [open-source-definition, free-vs-open-source]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-culture, open-source-governance]
 roles: [tech-lead, product-engineer]
@@ -80,10 +80,9 @@ dissenters had to engage it ([Fogel 2023](../../raw-input/books/producing-open-s
 
 ## Negative Space
 
-- **GPL / license mechanics** (`foreshadowing`): the reciprocal-vs-permissive license
-  machinery is named here only as history; its developed treatment is deferred to Ch. 9 —
-  linked as the dead wikilinks [[copyleft]] / [[open-source-licensing]], not paged from
-  this chapter.
+- **GPL / license mechanics** (`foreshadowing`, now resolved): the reciprocal-vs-permissive
+  license machinery is named here only as history; its developed treatment landed with Ch. 9 on
+  [[copyleft]] / [[permissive-licensing]] / [[open-source-licensing]], not paged from this chapter.
 - **History particulars** (`illustrative-scaffolding`): AT&T Unix, 386BSD-vs-Linux timing,
   Emacs/GCC adoption, the AI Lab's collapse — narrative illustration of the arc, compressed
   to the bullets above rather than paged.
