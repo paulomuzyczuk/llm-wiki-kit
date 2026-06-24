@@ -12,6 +12,7 @@ last_updated: 2026-06-24
 <!-- batch 9 (2026-06-24): registered concepts innersourcing, evaluating-open-source-projects, hiring-open-source-developers, crowdfunding-and-bounties -->
 <!-- batch 10 (2026-06-24): registered subject open-source-communication; concepts written-communication, facilitating-online-discussion, difficult-people -->
 <!-- batch 11 (2026-06-24): registered subject software-security; concepts scaling-project-communication, choosing-the-right-forum, open-source-publicity, security-vulnerability-disclosure (completes Ch.6) -->
+<!-- batch 12 (2026-06-24): registered concepts release-numbering, release-branches, stabilizing-a-release, source-packaging (subject release-engineering already seeded) -->
 
 # Topics Authority — software craft
 
@@ -92,6 +93,10 @@ pages or shadow another page's canonical title/slug.
 | choosing-the-right-forum | forum-appropriateness, forum-routing, cross-link-between-forums, writer-responsible-culture, convergent-vs-divergent |
 | open-source-publicity | publicity, announcing-releases, meant-to-be-quoted, announcement-channels |
 | security-vulnerability-disclosure | coordinated-disclosure, announcing-security-vulnerabilities, security-response, pre-notification, cve-numbers |
+| release-numbering | release-versioning, semantic-versioning, semver, version-numbers, even-odd-strategy |
+| release-branches | release-branch, branching-for-release, maintenance-branch |
+| stabilizing-a-release | release-stabilization, release-owner, change-voting, release-manager, time-based-releases |
+| source-packaging | packaging, source-distribution, release-packaging, source-package |
 
 ## Reserved non-subject tags
 

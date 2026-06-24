@@ -2,7 +2,7 @@
 title: Version Control
 aliases: [vcs, source-control, revision-control]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [version-control, project-infrastructure, software-collaboration]
 roles: [code-craftsperson, tech-lead]
@@ -74,6 +74,18 @@ smaller support community and an unfamiliar workflow ([Fogel 2023](../../raw-inp
   its original entry point rather than re-committing a textually identical change, which
   "would make accurate bookkeeping and release management much harder" ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=60), p. 47).
 
+## Branches for release isolation
+
+Beyond short-lived feature/bugfix branches, the most consequential long-lived
+application of branching is the **release branch**: a branch on which code destined
+for a formal release is isolated from mainline development, so the main branch never
+has to be artificially frozen while a release stabilizes ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=136), p. 123).
+A release is then a **tag** cut from that branch — an exact, unchangeable snapshot of
+the source tree at the release point ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=137), p. 124).
+This is where version control underpins *release management*; see [[release-branches]]
+for the full treatment and [[stabilizing-a-release]] for the process that runs on the
+branch.
+
 ## Relationship to review and integration
 
 Version control is the substrate the project's collaboration loop runs on. The
@@ -121,4 +133,5 @@ change than to prevent it in the first place" ([Fogel 2023](../../raw-input/book
 
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 3 "Technical
   Infrastructure", §Version Control (printed pp. 42–47); Ch. 4 "Social and Political
-  Infrastructure", §Version Control Means You Can Relax (printed p. 61).
+  Infrastructure", §Version Control Means You Can Relax (printed p. 61); Ch. 7
+  "Packaging, Releasing, and Daily Development", §Release Branches (printed pp. 123–124).

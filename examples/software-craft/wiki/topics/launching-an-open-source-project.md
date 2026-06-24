@@ -2,7 +2,7 @@
 title: Launching an Open Source Project
 aliases: [project-presentation, hacktivation-energy, scaled-presentation, getting-started]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-participation, project-infrastructure]
 roles: [tech-lead]
@@ -210,7 +210,8 @@ want to share when they've found something good"
   recommendations — captured as "use standard, low-overhead tooling," not paged.
 - **Alpha vs. beta definitions** (`too-granular`): the exact API-freeze semantics of each
   release stage are a sidebar; the durable point is "label status honestly." Release
-  staging proper belongs to [[release-engineering]] (Ch.7).
+  staging proper belongs to [[release-numbering]] (the Alpha/Beta/RC qualifiers) and
+  [[stabilizing-a-release]] (Ch.7).
 - **FAQ maintenance** (`too-granular`): "good FAQs are not written, they are grown" — a
   practice bullet under documentation, not a standalone concept.
 - **Developer documentation vs. developer guidelines distinction** (`subsumed-by`):

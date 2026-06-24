@@ -59,7 +59,14 @@ archives, codifying tradition), choosing the right forum (forum-appropriateness,
 convergent/divergent rule, writer-responsible culture), open-source publicity (announcement
 channels and the meant-to-be-quoted portion), and security vulnerability disclosure (the
 coordinated openness-vs-secrecy process: private intake, quiet fix, CVE/CVSS, pre-notification,
-simultaneous public release). Chapters 1–6 are now fully ingested; Chapters 7–9 follow.
+simultaneous public release). Chapters 1–6 are now fully ingested. Batch 12 opens Chapter 7
+(Packaging, Releasing, and Daily Development) with its first half — release numbering
+(the twofold purpose, major/minor/micro components, Semantic Versioning, the even/odd
+stability convention), release branches (why full-tree snapshots fail, the branch as
+release-work isolation, parallel maintenance lines), stabilizing a release (the machine
+for saying "no": release-owner dictatorship vs. multi-vote approval, time-based vs.
+feature-based cadence, the release manager), and packaging (source as the canonical
+distribution form). Chapter 7 continues in batch 13; Chapters 8–9 follow.
 
 ## Chapter Index
 
@@ -71,12 +78,14 @@ simultaneous public release). Chapters 1–6 are now fully ingested; Chapters 7�
 | 4 | Social and Political Infrastructure | 72–79 | ✓ batch 2 | [[open-source-governance]], [[forkability]] |
 | 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
 | 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
-| 7 | Packaging, Releasing, and Daily Development | 132–148 | — | |
+| 7 | Packaging, Releasing, and Daily Development | 132–148 | ⏳ batch 12 (7a) | [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]] |
 | 8 | Managing Participants | 149–170 | — | |
 | 9 | Legal Matters | 171–190 | — | |
 
 ## Negative Space
 
-- **Chapters 7–9** (`source-underdeveloped`): not yet ingested — scheduled across
-  Batches 12–17 in `ingestion-plan.md`. The chapter index above tracks live progress;
-  un-ticked chapters are pending, not deliberately excluded.
+- **Chapter 7 second half + Chapters 8–9** (`source-underdeveloped`): not yet ingested —
+  Ch.7's remainder (testing & releasing, multiple release lines, security releases, daily
+  development) is batch 13; Chapters 8–9 are scheduled across Batches 14–17 in
+  `ingestion-plan.md`. The chapter index above tracks live progress; the ⏳ on Ch.7 marks
+  a chapter partially ingested, and un-ticked chapters are pending, not deliberately excluded.

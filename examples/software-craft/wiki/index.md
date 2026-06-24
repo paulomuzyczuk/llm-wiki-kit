@@ -145,6 +145,24 @@ this flat list.
   early), CVE/CVSS naming and scoring, pre-notification of high-value users, and a
   simultaneous public fix-and-announce.
 
+### Release engineering & packaging
+
+- [[release-numbering]] — release numbers as a compact signal to users who don't follow
+  the project daily: the twofold purpose (communicate ordering + nature of change),
+  major/minor/micro components, Semantic Versioning's compatibility rules, the even/odd
+  stability convention, and "be consistent" above all.
+- [[release-branches]] — why full-tree snapshots can't make a release, and the release
+  branch as the structure that isolates release work from daily development: mechanics
+  (branch from main, name the minor line, tag snapshots), parallel maintenance lines, and
+  near-simultaneous releases for conservative vs. adventurous users.
+- [[stabilizing-a-release]] — stabilization as a machine for saying "no": time-based vs.
+  feature-based cadence, the two extremes (dictatorship by release owner vs. multi-vote
+  change approval, Subversion's 3×+1/one-veto rule), the lightweight STATUS-file mechanics,
+  and the release-manager (logistics) vs. release-owner (authority) distinction.
+- [[source-packaging]] — source code as the canonical distribution form that
+  unambiguously defines a release, and the "follow the conventional standard" principle
+  (archive format + name-carries-the-release-number).
+
 ### Open-source ecosystem & participation
 
 - [[open-source-participation]] — who actually makes open-source code: a small,
