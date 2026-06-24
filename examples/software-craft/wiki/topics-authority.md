@@ -126,6 +126,8 @@ pages or shadow another page's canonical title/slug.
 | trademarks-in-open-source | trademark, certification-marks, project-name-protection |
 | software-patents | patents, defensive-patents, patent-trolls, patent-non-aggression |
 | creative-commons-licensing | cc-licenses, cc-by-sa, creative-commons, content-licensing |
+| installation-surface | install-surface, multi-path-install, compile-once-repackage-many, low-friction-install, binary-distribution |
+| llm-assisted-maintenance | llm-pr-review, ai-assisted-maintenance, agent-assisted-open-source, llm-code-review |
 
 ## Reserved non-subject tags
 
