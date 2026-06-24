@@ -2,9 +2,20 @@
 
 A system of [Claude Code](https://claude.com/claude-code) skills and tools for building and maintaining **LLM-Wiki vaults** — durable, structured knowledge bases in [Obsidian](https://obsidian.md) that an LLM reads, writes, and keeps honest.
 
-The idea is to treat a knowledge vault less like a pile of notes and more like a small encyclopedia with a contract: every page has a defined shape, every claim cites its source, gaps in knowledge are recorded explicitly, and a linter plus a conformance checker enforce all of it instead of relying on discipline. The name nods to [Andrej Karpathy's framing]([https://karpathy.ai/](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)) of building a personal "wiki" of distilled understanding rather than hoarding raw material.
+The idea is to treat a knowledge vault less like a pile of notes and more like a small encyclopedia with a contract: every page has a defined shape, every claim cites its source, gaps in knowledge are recorded explicitly, and a linter plus a conformance checker enforce all of it instead of relying on discipline. The name nods to [Andrej Karpathy's framing](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) of building a personal "wiki" of distilled understanding rather than hoarding raw material.
 
 > **Status:** working personal system, opened up. The skills and tooling are mature and in daily use. The example artifacts (`VAULTS.md`, `closeout-handoffs/`, `BACKLOG.md`) are sanitized illustrations of the workflow's record types — fictional vaults and decisions, present to show the format. See [What's here](#whats-here).
+
+## Quickstart
+
+```sh
+git clone https://github.com/paulomuzyczuk/llm-wiki-kit.git
+cd llm-wiki-kit
+./install.sh                                         # symlink the skills into ~/.claude/skills/
+python3 vault-lint/lint.py examples/software-craft   # see a real vault pass clean (Phase 1 findings: 0)
+```
+
+Now point Claude Code at [`examples/software-craft/`](examples/software-craft/) and ask it something — [Using the vault](#using-the-vault) has copy-pasteable prompts. To build your own, scaffold one with [`new-vault.sh`](#install). Everything below is the *why*; if you just want to use it, those two sections are enough.
 
 ## The core idea
 
@@ -15,7 +26,7 @@ A vault is governed by a single `CLAUDE.md` contract instantiated from [`CLAUDE.
 - **A pipeline** — how source material (books, articles) is planned, ingested, reviewed, and evaluated into wiki pages.
 - **Negative space** — knowledge gaps and out-of-scope topics are first-class, recorded rather than silently absent.
 
-One template, many vaults. A "fleet" of domain vaults (e.g. business-analytics, design, software-craft) all share the contract and are kept conformant by tooling.
+One template, many vaults. A "fleet" of domain vaults (e.g. business-analytics, design, sports-science) all share the contract and are kept conformant by tooling.
 
 ## Why it's shaped this way
 
@@ -38,11 +49,11 @@ It rewards you when you have a defined corpus of textual sources, you'll reason 
 
 Some shapes that fit the grain especially well:
 
-- **A practitioner keeping current in a fast-moving field** — distill the canon plus a steady stream of new articles into a maintained, drift-checked base, then ask Claude domain questions against it and get grounded, cited answers instead of re-reading the sources each time.
-- **A team/role onboarding base** — capture the body of knowledge a craft assumes so any newcomer working with Claude gets answers traceable back to the source.
-- **A student working through a course** — ingest each week's assigned readings as the semester goes; the vault accumulates into a cited companion you take to Claude for problem sets, discussion prep, and exam review, all drawing on the same grounded base instead of generic knowledge based on unspecific citations.
-- **A researcher running a literature review** — pull a body of papers into one place where overlapping claims get reconciled and contradictions surface; you interrogate the synthesis with Claude, cross-source enrichment (one paper extending another's page) is exactly the move a review needs, and the recorded negative space flags where the field is silent.
-- **A builder shipping an app with Claude Code** — keep a software-craft vault (like the [`software-craft`](examples/software-craft/) example) alongside the project so that when Claude Code weighs a design call — licensing, versioning, contribution workflow — it reasons from distilled, cited engineering practice rather than generic priors, and you can trace any recommendation back to the source it came from.
+- **A practitioner keeping current in a fast-moving field** — you distill the canon plus a steady stream of new articles into a maintained, drift-checked base, then ask Claude domain questions against it and get grounded, cited answers instead of re-reading the sources each time.
+- **A team/role onboarding base** — you capture the body of knowledge a craft assumes, so anyone you bring on can ask Claude and get answers traceable back to the source instead of pinging a senior.
+- **A student working through a course** — you ingest each week's assigned readings as the semester goes, and the vault accumulates into a cited companion you take to Claude for problem sets, discussion prep, and exam review — all drawing on the same grounded base instead of generic knowledge based on unspecific citations.
+- **A researcher running a literature review** — you pull a body of papers into one place where overlapping claims get reconciled and contradictions surface, then interrogate the synthesis with Claude; cross-source enrichment (one paper extending another's page) is exactly the move a review needs, and the recorded negative space flags where the field is silent.
+- **A builder shipping an app with Claude Code** — you keep a software-craft vault (like the [`software-craft`](examples/software-craft/) example) alongside the project, so when Claude Code weighs a design call — licensing, versioning, contribution workflow — it reasons from distilled, cited engineering practice rather than generic priors, and you can trace any recommendation back to the source it came from.
 
 ## What's here
 
@@ -105,7 +116,8 @@ Prefer to do it by hand? It's just a symlink loop:
 
 ```sh
 mkdir -p "$HOME/.claude/skills"
-for skill in article-ingestion book-ingestion book-planner book-review vault-evaluator vault-lint; do
+for marker in */SKILL.md; do            # every folder with a SKILL.md is a skill
+  skill="$(dirname "$marker")"
   ln -sfn "$PWD/$skill" "$HOME/.claude/skills/$skill"
 done
 ```
