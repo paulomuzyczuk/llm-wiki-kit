@@ -86,3 +86,5 @@
 ## [2026-06-24] lint | software-craft | 20 total findings; 0 drift roles; report: digests/lint-2026-06-24.md
 
 ## [2026-06-24] lint | software-craft | 20 total findings; 0 drift roles; report: digests/lint-2026-06-24.md
+
+## [2026-06-24] ingest | article | Open Source Best Practices with LLMs — The Bare Minimum (Fabio Akita, tier-2) → new [[installation-surface]], [[llm-assisted-maintenance]]; enriched [[launching-an-open-source-project]], [[source-packaging]], [[the-automation-ratio]], [[code-review]]

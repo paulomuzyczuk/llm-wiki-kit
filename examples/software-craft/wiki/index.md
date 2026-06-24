@@ -35,6 +35,10 @@ this flat list.
   common task pays back 10×+ because the small burden is multiplied across every developer
   and every repetition; automated regression/unit testing as the highest-value case, and the
   caveat that any process must not become a bottleneck.
+- [[llm-assisted-maintenance]] — using an LLM as a tireless reviewer and operator: PR review
+  that audits the code not the author's description (with the human signing off), and
+  agent-run releases/deploys made safe by standardizing every project's layout. *(tier-2,
+  Akita)*
 
 ### Project infrastructure & tooling
 
@@ -177,6 +181,10 @@ this flat list.
   unambiguously defines a release, and the "follow the conventional standard" principle
   (archive format + name-carries-the-release-number; conform to build/install
   conventions; binary packages must derive from an official source release).
+- [[installation-surface]] — minimizing the friction of a stranger's first install: offer
+  multiple install paths (brew/AUR/cargo/mise/tarball), "compile once, repackage many" into
+  every format from one build, and pay the signing/notarization tax per platform. *(tier-2,
+  Akita)*
 - [[releasing-and-signing]] — the public release gate: approval by real testing (build on
   a clean system, run the suite), personal-key OpenPGP signing + checksums for tamper
   verification and web-of-trust paths, candidate releases for wide pre-blessing exposure,

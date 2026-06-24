@@ -244,6 +244,9 @@ want to share when they've found something good"
   static presentation checklist.
 - [[developing-in-the-open]] — why the launch artifacts must be public from Day One, and why
   announcement timing is independent of open-sourcing.
+- [[installation-surface]] — the modern, practitioner extension of "appearances matter":
+  low-friction multi-path install as the top readiness signal, and leading the README with
+  the use case ("nobody cares about your stack") rather than the dependency list.
 
 ## Sources
 

@@ -102,6 +102,8 @@ into a barrier or a bottleneck for contributors"
 - [[project-infrastructure]] — the minimum standard automation the ratio justifies.
 - [[code-review]] — the human-judgment work freed up when machines take the mechanical load.
 - [[version-control]] — the commit stream automation (docs builds, test runs) reacts to.
+- [[llm-assisted-maintenance]] — the agent-era case: standardizing the release/deploy
+  interface is the up-front cost that lets an LLM run the repeated task safely, eyes closed.
 
 ## Sources
 

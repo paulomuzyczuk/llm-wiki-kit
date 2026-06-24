@@ -115,6 +115,9 @@ compatibility guarantees) simply differ ([Fogel 2023](../../raw-input/books/prod
 - [[releasing-and-signing]] — what happens to the package next: testing, signing, and
   shipping it.
 - [[open-source-licensing]] — the license a distribution must declare.
+- [[installation-surface]] — the modern binary-distribution extension of this rule:
+  "compile once, repackage many" makes one official build the shared root of every package
+  format (brew, AUR, Docker, RPM/DEB).
 
 ## Sources
 
