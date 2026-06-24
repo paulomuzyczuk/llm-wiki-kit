@@ -14,6 +14,7 @@ last_updated: 2026-06-24
 <!-- batch 11 (2026-06-24): registered subject software-security; concepts scaling-project-communication, choosing-the-right-forum, open-source-publicity, security-vulnerability-disclosure (completes Ch.6) -->
 <!-- batch 12 (2026-06-24): registered concepts release-numbering, release-branches, stabilizing-a-release, source-packaging (subject release-engineering already seeded) -->
 <!-- batch 13 (2026-06-24): registered concepts releasing-and-signing, maintaining-multiple-release-lines, security-releases, atomic-commits, release-planning (subjects release-engineering, version-control, software-security already seeded) -->
+<!-- batch 14 (2026-06-24): registered concepts contributor-motivation, delegation-in-open-source, praise-and-criticism, preventing-territoriality, the-automation-ratio, treating-users-as-participants, sharing-project-management (subjects open-source-participation, open-source-culture, open-source-communication, open-source-governance, project-infrastructure, continuous-integration all already seeded) -->
 
 # Topics Authority — software craft
 
@@ -103,6 +104,13 @@ pages or shadow another page's canonical title/slug.
 | security-releases | security-release, security-fix-release, security-only-release |
 | atomic-commits | single-logical-change, one-change-per-commit, commit-hygiene, semantically-unified-commit |
 | release-planning | planning-releases, release-cadence, decoupling-contents-from-dates, release-frequency |
+| contributor-motivation | why-people-contribute, intrinsic-motivation, community-and-motivation, attention-is-the-currency |
+| delegation-in-open-source | delegation, inquiry-vs-assignment, follow-up-after-delegating, distinguish-inquiry-and-assignment |
+| praise-and-criticism | giving-feedback, praise, criticism, feedback-in-open-source |
+| preventing-territoriality | territoriality, cookie-licking, author-tags, code-ownership, no-trespassing |
+| the-automation-ratio | automation-ratio, automate-common-tasks, dont-make-humans-do-machine-work |
+| treating-users-as-participants | treat-every-user-as-participant, recruiting-contributors, converting-users-to-contributors, user-recruitment |
+| sharing-project-management | management-roles, manager-not-owner, sharing-management-tasks, patch-manager, translation-manager |
 
 ## Reserved non-subject tags
 

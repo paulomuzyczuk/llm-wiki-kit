@@ -2,7 +2,7 @@
 title: Open-Source Governance
 aliases: [governance-model, benevolent-dictator, consensus-democracy]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-governance, software-collaboration]
 roles: [tech-lead]
@@ -168,6 +168,32 @@ brought out if there start to be indications of widespread dissatisfaction"
 The complementary funder-side behavior — making the company "the same size as everyone else"
 — is on [[corporate-open-source-participation]].
 
+## Politics is inevitable
+
+Ch.8 supplies the realism behind all of the above: governance exists because politics is
+unavoidable, not a pathology to be stamped out. "Politics are inevitable whenever people have
+to cooperatively manage a shared resource." In an open-source project the *code* is not that
+kind of resource — anyone can copy it — but "attention, credibility, and influence in the
+project very much are: they are by definition not copyable, and therefore not forkable"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=149), p. 136).
+That non-forkability (the flip side of [[forkability]]) is exactly why people compete over
+standing.
+
+Fogel dissolves the engineer's distaste for politics — the belief that "some solutions are
+objectively superior" and that political behavior is what *other* people do. A potential loss
+of future influence "has to be considered a technical result, in a sense," because it changes
+who can do what later. "There is no such thing as pure politics": politics "is simply an
+acknowledgement that all consequences of decisions must be taken into account," including how a
+technically satisfying decision can leave "key people feeling isolated"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=149), p. 136).
+The practical warning for any project leader: "there is no one who is above politics. Appearing
+to be above politics is merely one particular political strategy, and sometimes a very useful
+one, but it is never the reality"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=149), p. 136).
+The day-to-day craft of managing those dynamics — delegation, feedback, de-territorialization,
+shared roles — is in [[delegation-in-open-source]], [[praise-and-criticism]],
+[[preventing-territoriality]], and [[sharing-project-management]].
+
 ## Negative Space
 
 - **Specific umbrella organizations** (`tool-specific/perishable`): the named list (Software
@@ -204,4 +230,5 @@ The complementary funder-side behavior — making the company "the same size as 
   Infrastructure" — Benevolent Dictators; Consensus-based Democracy; voting and vetoes;
   Writing It All Down; Joining or Creating a Non-Profit (printed pp. 59–66). Ch. 5
   "Organizations and Money" — "Money Can't Buy You Love" (funding and the benevolent-dictator
-  model, printed p. 74).
+  model, printed p. 74). Ch. 8 "Managing Participants" — chapter introduction on politics as
+  the unavoidable management of non-forkable resources (printed p. 136).

@@ -29,7 +29,12 @@ this flat list.
 
 - [[continuous-integration]] — automated build-on-integration; the empirical reality
   (CI raises PR *throughput* more than it cuts per-PR latency), and how CI relates to
-  version control and review.
+  version control and review. Plus Fogel: automated testing-on-commit *encourages*
+  exploratory development, "don't break the build," and use your hosting site's standard CI.
+- [[the-automation-ratio]] — "don't let humans do what machines could do": automating a
+  common task pays back 10×+ because the small burden is multiplied across every developer
+  and every repetition; automated regression/unit testing as the highest-value case, and the
+  caveat that any process must not become a bottleneck.
 
 ### Project infrastructure & tooling
 
@@ -147,6 +152,9 @@ this flat list.
   private intake on a controlled channel, develop the fix quietly (never commit publicly
   early), CVE/CVSS naming and scoring, pre-notification of high-value users, and a
   simultaneous public fix-and-announce.
+- [[praise-and-criticism]] — feedback as a management tool: praise and criticism are both
+  forms of attention, most effective when specific, and devalued by inflation; criticize the
+  work not the person, and praise sparingly (don't praise the normal).
 
 ### Release engineering & packaging
 
@@ -186,6 +194,22 @@ this flat list.
 - [[open-source-participation]] — who actually makes open-source code: a small,
   organizationally-weighted "GitHub-elite" core, and the hybridisation of commercial and
   open-source production.
+- [[contributor-motivation]] — why people work on free software beyond the paycheck (the
+  built-in desire to earn respect through cooperation), why status norms must reward
+  constructive action, and "attention is the true currency" — the resource that, unlike code,
+  is not forkable.
+- [[delegation-in-open-source]] — delegation as a political/social tool, not just workload
+  spreading: every public request signals trust; distinguish inquiry from assignment; follow
+  up no matter what; delegate even when you could do it faster, to draw people in.
+- [[preventing-territoriality]] — keeping every area open to every contributor: why exclusive
+  ownership creates single points of failure and "no trespassing" chill, authority granted by
+  consensus never seized, cookie licking, and banning source-file author tags.
+- [[treating-users-as-participants]] — the recruitment funnel: every interaction is a chance
+  to gain a participant; educate (don't berate) bad bug reports; "the project runs on
+  participation"; the one exception for genuinely rude users.
+- [[sharing-project-management]] — share the management burden as a peer-to-peer network, not
+  a hierarchy: "manager does not mean owner" (responsibility without monopoly, documented for
+  handoff), and the patch and translation manager roles.
 
 ### Project launch & licensing
 
@@ -212,7 +236,13 @@ this flat list.
   contracting; Batch 8 added Ch.5's non-code half — funding non-programming activities and
   marketing; Batch 9 completed Ch.5. Batches 10–11 ingested all of Ch.6 "Communications" —
   written culture, facilitating discussion, difficult people (6a); scaling communication, forum
-  choice, publicity, security vulnerability disclosure (6b). Ch.1–6 complete; Ch.7–9 pending).
+  choice, publicity, security vulnerability disclosure (6b). Batches 12–13 ingested all of Ch.7
+  "Packaging, Releasing, and Daily Development" — release numbering, branches, stabilization,
+  packaging (7a); releasing & signing, multiple release lines, security releases, atomic
+  commits, release planning (7b). Batch 14 opened Ch.8 "Managing Participants" (8a) — contributor
+  motivation, delegation, praise & criticism, preventing territoriality, the automation ratio,
+  treating users as participants, sharing project management. Ch.1–7 complete; Ch.8 half-ingested
+  (8b in batch 15); Ch.9 pending).
 
 ### Papers
 

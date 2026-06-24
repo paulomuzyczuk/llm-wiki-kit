@@ -2,7 +2,7 @@
 title: Open-Source Participation
 aliases: [contributor-base, who-contributes]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-participation, open-source-governance]
 roles: [tech-lead, product-engineer]
@@ -55,6 +55,11 @@ signalling "a level for more professional organization surrounding their coding 
 
 - [[code-review]] — the day-to-day peer-review practice this contributor base performs.
 - [[continuous-integration]] — the automated pipeline the ecosystem's core projects run on.
+- [[contributor-motivation]] — why individuals join and stay in that contributor base
+  (Fogel's complement to this paper's structural view of *who* contributes).
+- [[delegation-in-open-source]] — how maintainers draw new contributors deeper into a project.
+- [[treating-users-as-participants]] — the recruitment funnel that converts users into the
+  contributors counted here.
 
 ## Sources
 
