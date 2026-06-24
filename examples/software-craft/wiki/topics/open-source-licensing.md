@@ -27,7 +27,9 @@ The deeper legal treatment from Ch. 9 "Legal Matters" enriches this anchor below
 terminology that affects the decision, the *aspects* on which licenses differ, and the fuller
 *choosing-a-license* guidance. The two license **families** — reciprocal and permissive — have
 their own pages: [[copyleft]] and [[permissive-licensing]], bridged by [[license-compatibility]].
-Copyrights, trademarks, and patents remain Ch. 9b territory (batch 17).
+The legal matters *beyond* the code license — [[contributor-agreements]], [[proprietary-relicensing]],
+[[trademarks-in-open-source]], [[software-patents]], and [[creative-commons-licensing]] — have
+their own pages too (Ch. 9b), summarized below.
 
 ## "Free" and "open source" licenses are the same set
 
@@ -137,11 +139,12 @@ when choosing
 - **Attribution requirements** — a notice giving credit to the authors must accompany use; these
   licenses are "often still proprietary-compatible," demanding credit rather than freedom.
 - **Protection of trademark** — "a type of attribution requirement": the original name may not be
-  used to identify derivative works without permission. (Trademark itself is Ch. 9b — batch 17.)
+  used to identify derivative works without permission. (Trademark as its own legal regime is
+  [[trademarks-in-open-source]].)
 - **Patent snapback** — clauses (GPL-3.0, Apache-2.0, MPL-2.0, …) that grant patent licenses with
   the contribution and revoke them if the user initiates patent litigation, "to prevent people
-  from using patent law to take away the rights granted under copyright law." (Patents proper are
-  Ch. 9b.)
+  from using patent law to take away the rights granted under copyright law." (Patents as their
+  own regime, and the non-license defenses, are [[software-patents]].)
 
 The common thread: each places "certain easily satisfiable demands on the recipient in exchange
 for the recipient's right to use the code"
@@ -188,6 +191,26 @@ famously does *not* (GPL-2.0 only). "This book cannot answer the question … yo
 have the choice"
 ([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=177), p. 164).
 
+## Beyond the code license (Ch. 9b)
+
+The code license is necessary but not the whole legal story. Four further regimes, each with its
+own page, complete the picture
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=178), p. 165):
+
+- **[[contributor-agreements]]** — the evidence that contributors granted the project the right
+  to their code: do nothing (risky), a CLA (recommended), or copyright assignment (heavy). The
+  DCO is the minimal CLA, setting inbound license = outbound license.
+- **[[proprietary-relicensing]]** — selling a proprietary version of copyleft code (selling
+  exceptions or open core); legally enabled by the sole-copyright-holder exemption, but corrosive
+  to community.
+- **[[trademarks-in-open-source]]** — the name/logo regime, separate from copyright: it governs
+  what you may *call* things, not what you may *do* with them.
+- **[[software-patents]]** — "the only real threat" a project cannot route around; license
+  patent-snapback clauses, non-enforcement pledges, and the Open Invention Network are partial
+  defenses.
+- **[[creative-commons-licensing]]** — the licensing instrument for a project's *non-code* assets
+  (docs, art, media); ShareAlike is copyleft for content.
+
 ## Negative Space
 
 - **Detailed legal implications of each license** (now ingested from Ch. 9): copyleft reach,
@@ -200,9 +223,12 @@ have the choice"
 - **FSD/OSD edge-case differences** (`too-granular`): the rare clauses on which the two
   definitions formally diverge are noted as existing but "exotic edge cases" (incl. the disputed
   CAL-1.0), not enumerated.
-- **Copyrights, trademarks, patents** (`foreshadowing`): named in the chapter heading and
-  introduced here only as license *aspects* (attribution, trademark protection, patent snapback);
-  their full treatment is Ch. 9b territory (batch 17).
+- **Contributor agreements, proprietary relicensing, trademarks, patents, Creative Commons**
+  (now ingested from Ch. 9b): introduced here as license *aspects* (attribution, trademark
+  protection, patent snapback) and as cross-links in *Beyond the code license* above; their full
+  treatment lives on [[contributor-agreements]], [[proprietary-relicensing]],
+  [[trademarks-in-open-source]], [[software-patents]], and [[creative-commons-licensing]] rather
+  than being enumerated here (the *principles + decision criteria* strategy: one regime per page).
 
 ## See also
 
@@ -216,6 +242,9 @@ have the choice"
   one set of licenses.
 - [[forkability]] — a free license is the legal substrate that makes the right to fork
   real.
+- [[contributor-agreements]], [[proprietary-relicensing]], [[trademarks-in-open-source]],
+  [[software-patents]], [[creative-commons-licensing]] — the Ch. 9b legal regimes beyond the
+  code license.
 
 ## Sources
 
@@ -227,4 +256,6 @@ have the choice"
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 9 "Legal Matters" —
   "Terminology" (FOSS/FLOSS, commercial≠proprietary, public domain), "Aspects of Licenses"
   (the dimensions licenses vary on), and "Choosing a License" (use an existing well-recognized
-  license, the recommended list, the "or any later version" option) (printed pp. 158–164).
+  license, the recommended list, the "or any later version" option) (printed pp. 158–164); the
+  Ch. 9b *Beyond the code license* cross-links draw on "Contributor Agreements" (printed p. 165)
+  and its successor sections, treated in full on their own pages.
