@@ -32,6 +32,18 @@ One honest caveat: this is a **reference base, not a thinking tool**. In the Zet
 
 → The full rationale, with the supporting theory and sources, is in **[docs/theory.md](docs/theory.md)** — part of the **[docs/](docs/)** set (theory, architecture, and pipeline).
 
+## Who it's for
+
+It rewards you when you have a defined corpus of textual sources, you'll reason over it repeatedly with an LLM, and you care about provenance (citations, honest gaps, no silent drift).
+
+Some shapes that fit the grain especially well:
+
+- **A practitioner keeping current in a fast-moving field** — distill the canon plus a steady stream of new articles into a maintained, drift-checked base, then ask Claude domain questions against it and get grounded, cited answers instead of re-reading the sources each time.
+- **A team/role onboarding base** — capture the body of knowledge a craft assumes so any newcomer working with Claude gets answers traceable back to the source.
+- **A student working through a course** — ingest each week's assigned readings as the semester goes; the vault accumulates into a cited companion you take to Claude for problem sets, discussion prep, and exam review, all drawing on the same grounded base instead of generic knowledge based on unspecific citations.
+- **A researcher running a literature review** — pull a body of papers into one place where overlapping claims get reconciled and contradictions surface; you interrogate the synthesis with Claude, cross-source enrichment (one paper extending another's page) is exactly the move a review needs, and the recorded negative space flags where the field is silent.
+- **A builder shipping an app with Claude Code** — keep a software-craft vault (like the [`software-craft`](examples/software-craft/) example) alongside the project so that when Claude Code weighs a design call — licensing, versioning, contribution workflow — it reasons from distilled, cited engineering practice rather than generic priors, and you can trace any recommendation back to the source it came from.
+
 ## What's here
 
 ### Skills (`~/.claude/skills/`)
