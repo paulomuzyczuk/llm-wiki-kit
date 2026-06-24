@@ -74,16 +74,19 @@ The day-to-day decision machinery that lives *below* that ceiling is the subject
 
 ## Negative Space
 
-- **Development forks vs. hard forks** (`too-granular`): the chapter flags the
-  terminological distinction but defers it; the "fork" relevant here is the hard fork —
-  captured as a one-line gloss rather than paged.
-- **Forks as an event/how-to** (`foreshadowing`): the mechanics and case histories of
-  actually forking are deferred to Ch. 8 (§Forks), left as the dead wikilink [[forks]].
+- **Development forks vs. hard forks** (`too-granular` *here*): Ch. 4 flags the terminological
+  distinction but defers it — the "fork" relevant to forkability is the hard fork. The full
+  distinction is now developed in its own page, [[forks]] (Ch. 8 §Forks).
+- **Forks as an event/how-to**: the mechanics and case histories of actually forking — handling,
+  initiating, which-side-is-the-fork — are *not* this page's subject; they are ingested as the
+  paired page [[forks]] (Ch. 8). Forkability is the latent right; [[forks]] is its exercise.
 - **Bus factor / survivability metric** (`too-granular`): a named gauge of survivability
   folded into [[open-source-governance]]'s framing, not a standalone concept.
 
 ## See also
 
+- [[forks]] — the paired concept: what happens when the latent right to fork is actually
+  exercised (development vs. hard forks, handling and initiating one).
 - [[open-source-governance]] — the decision-making structures forkability bounds from
   above.
 - [[version-control]] — the replicability (every developer holds a full repository) that

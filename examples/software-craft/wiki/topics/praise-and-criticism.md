@@ -82,9 +82,9 @@ when a contributor seems underappreciated
 
 ## Negative Space
 
-- **"Transitions" / removing a contributor** (`foreshadowing`): the remedy when criticism
-  fails — moving someone out of a role gracefully — is named here but developed in Ch. 8b;
-  left as the dead wikilink [[transitions]].
+- **"Transitions" / removing a contributor**: the remedy when criticism fails — moving someone
+  out of a role gracefully — is named here and developed in its own page, [[transitions]]
+  (Ch. 8b).
 
 ## See also
 
@@ -93,6 +93,8 @@ when a contributor seems underappreciated
 - [[contributor-motivation]] — attention as the resource praise and criticism both spend.
 - [[delegation-in-open-source]] — the request-and-follow-up loop feedback completes.
 - [[difficult-people]] — when feedback is not the right instrument at all.
+- [[transitions]] — the last-resort remedy when repeated criticism doesn't turn a role-holder
+  around: moving them out of the role gracefully.
 
 ## Sources
 

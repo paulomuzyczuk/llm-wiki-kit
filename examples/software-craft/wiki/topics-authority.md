@@ -15,6 +15,7 @@ last_updated: 2026-06-24
 <!-- batch 12 (2026-06-24): registered concepts release-numbering, release-branches, stabilizing-a-release, source-packaging (subject release-engineering already seeded) -->
 <!-- batch 13 (2026-06-24): registered concepts releasing-and-signing, maintaining-multiple-release-lines, security-releases, atomic-commits, release-planning (subjects release-engineering, version-control, software-security already seeded) -->
 <!-- batch 14 (2026-06-24): registered concepts contributor-motivation, delegation-in-open-source, praise-and-criticism, preventing-territoriality, the-automation-ratio, treating-users-as-participants, sharing-project-management (subjects open-source-participation, open-source-culture, open-source-communication, open-source-governance, project-infrastructure, continuous-integration all already seeded) -->
+<!-- batch 15 (2026-06-24): registered concepts committers, transitions, forks, credit-and-attribution (completes Ch.8; subjects open-source-governance, open-source-participation, open-source-culture all already seeded) -->
 
 # Topics Authority — software craft
 
@@ -111,6 +112,10 @@ pages or shadow another page's canonical title/slug.
 | the-automation-ratio | automation-ratio, automate-common-tasks, dont-make-humans-do-machine-work |
 | treating-users-as-participants | treat-every-user-as-participant, recruiting-contributors, converting-users-to-contributors, user-recruitment |
 | sharing-project-management | management-roles, manager-not-owner, sharing-management-tasks, patch-manager, translation-manager |
+| committers | committership, commit-access, partial-commit-access, revoking-commit-access, dormant-committers |
+| transitions | role-transitions, asking-someone-to-step-down, succession, replacing-a-role-holder |
+| forks | hard-forks, forking, development-forks, handling-a-fork, initiating-a-fork |
+| credit-and-attribution | credit, attribution, crediting-contributors, giving-credit |
 
 ## Reserved non-subject tags
 

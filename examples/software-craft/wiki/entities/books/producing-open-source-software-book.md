@@ -82,8 +82,15 @@ source-file author tags, the core-to-periphery continuum), the automation ratio 
 machines can do — 10×+ payoff; automated testing as the highest-value case), treating every user
 as a potential participant (the recruitment funnel; educate bad bug reports), and sharing
 project management ("manager does not mean owner": responsibility without monopoly; the patch and
-translation managers). Chapter 8 continues in Batch 15 [8b] (Transitions, Committers, Forking);
-Chapter 9 follows under the plan.
+translation managers). Batch 15 completes Chapter 8 with its second half — transitions (noticing
+the slow fade, the multistep ask-to-step-aside, privacy as the overriding factor), committers
+(commit access as social authority over the authoritative copy: the Hippocratic "do no harm"
+selection criterion, revoking access privately, partial/dormant access, and "avoid mystery" by
+publishing the rules and roster), credit and attribution (credit as "the primary currency of the
+free software world," distributed accurately through the records the VCS already keeps), and forks
+(development vs. hard forks, why perception decides which side is "the fork," handling a fork
+non-vindictively, and initiating one only as a last resort). Chapters 1–8 are now fully ingested;
+Chapter 9 (Legal Matters) follows across Batches 16–17 under the plan.
 
 ## Chapter Index
 
@@ -96,13 +103,13 @@ Chapter 9 follows under the plan.
 | 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
 | 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | ✓ batch 12 (7a), 13 (7b) | [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]], [[releasing-and-signing]], [[maintaining-multiple-release-lines]], [[security-releases]], [[atomic-commits]], [[release-planning]] |
-| 8 | Managing Participants | 149–170 | ⏳ batch 14 (8a) | [[contributor-motivation]], [[delegation-in-open-source]], [[praise-and-criticism]], [[preventing-territoriality]], [[the-automation-ratio]], [[treating-users-as-participants]], [[sharing-project-management]] |
+| 8 | Managing Participants | 149–170 | ✓ batch 14 (8a), 15 (8b) | [[contributor-motivation]], [[delegation-in-open-source]], [[praise-and-criticism]], [[preventing-territoriality]], [[the-automation-ratio]], [[treating-users-as-participants]], [[sharing-project-management]], [[transitions]], [[committers]], [[credit-and-attribution]], [[forks]] |
 | 9 | Legal Matters | 171–190 | — | |
 
 ## Negative Space
 
-- **Chapter 8 second half + Chapter 9** (`source-underdeveloped`): Ch.8 is half-ingested —
-  Batch 14 [8a] is done; Ch.8b (Transitions, Committers, Forking) is scheduled for Batch 15,
-  and Ch.9 (Legal Matters) across Batches 16–17 in `ingestion-plan.md`. The chapter index
-  above tracks live progress (⏳ = partially ingested); un-ticked chapters are pending, not
-  deliberately excluded.
+- **Chapter 9** (`source-underdeveloped`): Chapters 1–8 are now fully ingested. Ch.9 (Legal
+  Matters — licenses, copyrights, trademarks, patents) remains, scheduled as reference-catalog
+  synthesis (principles + decision criteria) across Batches 16–17 in `ingestion-plan.md`. The
+  chapter index above tracks live progress; the un-ticked chapter is pending, not deliberately
+  excluded.
