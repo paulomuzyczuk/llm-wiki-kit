@@ -42,7 +42,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 - [x] Ch.3 — Technical Infrastructure  (batch 1: §Version Control → [[version-control]]; batch 5: §What a Project Needs + §Web Site + §Canned Hosting + §Message Forums/Mailing Lists [principles + decision criteria] → [[project-infrastructure]], [[project-hosting]], [[message-forums]]; batch 6: §Bug Tracker + §Real-Time Chat + §Wikis + §Translation + §Social Networking [principles + decision criteria] → [[bug-tracking]], [[real-time-chat]], [[wikis]], [[translation-infrastructure]], enriched [[project-infrastructure]]) ✓ reviewed-clean
 - [x] Ch.4 — Social and Political Infrastructure  (batch 2: full synthesis → [[open-source-governance]], [[forkability]]; enriched [[version-control]]) ✓ reviewed-clean
 - [x] Ch.5 — Organizations and Money  (batch 7 [5a]: full synthesis → [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]]; enriched [[open-source-governance]]. batch 8 [5b]: full synthesis → [[funding-non-programming-activities]], [[open-source-marketing]]; enriched [[open-source-contracting]] (New Developer Test). batch 9 [5c]: full synthesis → [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]]; enriched [[corporate-open-source-participation]] (Open Source and the Organization — foster pools of expertise, publicity-vs-schedule, middle management) — completes Ch.5) ✓ reviewed-clean
-- [ ] Ch.6 — Communications  (batch 10 [6a]: full synthesis → [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]] — Ch.6 concludes in batch 11)
+- [x] Ch.6 — Communications  (batch 10 [6a]: full synthesis → [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]]; batch 11 [6b]: full synthesis → [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]]; enriched [[facilitating-online-discussion]] (pair-link to forum choice) — completes Ch.6) ✓ reviewed-clean
 - [ ] Ch.7 — Packaging, Releasing, and Daily Development
 - [ ] Ch.8 — Managing Participants
 - [ ] Ch.9 — Legal Matters
@@ -55,6 +55,7 @@ PDF page indices (not printed). Printed page = PDF page − 13.
 > (Ch.3a remainder — what a project needs, web site, canned hosting, message forums, as
 > principles + decision criteria), Batch 6 (Ch.3b remainder — bug tracker, real-time chat,
 > wikis, translation, social networking, completing Chapter 3); Chapter 5 (Organizations and
-> Money) is fully ingested across Batches 7–9. Batch 10 opens Chapter 6 (Communications) with
-> its 6a half — written culture, avoiding common pitfalls, difficult people; Ch.6 concludes in
-> batch 11. The remaining chapters (7–9) follow under the plan.
+> Money) is fully ingested across Batches 7–9. Chapter 6 (Communications) is fully ingested
+> across Batches 10–11 — 6a (written culture, avoiding common pitfalls, difficult people) and
+> 6b (scaling project communication, choosing the right forum, publicity, security vulnerability
+> disclosure). The remaining chapters (7–9) follow under the plan.

@@ -11,6 +11,7 @@ last_updated: 2026-06-24
 <!-- batch 8 (2026-06-23): registered concepts funding-non-programming-activities, open-source-marketing -->
 <!-- batch 9 (2026-06-24): registered concepts innersourcing, evaluating-open-source-projects, hiring-open-source-developers, crowdfunding-and-bounties -->
 <!-- batch 10 (2026-06-24): registered subject open-source-communication; concepts written-communication, facilitating-online-discussion, difficult-people -->
+<!-- batch 11 (2026-06-24): registered subject software-security; concepts scaling-project-communication, choosing-the-right-forum, open-source-publicity, security-vulnerability-disclosure (completes Ch.6) -->
 
 # Topics Authority — software craft
 
@@ -46,6 +47,7 @@ Use-for column.
 | open-source-licensing | licensing, software-licenses, license-compatibility, copyleft |
 | open-source-economics | funding, open-source-business, commercialization, corporate-open-source, organizations-and-money |
 | open-source-communication | communication, written-culture, online-discussion, conflict-handling, mailing-list-etiquette |
+| software-security | security, vulnerability-disclosure, secure-development, application-security |
 
 ## Concept aliases
 
@@ -86,6 +88,10 @@ pages or shadow another page's canonical title/slug.
 | written-communication | written-culture, you-are-what-you-write, writing-well, recognizing-rudeness, online-face, screen-name |
 | facilitating-online-discussion | avoiding-common-pitfalls, productive-threads, bikeshed-effect, bikeshedding, holy-wars, noisy-minority, dont-post-without-a-purpose |
 | difficult-people | handling-difficult-people, obstructionists, filibuster, sealioning |
+| scaling-project-communication | handling-growth, communication-scalability, conspicuous-archives, codifying-tradition, treat-resources-like-archives |
+| choosing-the-right-forum | forum-appropriateness, forum-routing, cross-link-between-forums, writer-responsible-culture, convergent-vs-divergent |
+| open-source-publicity | publicity, announcing-releases, meant-to-be-quoted, announcement-channels |
+| security-vulnerability-disclosure | coordinated-disclosure, announcing-security-vulnerabilities, security-response, pre-notification, cve-numbers |
 
 ## Reserved non-subject tags
 
