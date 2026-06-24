@@ -73,7 +73,17 @@ end-of-life, support windows), security releases (the untestable release: existi
 release plus the fix only, the "minor deception" of an in-flight release), atomic commits
 (one logical change per commit, made near-mandatory by parallel maintenance), and release
 planning (decoupling contents from dates, the corporate-vs-community deadline tension).
-Chapters 1–7 are now fully ingested; Chapters 8–9 follow under the plan.
+Chapters 1–7 are now fully ingested. Batch 14 opens Chapter 8 (Managing Participants) with its
+first half — contributor motivation (intrinsic motivation beyond the paycheck, status norms that
+must reward constructive action, "attention is the true currency"), delegation (as a political/
+social tool: inquiry vs. assignment, follow-up, noticing interests), praise and criticism (both
+forms of attention, specific and sparing), preventing territoriality (cookie licking, banning
+source-file author tags, the core-to-periphery continuum), the automation ratio (automate what
+machines can do — 10×+ payoff; automated testing as the highest-value case), treating every user
+as a potential participant (the recruitment funnel; educate bad bug reports), and sharing
+project management ("manager does not mean owner": responsibility without monopoly; the patch and
+translation managers). Chapter 8 continues in Batch 15 [8b] (Transitions, Committers, Forking);
+Chapter 9 follows under the plan.
 
 ## Chapter Index
 
@@ -86,12 +96,13 @@ Chapters 1–7 are now fully ingested; Chapters 8–9 follow under the plan.
 | 5 | Organizations and Money | 80–106 | ✓ batch 7 (5a), 8 (5b), 9 (5c) | [[open-source-economics]], [[corporate-open-source-participation]], [[government-and-open-source]], [[open-source-contracting]], [[funding-non-programming-activities]], [[open-source-marketing]], [[innersourcing]], [[hiring-open-source-developers]], [[evaluating-open-source-projects]], [[crowdfunding-and-bounties]] |
 | 6 | Communications | 107–131 | ✓ batch 10 (6a), 11 (6b) | [[written-communication]], [[facilitating-online-discussion]], [[difficult-people]], [[scaling-project-communication]], [[choosing-the-right-forum]], [[open-source-publicity]], [[security-vulnerability-disclosure]] |
 | 7 | Packaging, Releasing, and Daily Development | 132–148 | ✓ batch 12 (7a), 13 (7b) | [[release-numbering]], [[release-branches]], [[stabilizing-a-release]], [[source-packaging]], [[releasing-and-signing]], [[maintaining-multiple-release-lines]], [[security-releases]], [[atomic-commits]], [[release-planning]] |
-| 8 | Managing Participants | 149–170 | — | |
+| 8 | Managing Participants | 149–170 | ⏳ batch 14 (8a) | [[contributor-motivation]], [[delegation-in-open-source]], [[praise-and-criticism]], [[preventing-territoriality]], [[the-automation-ratio]], [[treating-users-as-participants]], [[sharing-project-management]] |
 | 9 | Legal Matters | 171–190 | — | |
 
 ## Negative Space
 
-- **Chapters 8–9** (`source-underdeveloped`): not yet ingested — Ch.8 (Managing
-  Participants) is scheduled across Batches 14–15 and Ch.9 (Legal Matters) across Batches
-  16–17 in `ingestion-plan.md`. The chapter index above tracks live progress; un-ticked
-  chapters are pending, not deliberately excluded.
+- **Chapter 8 second half + Chapter 9** (`source-underdeveloped`): Ch.8 is half-ingested —
+  Batch 14 [8a] is done; Ch.8b (Transitions, Committers, Forking) is scheduled for Batch 15,
+  and Ch.9 (Legal Matters) across Batches 16–17 in `ingestion-plan.md`. The chapter index
+  above tracks live progress (⏳ = partially ingested); un-ticked chapters are pending, not
+  deliberately excluded.

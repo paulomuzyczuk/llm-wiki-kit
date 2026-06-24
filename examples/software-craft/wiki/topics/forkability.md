@@ -2,7 +2,7 @@
 title: Forkability
 aliases: [right-to-fork]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [open-source-governance, open-source-culture]
 roles: [tech-lead]
@@ -51,6 +51,18 @@ abuse "would simply lead to developers moving over to a different copy of the pr
 Forkability rests on the same property that makes decentralized [[version-control]]
 authoritative-by-convention rather than by enforcement: anyone can hold a full copy.
 
+## What forkability does *not* protect: attention and influence
+
+Ch.8 sharpens the limit of the concept. Forkability guarantees free exit from the *code*, but
+the things contributors actually compete for are not the code. "Attention, credibility, and
+influence in the project very much are" a shared resource — and "they are by definition not
+copyable, and therefore not forkable"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=149), p. 136).
+You can fork the repository, but you cannot fork your standing in the community you leave. This
+is why a fork is "usually bad for everyone" and why politics over influence persists *beneath*
+the forkability ceiling — the subject of [[contributor-motivation]] and the people-management
+craft in [[open-source-governance]]'s "politics is inevitable" framing.
+
 ## A ceiling on power, not a substitute for governance
 
 Forkability sets an *upper limit* on how much power anyone can exert, but "doesn't mean
@@ -77,10 +89,14 @@ The day-to-day decision machinery that lives *below* that ceiling is the subject
 - [[version-control]] — the replicability (every developer holds a full repository) that
   makes forkability mechanically possible.
 - [[open-source-culture]] — the "culture by choice," whose free exit forkability formalizes.
+- [[contributor-motivation]] — the attention, credibility, and influence that, unlike code,
+  cannot be forked.
 
 ## Sources
 
 **Source entities:** [[producing-open-source-software-book]]
 
 - Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 4 "Social and Political
-  Infrastructure", §Forkability (printed pp. 59–60).
+  Infrastructure", §Forkability (printed pp. 59–60); Ch. 8 "Managing Participants" — chapter
+  introduction on the non-forkability of attention, credibility, and influence (printed
+  p. 136).
