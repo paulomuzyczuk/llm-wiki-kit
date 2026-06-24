@@ -75,14 +75,16 @@ jobs:
 
       - name: Example vault lints clean
         # The populated example (examples/software-craft) is a showcase of real
-        # output; it must stay lint-clean. Assert zero Phase 1 findings so drift
-        # in the example pages, citations, or vocabulary fails the build. lint.py
-        # always exits 0 (report-only), so we assert on the summary line.
+        # output; it must stay lint-clean. Assert zero *gating* findings so drift
+        # in the example pages, citations, or vocabulary fails the build. Check 4
+        # cross-reference suggestions are advisory (a populated vault always has
+        # some) and are excluded from the gating total. lint.py always exits 0
+        # (report-only), so we assert on the summary line.
         run: |
           out=$(python3 vault-lint/lint.py examples/software-craft)
           echo "$out"
-          echo "$out" | grep -qE 'Phase 1 findings: +0$' \
-            || { echo "::error::examples/software-craft has vault-lint findings"; exit 1; }
+          echo "$out" | grep -qE 'Gating findings: +0 ' \
+            || { echo "::error::examples/software-craft has gating vault-lint findings"; exit 1; }
 
       - name: Scaffolder round-trip smoke test
         # A freshly scaffolded vault must pass the conformance checker with exit 0.
