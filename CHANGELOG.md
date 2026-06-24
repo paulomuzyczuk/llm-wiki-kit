@@ -7,6 +7,11 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-24
+
+First tagged release. Establishes the public baseline of the kit: the skills,
+the Python tooling, the per-vault contract, and the example vault.
+
 ### Added
 
 - `install.sh` — one-command install/uninstall of the skills into
@@ -32,4 +37,5 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   `docs/architecture.md` (the structure), `docs/pipeline.md` (the workflow), and a
   `docs/README.md` index. README and CONTRIBUTING links updated accordingly.
 
-[Unreleased]: https://github.com/paulomuzyczuk/llm-wiki-kit/commits/main
+[Unreleased]: https://github.com/paulomuzyczuk/llm-wiki-kit/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/paulomuzyczuk/llm-wiki-kit/releases/tag/v0.1.0
