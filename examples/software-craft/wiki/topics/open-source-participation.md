@@ -8,7 +8,7 @@ topics: [open-source-participation, open-source-governance]
 roles: [tech-lead, product-engineer]
 source_tier: 1
 project: null
-source_count: 1
+source_count: 2
 status: active
 ---
 
@@ -42,6 +42,22 @@ tend to offer direct funding channels (GitHub Sponsors, Tidelift, Open Collectiv
 signalling "a level for more professional organization surrounding their coding practices"
 ([Mehler et al. 2024](../../raw-input/papers/who-makes-open-source-code.pdf#page=14), p. 14).
 
+## The formal counterpart: the committer class
+
+The paper's structural elite has an *institutional* counterpart inside each project. Fogel
+identifies **committers** — those with the right to put changes into the authoritative release
+copy — as "the only formally distinct class of people found in all open source projects," an
+"unavoidable concession to discrimination in a system which is otherwise as non-discriminatory
+as possible," justified because "quality control requires, well, control"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=164), p. 151).
+The two views are complementary: Mehler et al. measure stratification *across* the ecosystem
+(which repositories carry the dependency weight), while Fogel describes stratification *within*
+a project (who is trusted to commit). Both cut against the flat "anyone-can-contribute" image —
+participation is real and open at the edges, but influence concentrates, by structure in the
+one case and by formal grant in the other. The craft of administering that inner gate — choosing,
+revoking, and publishing commit access without letting it become an exclusive club — is the
+subject of [[committers]].
+
 ## Negative Space
 
 - **Network-centrality methodology** (`supporting-argument`): the out-degree, eigenvector,
@@ -60,11 +76,15 @@ signalling "a level for more professional organization surrounding their coding 
 - [[delegation-in-open-source]] — how maintainers draw new contributors deeper into a project.
 - [[treating-users-as-participants]] — the recruitment funnel that converts users into the
   contributors counted here.
+- [[committers]] — the formal trusted class within a project; the institutional complement to
+  this page's empirical view of who contributes.
 
 ## Sources
 
-**Source entities:** [[who-makes-open-source-code-paper]]
+**Source entities:** [[who-makes-open-source-code-paper]], [[producing-open-source-software-book]]
 
 - Peter Mehler, Eva Iris Otto & Anna Sapienza, "Who Makes Open Source Code? The
   Hybridisation of Commercial and Open Source Practices," *EPJ Data Science* (2024) 13:35,
   CC BY 4.0.
+- Karl Fogel, *Producing Open Source Software* (2nd ed.), Ch. 8 "Managing Participants" —
+  §Committers (the committer as the only formally distinct class) (printed p. 151).

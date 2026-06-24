@@ -76,6 +76,9 @@ this flat list.
   model (Ch.5).
 - [[forkability]] — the right to fork as the ceiling on all project power; why the
   *possibility* matters more than the rare act, and why there are no true dictators.
+- [[forks]] — the paired exercise of that right: development vs. hard forks, why perception
+  decides which side is "the fork" (a "vote of confidence"), handling a fork non-vindictively
+  to keep developers, and initiating one only as a last resort.
 - [[setting-the-tone]] — culture is transmitted, not legislated: set precedents early so
   useful behaviors become self-perpetuating "in-group" norms; public-by-default discussion,
   nipping rudeness in the bud, and codes of conduct.
@@ -210,6 +213,16 @@ this flat list.
 - [[sharing-project-management]] — share the management burden as a peer-to-peer network, not
   a hierarchy: "manager does not mean owner" (responsibility without monopoly, documented for
   handoff), and the patch and translation manager roles.
+- [[committers]] — commit access as social authority over the authoritative release copy: the
+  only formally distinct class in open source, the Hippocratic "do no harm" / good-judgement
+  selection criterion, revoking access privately, partial and dormant access, and "avoid
+  mystery" by publishing the rules and the roster.
+- [[transitions]] — the craft of handing off a standing role when its holder fades: noticing
+  the slow fade, the multistep guilt-free ask-to-step-aside, the transition happening when the
+  new person starts, and privacy as the overriding factor.
+- [[credit-and-attribution]] — credit as "the primary currency of the free software world,"
+  distributed accurately through the records the VCS already keeps; routine acknowledgement vs.
+  special thanks, and the individual-vs-group tension (err toward group).
 
 ### Project launch & licensing
 
@@ -239,10 +252,11 @@ this flat list.
   choice, publicity, security vulnerability disclosure (6b). Batches 12–13 ingested all of Ch.7
   "Packaging, Releasing, and Daily Development" — release numbering, branches, stabilization,
   packaging (7a); releasing & signing, multiple release lines, security releases, atomic
-  commits, release planning (7b). Batch 14 opened Ch.8 "Managing Participants" (8a) — contributor
-  motivation, delegation, praise & criticism, preventing territoriality, the automation ratio,
-  treating users as participants, sharing project management. Ch.1–7 complete; Ch.8 half-ingested
-  (8b in batch 15); Ch.9 pending).
+  commits, release planning (7b). Batches 14–15 ingested all of Ch.8 "Managing Participants" —
+  contributor motivation, delegation, praise & criticism, preventing territoriality, the automation
+  ratio, treating users as participants, sharing project management (8a); transitions, committers,
+  credit & attribution, forks (8b). Ch.1–8 complete; Ch.9 (Legal Matters) pending across batches
+  16–17).
 
 ### Papers
 

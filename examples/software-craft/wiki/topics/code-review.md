@@ -2,7 +2,7 @@
 title: Code Review
 aliases: [peer-review, conspicuous-code-review]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [code-review, software-collaboration, code-quality]
 roles: [code-craftsperson, tech-lead]
@@ -77,6 +77,19 @@ cycle it lands**, not CI adoption per se ([Guo & Leitner 2019](../../raw-input/p
 The practical implication for review: the bottleneck a growing project should watch is
 *throughput of the whole change pipeline*, not the latency of any single review.
 
+## Review is what makes commit access low-stakes
+
+Standing commit review also changes what is at risk when a project grants commit access (see
+[[committers]]). Fogel notes that because everything is under version control and reviewed, "the
+penalty for adding a committer you shouldn't have added is not so much the problems it could
+cause in the code (review would spot those quickly anyway), but that it might eventually force
+the project to revoke the person's commit access"
+([Fogel 2023](../../raw-input/books/producing-open-source-software/producing-open-source-software.pdf#page=165), p. 152).
+The practical consequence: review absorbs the *code* risk of a wrong grant, so committer
+selection can be judged on judgement and conduct rather than treated as the last line of defense
+for code quality. Review is the safety net; commit access is a social trust decision sitting on
+top of it.
+
 ## Negative Space
 
 - **Subversion / Greg Stein case study** (`illustrative-scaffolding`): the anecdote of
@@ -90,6 +103,8 @@ The practical implication for review: the bottleneck a growing project should wa
 
 - [[version-control]] — the substrate code review runs on; the pull/merge request is the review hand-off point.
 - [[continuous-integration]] — the mechanical complement to human review.
+- [[committers]] — who is granted the authority to commit; review is what makes that grant a
+  low-stakes, conduct-based decision rather than a code-quality gate.
 
 ## Sources
 
