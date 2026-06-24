@@ -1,6 +1,5 @@
 # Log
 
-## [2026-06-24] lint | pending | software-craft
 
 ## [2026-06-24] digest | producing-open-source-software ingest complete | 9 ch reviewed-clean, 62 new pages, 15 cross-chapter enrichments, 3 cross-book convergences (continuous-integration, code-review, open-source-participation); report at wiki/digests/ingest-report-producing-open-source-software-2026-06-24.md
 
@@ -81,3 +80,9 @@
 ## [2026-06-23] digest | producing-open-source-software ch.1 review | 8/8 PASS, 0 warn, 0 fail
 
 ## [2026-06-23] digest | producing-open-source-software ch.4 review | 8/8 PASS, 0 warn, 0 fail (1 warn found + fixed: polls-vs-votes capture)
+
+## [2026-06-24] lint | software-craft | 23 total findings; 0 drift roles; report: digests/lint-2026-06-24.md
+
+## [2026-06-24] lint | software-craft | 20 total findings; 0 drift roles; report: digests/lint-2026-06-24.md
+
+## [2026-06-24] lint | software-craft | 20 total findings; 0 drift roles; report: digests/lint-2026-06-24.md

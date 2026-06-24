@@ -2,7 +2,7 @@
 title: Project Hosting (Canned Hosting)
 aliases: [canned-hosting, project-hosting-site, code-hosting]
 date: 2026-06-23
-last_updated: 2026-06-23
+last_updated: 2026-06-24
 type: topic
 topics: [project-infrastructure]
 roles: [tech-lead]
@@ -124,6 +124,9 @@ covers the need to contact a reporter without forcing an account ([Fogel 2023](.
   (PDF pp. 45–47 / printed pp. 32–34).
 - **Source entities:** [[producing-open-source-software-book]]
 
-## See Also
+## See also
 
-- [[project-infrastructure]] · [[version-control]] · [[bug-tracking]] · [[continuous-integration]]
+- [[project-infrastructure]] — the full minimum toolset hosting provisions in one place.
+- [[version-control]] — the repository hosting exists first to serve.
+- [[bug-tracking]] — the tracker a canned-hosting site bundles alongside the repo.
+- [[continuous-integration]] — the build/test automation increasingly bundled with hosting.
