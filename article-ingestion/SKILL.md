@@ -234,7 +234,9 @@ For each pending article note (in `raw-input/_pending/`):
    a new vocabulary entry when the concept is genuinely new; when you do, add it to the
    authority file under the resolve-before-minting rule. (If the vault has no
    `topics-authority.md`, skip this step.)
-4. **Update `wiki/index.md`** — add new pages; keep role/topic counts honest.
+4. **Update `wiki/index.md`** — add new pages to the flat catalogue. (Do NOT hand-edit
+   the role-count numbers in the role maps-of-content header here; those are refreshed
+   once per run by the post-loop sync step below.)
 5. **Update cross-references**; flag contradictions inline with
    `<!-- CONTRADICTS: [[page]] section X -->`.
 6. **Append the log entry:** `## [YYYY-MM-DD] ingest | article | <source-title>`.
@@ -246,6 +248,22 @@ For each pending article note (in `raw-input/_pending/`):
       watermark (do not count `lint | pending` lines).
    c. If count ≥ 4 and no `lint | pending | <slug>` entry exists after the most recent
       `lint | <slug> |` entry, append: `## [YYYY-MM-DD] lint | pending | <slug>`.
+
+**After all pending article notes are processed (post-loop, once per run):**
+**Sync the index role-counts.** The per-article `index.md` edits (step 4) add page
+entries but do NOT refresh the role-count numbers in the role maps-of-content header,
+so those counts drift. Refresh them once, after the loop, by running the lint script's
+sync mode (the `lint.py` co-located with the vault-lint skill; with the README install
+that is `~/.claude/skills/vault-lint/lint.py`):
+```
+python3 ~/.claude/skills/vault-lint/lint.py --sync-role-counts <vault-path>
+```
+This recomputes the counts from topic-page frontmatter using the SAME logic as
+`/vault-lint` Phase 2 and rewrites only the count digits in `wiki/index.md`
+(report-free, log-free, idempotent — safe to re-run, and a no-op when no new pages were
+minted). The script is the single source of truth for these counts; never hand-edit
+them. This applies to interactive and headless runs alike. Skip only if the run minted
+no new pages and changed no `roles:` frontmatter (the sync would be a no-op anyway).
 
 When headless (scheduled run), also write `wiki/digests/ingest-<YYYY-MM-DD>.md` listing
 sources processed, pages created/updated, contradictions flagged, and any unclassified

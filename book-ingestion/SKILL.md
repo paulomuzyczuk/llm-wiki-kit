@@ -348,13 +348,30 @@ before moving to the next. Repeat Phases 3 and 4 for every chapter in the batch.
 ## Phase 5 — Batch summary report
 
 After all chapters in the batch are ingested and reviewed (Phases 3 and 4 complete
-for every chapter), deliver the batch summary:
-- Pages created (with names)
-- Pages enriched (with names)
-- Negative-space items logged (count and categories)
-- Cross-book convergences found (if any)
-- Review outcomes per chapter: PASS / WARN / FAIL / HALTED summary and any deferred WARNs; list any `[!]` halted chapters separately with the self-check failure description
-- Which batch this was and what batch comes next (per the plan)
+for every chapter):
+
+1. **Sync the index role-counts.** The per-chapter `index.md` edits (Phase 4 step 3)
+   add page entries but do NOT refresh the role-count numbers in the role
+   maps-of-content header, so those counts drift every batch. Refresh them now —
+   once per batch, after every chapter is in — by running the lint script's
+   sync mode (the `lint.py` co-located with the vault-lint skill; with the README
+   install that is `~/.claude/skills/vault-lint/lint.py`):
+   ```
+   python3 ~/.claude/skills/vault-lint/lint.py --sync-role-counts <vault-path>
+   ```
+   This recomputes the counts from topic-page frontmatter using the SAME logic as
+   `/vault-lint` Phase 2 and rewrites only the count digits in `wiki/index.md`
+   (report-free, log-free, idempotent — safe to re-run). Do NOT hand-edit the counts:
+   the script is the single source of truth, and hand-editing reintroduces the drift
+   this step exists to kill. Fold the reported role-count changes into the summary.
+
+2. **Deliver the batch summary:**
+   - Pages created (with names)
+   - Pages enriched (with names)
+   - Negative-space items logged (count and categories)
+   - Cross-book convergences found (if any)
+   - Review outcomes per chapter: PASS / WARN / FAIL / HALTED summary and any deferred WARNs; list any `[!]` halted chapters separately with the self-check failure description
+   - Which batch this was and what batch comes next (per the plan)
 
 Do NOT begin the next batch. The next batch requires a new explicit human request.
 

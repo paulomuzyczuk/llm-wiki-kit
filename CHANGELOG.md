@@ -7,6 +7,25 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ## [Unreleased]
 
+### Added
+
+- `vault-lint/lint.py --sync-role-counts <vault-path>` — a deterministic,
+  report-free, log-free, idempotent mode that recomputes the role-page counts in
+  `wiki/index.md` from topic-page frontmatter and rewrites them in place. It reuses
+  the Phase 2 counter (`phase_2_role_drift`) and a newly extracted
+  `_rewrite_role_section` helper now shared with the lint report's READY-TO-APPLY
+  patch block, so the counting/rewriting logic has a single implementation. Errors
+  (exit 2) when a vault declares no role-counts surface.
+
+### Changed
+
+- `book-ingestion` and `article-ingestion` skills now call `--sync-role-counts` at
+  their existing index-update points (book: Phase 5 batch-end; article: post-loop,
+  once per run, interactive and headless). This keeps `wiki/index.md` role counts
+  in step with frontmatter so `/vault-lint` Phase 2 reverts to a pure detector —
+  any future non-zero drift signals a skill that skipped its sync rather than
+  expected accumulation.
+
 ## [0.1.0] - 2026-06-24
 
 First tagged release. Establishes the public baseline of the kit: the skills,

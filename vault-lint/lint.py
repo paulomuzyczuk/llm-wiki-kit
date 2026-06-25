@@ -2469,6 +2469,45 @@ def _render_ext_findings(L, cid, findings):
             L.append(f'- {f}')
 
 
+def _rewrite_role_section(index_lines, sec_start, sec_end, fmt_type, p2):
+    """Return the role-count section lines (index_lines[sec_start:sec_end]) with the
+    reported counts replaced by the Phase 2 actuals.
+
+    SINGLE SOURCE OF TRUTH for the index.md role-count rewrite. Both the lint report's
+    READY-TO-APPLY patch block (detector) and sync_role_counts() (in-place fixer) call
+    this, so the patch you read and the edit a skill applies are byte-identical.
+    """
+    out = []
+    for ln in index_lines[sec_start:sec_end]:
+        if fmt_type == 'list':
+            # Match list item: - [Role — Name](topics/role-<id>.md) — N pages; rest
+            m = re.match(
+                r'^(-\s+\[.*?\]\(topics/role-([\w\-]+)\.md\).*?—\s+)(\d+)(\s+pages?.*)', ln
+            )
+            if m:
+                role_id = m.group(2)
+                actual = p2['actual'].get(role_id)
+                if actual is not None:
+                    out.append(f'{m.group(1)}{actual}{m.group(4)}')
+                    continue
+            out.append(ln)
+        elif fmt_type == 'table':
+            if '|' not in ln or re.match(r'^[\|\s\-:]+$', ln):
+                out.append(ln)
+                continue
+            updated = ln
+            for role_id, actual in p2['actual'].items():
+                role_disp = role_id.replace('-', ' ')
+                if role_disp.lower() in ln.lower() or role_id in ln.lower():
+                    old_count = str(p2['reported'].get(role_id, -999))
+                    updated = re.sub(r'\b' + re.escape(old_count) + r'\b', str(actual), ln, count=1)
+                    break
+            out.append(updated)
+        else:
+            out.append(ln)
+    return out
+
+
 def _render_patch_block(L, p2, index_md_text):
     """Append READY-TO-APPLY PATCH section. Mirrors exact index.md line format."""
     if not index_md_text:
@@ -2487,49 +2526,90 @@ def _render_patch_block(L, p2, index_md_text):
         )
         return
 
+    new_section = _rewrite_role_section(index_lines, sec_start, sec_end, fmt_type, p2)
+
     if fmt_type == 'list':
         L.append(
             f'## READY-TO-APPLY PATCH — wiki/index.md role list (lines {sec_start + 1}–{sec_end})'
         )
         L.append('')
         L.append('Replace the Role Maps of Content section in `wiki/index.md`:')
-        L.append('')
-        L.append('```markdown')
-        for ln in index_lines[sec_start:sec_end]:
-            # Match list item: - [Role — Name](topics/role-<id>.md) — N pages; rest
-            m = re.match(
-                r'^(-\s+\[.*?\]\(topics/role-([\w\-]+)\.md\).*?—\s+)(\d+)(\s+pages?.*)', ln
-            )
-            if m:
-                role_id = m.group(2)
-                actual = p2['actual'].get(role_id)
-                if actual is not None:
-                    L.append(f'{m.group(1)}{actual}{m.group(4)}')
-                    continue
-            L.append(ln)
-        L.append('```')
-
-    elif fmt_type == 'table':
+    else:  # table
         L.append(
             f'## READY-TO-APPLY PATCH — wiki/index.md role table (lines {sec_start + 1}–{sec_end})'
         )
         L.append('')
         L.append('Replace the role table in `wiki/index.md`:')
-        L.append('')
-        L.append('```markdown')
-        for ln in index_lines[sec_start:sec_end]:
-            if '|' not in ln or re.match(r'^[\|\s\-:]+$', ln):
-                L.append(ln)
-                continue
-            updated = ln
-            for role_id, actual in p2['actual'].items():
-                role_disp = role_id.replace('-', ' ')
-                if role_disp.lower() in ln.lower() or role_id in ln.lower():
-                    old_count = str(p2['reported'].get(role_id, -999))
-                    updated = re.sub(r'\b' + re.escape(old_count) + r'\b', str(actual), ln, count=1)
-                    break
-            L.append(updated)
-        L.append('```')
+
+    L.append('')
+    L.append('```markdown')
+    L.extend(new_section)
+    L.append('```')
+
+
+def sync_role_counts(vault_path):
+    """Recompute the role-count rows in wiki/index.md from topic-page frontmatter and
+    write them in place. The deterministic, report-free, log-free counterpart to the
+    Phase 2 drift DETECTOR — designed to be called at the tail of ingest operations
+    (book-ingestion batch-end, article-ingestion run-end) so the index never drifts.
+
+    Reuses phase_2_role_drift() and _rewrite_role_section() verbatim: the counting and
+    rewriting logic has exactly one implementation, shared with the lint detector.
+
+    Returns 0 on success (whether or not a change was needed), 2 on structural error.
+    """
+    vault_path = os.path.abspath(vault_path)
+    if not os.path.isdir(vault_path):
+        print(f'ERROR: vault path does not exist: {vault_path}', file=sys.stderr)
+        return 2
+
+    claude_md_path = os.path.join(vault_path, 'CLAUDE.md')
+    if not os.path.isfile(claude_md_path):
+        print(f'ERROR: CLAUDE.md not found at {claude_md_path}', file=sys.stderr)
+        return 2
+    with open(claude_md_path, encoding='utf-8') as f:
+        config = parse_claude_config(f.read())
+
+    canonical_roles = config['canonical_roles']
+    if not canonical_roles:
+        print('ERROR: no canonical roles found in CLAUDE.md', file=sys.stderr)
+        return 2
+
+    index_md_path = os.path.join(vault_path, 'wiki', 'index.md')
+    if not os.path.isfile(index_md_path):
+        print('ERROR: wiki/index.md not found', file=sys.stderr)
+        return 2
+    with open(index_md_path, encoding='utf-8') as f:
+        index_md_text = f.read()
+
+    p2 = phase_2_role_drift(vault_path, canonical_roles, index_md_text)
+    if p2.get('skipped') or p2['fmt_type'] == 'unknown':
+        print(
+            'ERROR: could not detect a role-counts surface in wiki/index.md — nothing synced',
+            file=sys.stderr,
+        )
+        return 2
+
+    sec_start, sec_end = p2['fmt_lines']
+    index_lines = index_md_text.split('\n')
+    new_section = _rewrite_role_section(index_lines, sec_start, sec_end, p2['fmt_type'], p2)
+    new_text = '\n'.join(index_lines[:sec_start] + new_section + index_lines[sec_end:])
+
+    print(
+        f'[sync-role-counts] vault: {config["vault_slug"]} | {p2["total_scanned"]} topic pages scanned'
+    )
+    if new_text == index_md_text:
+        print('[sync-role-counts] already in sync — no changes written')
+        return 0
+
+    with open(index_md_path, 'w', encoding='utf-8') as f:
+        f.write(new_text)
+    print('[sync-role-counts] wiki/index.md updated:')
+    for r in canonical_roles:
+        delta = p2['delta'].get(r, 0)
+        mark = f'  (drift {_fmt_delta(delta)})' if delta else ''
+        print(f'    {r}: {p2["reported"].get(r, 0)} -> {p2["actual"][r]}{mark}')
+    return 0
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -2580,11 +2660,22 @@ def clear_pending_marker(log_path, vault_slug):
 
 
 def main():
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    if not args:
         print('Usage: python3 lint.py <vault-path>', file=sys.stderr)
+        print('       python3 lint.py --sync-role-counts <vault-path>', file=sys.stderr)
         return 2
 
-    vault_path = os.path.abspath(sys.argv[1])
+    # ── Mode: --sync-role-counts ────────────────────────────────
+    # Report-free, log-free in-place refresh of the index.md role-count rows.
+    # Intended to be called from ingest skills, NOT as a substitute for a full lint.
+    if args[0] == '--sync-role-counts':
+        if len(args) < 2:
+            print('Usage: python3 lint.py --sync-role-counts <vault-path>', file=sys.stderr)
+            return 2
+        return sync_role_counts(args[1])
+
+    vault_path = os.path.abspath(args[0])
 
     if not os.path.isdir(vault_path):
         print(f'ERROR: vault path does not exist: {vault_path}', file=sys.stderr)
