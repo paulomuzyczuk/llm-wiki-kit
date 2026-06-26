@@ -16,6 +16,12 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   `_rewrite_role_section` helper now shared with the lint report's READY-TO-APPLY
   patch block, so the counting/rewriting logic has a single implementation. Errors
   (exit 2) when a vault declares no role-counts surface.
+- Lint **Phase 2b — role-MOC curation candidates** (advisory). Per role, surfaces the
+  top-K-central role-bearing topic pages that the role MOC (`role-<role>.md`) omits,
+  where K is the MOC's current curated size and centrality is vault-wide inbound
+  wikilink count. Bounded by K to stay low-noise; also flags `stale` MOC entries that
+  bear a different canonical role. Report-only — no gating, no writes. Renders a
+  `## Phase 2b` report section plus summary/stdout lines.
 
 ### Changed
 
