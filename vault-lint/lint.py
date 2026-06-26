@@ -1462,9 +1462,11 @@ def phase_2b_role_moc_curation(pages, slug_index, canonical_roles):
     frontmatter, using vault-wide inbound wikilink count as a centrality proxy.
 
     Surfaces, per role:
-      - 'promote': role-bearing topic pages NOT linked from the MOC whose inbound count
-        exceeds the LEAST-central page the MOC already curates — i.e. the MOC omits a page
-        more connected than something it already lists. Sorted by centrality desc, capped.
+      - 'promote': the top-K-central role pages (K = the MOC's current curated size) that
+        the MOC omits — i.e. the MOC filled slots with less-central pages. Each entry is a
+        dict carrying inbound count, 'curated_in' (other role MOCs that already link it),
+        and 'roles' (the page's full role tags), so an orphan reads differently from a page
+        already reachable via another role's map. Sorted by centrality desc, capped.
       - 'stale': topic pages the MOC links that bear some canonical role but NOT this one
         (possible miscategorisation). Pages with no role and non-topic links are ignored
         to keep the signal low-noise.
@@ -1491,29 +1493,54 @@ def phase_2b_role_moc_curation(pages, slug_index, canonical_roles):
         page_roles[slug] = set(r.strip() for r in (_parse_frontmatter_roles(data['content']) or []))
         page_inbound[slug] = len(seen.get(rp, ()))
 
+    # Role MOC link sets, and the membership map: which role MOCs already link a slug.
+    # moc_links_by_role[r] is None when role r has no MOC page.
+    moc_links_by_role = {}
+    for r in canonical_roles:
+        mr = slug_index.get(f'role-{r}', [])
+        moc_links_by_role[r] = set(pages[mr[0]]['wikilinks']) if mr else None
+
+    def curated_in(slug):
+        return [
+            r
+            for r in canonical_roles
+            if moc_links_by_role[r] is not None and slug in moc_links_by_role[r]
+        ]
+
     results = {}
     for role in canonical_roles:
-        moc_relpaths = slug_index.get(f'role-{role}', [])
-        if not moc_relpaths:
+        moc_links = moc_links_by_role[role]
+        if moc_links is None:
             results[role] = {'missing_moc': True}
             continue
-        moc_links = set(pages[moc_relpaths[0]]['wikilinks'])
         role_slugs = [s for s, roles in page_roles.items() if role in roles]
         curated = [s for s in role_slugs if s in moc_links]
         floor = min((page_inbound[s] for s in curated), default=0)
         # The MOC fills K slots; by centrality those "should" be the K most-central role
         # pages. Promotion candidates = the top-K-central role pages the MOC omits (it
         # curates lower-centrality pages instead). Bounded by K → low-noise, unlike a raw
-        # "above the floor" test, which floods when the MOC curates any niche page.
+        # "above the floor" test, which floods when the MOC curates any niche page. Each
+        # candidate carries its current placement (other role MOCs that already curate it,
+        # plus its full role tags) so a reviewer can tell an orphan from a page already
+        # reachable via another role's map.
         ranked = sorted(role_slugs, key=lambda s: (-page_inbound[s], s))
         top_k = ranked[: len(curated)]
-        promote = [(s, page_inbound[s]) for s in top_k if s not in moc_links]
+        promote = [
+            {
+                'slug': s,
+                'inbound': page_inbound[s],
+                'curated_in': [r for r in curated_in(s) if r != role],
+                'roles': sorted(page_roles[s]),
+            }
+            for s in top_k
+            if s not in moc_links
+        ]
         stale = sorted(
             s for s in moc_links if s in page_roles and page_roles[s] and role not in page_roles[s]
         )
         results[role] = {
             'missing_moc': False,
-            'moc_relpath': moc_relpaths[0],
+            'moc_relpath': slug_index[f'role-{role}'][0],
             'role_total': len(role_slugs),
             'curated_n': len(curated),
             'floor': floor,
@@ -2463,9 +2490,11 @@ def render_report(vault_slug, findings):
         'from the role MOC, ranked by inbound-link count (centrality). A page is a '
         '**promotion candidate** when it ranks among the K most-central role pages '
         "(K = the MOC's current size) yet the MOC omits it — i.e. the MOC curates a "
-        'less-central page in its place. **Stale** entries are MOC-linked topic pages that '
-        'bear a different canonical role but not this one. Curation is a human judgment — '
-        'these are signals, not auto-fixes.'
+        'less-central page in its place. Each candidate shows its current placement — other '
+        'role MOCs that already curate it (or ⚠ if none) and its full role tags — so an '
+        "orphan reads differently from a page already reachable via another role's map. "
+        '**Stale** entries are MOC-linked topic pages that bear a different canonical role '
+        'but not this one. Curation is a human judgment — these are signals, not auto-fixes.'
     )
     L.append('')
     p2b = findings.get('p2b') or {}
@@ -2499,8 +2528,16 @@ def render_report(vault_slug, findings):
                 f"**Promotion candidates{shown}** — among the role's most-central "
                 'pages but omitted from the MOC:'
             )
-            for s, ic in promote:
-                L.append(f'- `{s}` — {ic} inbound links')
+            for c in promote:
+                where = (
+                    'already in MOC(s): ' + ', '.join(c['curated_in'])
+                    if c['curated_in']
+                    else '⚠ not in any role MOC'
+                )
+                L.append(
+                    f'- `{c["slug"]}` — {c["inbound"]} inbound · {where} · '
+                    f'roles: [{", ".join(c["roles"])}]'
+                )
         if stale:
             L.append('**Stale curated entries** (MOC-linked but bear a different role):')
             for s in stale:
