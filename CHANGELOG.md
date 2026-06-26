@@ -28,6 +28,10 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 
+- Role map-of-content curation cap raised from **10–15 to 10–25** highest-value pages
+  per role, in `CLAUDE.template.md` (and the example vault). A soft guideline only —
+  the lint never hard-enforced it — but it makes larger curated browse maps explicitly
+  in-bounds for content-dense roles.
 - `book-ingestion` and `article-ingestion` skills now call `--sync-role-counts` at
   their existing index-update points (book: Phase 5 batch-end; article: post-loop,
   once per run, interactive and headless). This keeps `wiki/index.md` role counts
