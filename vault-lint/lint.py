@@ -1455,6 +1455,75 @@ def phase_2_role_drift(vault_path, canonical_roles, index_md_text):
     }
 
 
+def phase_2b_role_moc_curation(pages, slug_index, canonical_roles):
+    """
+    Advisory role-MOC curation pass. For each canonical role, compare the role MOC
+    (wiki/topics/role-<role>.md) against the topic pages that bear that role in
+    frontmatter, using vault-wide inbound wikilink count as a centrality proxy.
+
+    Surfaces, per role:
+      - 'promote': role-bearing topic pages NOT linked from the MOC whose inbound count
+        exceeds the LEAST-central page the MOC already curates — i.e. the MOC omits a page
+        more connected than something it already lists. Sorted by centrality desc, capped.
+      - 'stale': topic pages the MOC links that bear some canonical role but NOT this one
+        (possible miscategorisation). Pages with no role and non-topic links are ignored
+        to keep the signal low-noise.
+
+    Pure signal, no writes; reuses the Check-2 inbound model and Phase-2 role parsing.
+    Roles whose MOC is absent are returned with missing_moc=True.
+    """
+    PROMOTE_CAP = 8
+
+    # Inbound centrality: distinct source pages that wikilink each page.
+    seen = {rp: set() for rp in pages}
+    for src, data in pages.items():
+        for target_slug in data['wikilinks']:
+            for tgt in slug_index.get(target_slug, []):
+                if tgt != src:
+                    seen[tgt].add(src)
+
+    # slug -> (roles set, inbound count) for topic pages (excluding role MOCs).
+    page_roles, page_inbound = {}, {}
+    for rp, data in pages.items():
+        if not rp.startswith('wiki/topics/') or _is_role_moc(rp):
+            continue
+        slug = get_slug(rp)
+        page_roles[slug] = set(r.strip() for r in (_parse_frontmatter_roles(data['content']) or []))
+        page_inbound[slug] = len(seen.get(rp, ()))
+
+    results = {}
+    for role in canonical_roles:
+        moc_relpaths = slug_index.get(f'role-{role}', [])
+        if not moc_relpaths:
+            results[role] = {'missing_moc': True}
+            continue
+        moc_links = set(pages[moc_relpaths[0]]['wikilinks'])
+        role_slugs = [s for s, roles in page_roles.items() if role in roles]
+        curated = [s for s in role_slugs if s in moc_links]
+        floor = min((page_inbound[s] for s in curated), default=0)
+        # The MOC fills K slots; by centrality those "should" be the K most-central role
+        # pages. Promotion candidates = the top-K-central role pages the MOC omits (it
+        # curates lower-centrality pages instead). Bounded by K → low-noise, unlike a raw
+        # "above the floor" test, which floods when the MOC curates any niche page.
+        ranked = sorted(role_slugs, key=lambda s: (-page_inbound[s], s))
+        top_k = ranked[: len(curated)]
+        promote = [(s, page_inbound[s]) for s in top_k if s not in moc_links]
+        stale = sorted(
+            s for s in moc_links if s in page_roles and page_roles[s] and role not in page_roles[s]
+        )
+        results[role] = {
+            'missing_moc': False,
+            'moc_relpath': moc_relpaths[0],
+            'role_total': len(role_slugs),
+            'curated_n': len(curated),
+            'floor': floor,
+            'promote': promote[:PROMOTE_CAP],
+            'promote_total': len(promote),
+            'stale': stale,
+        }
+    return results
+
+
 def _median(vals):
     if not vals:
         return 0
@@ -2061,6 +2130,7 @@ def render_report(vault_slug, findings):
         f'- Universal checks: {ph1} findings',
         f'- Role-count drift: {"skipped (no surface in index.md)" if p2.get("skipped") else f"{drift_n} roles with non-zero delta"}',
         f'- Structural signals: {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned pages',
+        f'- Role-MOC curation: {sum(r.get("promote_total", 0) for r in (findings.get("p2b") or {}).values() if not r.get("missing_moc"))} promotion candidates (advisory)',
         f'- Vault-specific extensions: {ph3_n} findings',
         f'- Controlled vocabulary: {"skipped (no topics-authority.md)" if c8.get("skipped") else f"{c8_count} findings"}',
         f'- Activity since last lint: {act["books"]} books, {act["articles"]} articles, {act["other_ingests"]} other ingests, {act["handoffs"]} handoffs',
@@ -2383,6 +2453,61 @@ def render_report(vault_slug, findings):
         L.append('**Unknown roles** (in frontmatter but not in canonical list):')
         for role, pgs in p2['unknown_roles'].items():
             L.append(f'- `{role}`: {len(pgs)} pages')
+        L.append('')
+
+    # ── Phase 2b — Role-MOC curation candidates (advisory)
+    L.append('## Phase 2b — Role-MOC curation candidates')
+    L.append('')
+    L.append(
+        'Advisory. Per role, topic pages that bear the role in frontmatter but are absent '
+        'from the role MOC, ranked by inbound-link count (centrality). A page is a '
+        '**promotion candidate** when it ranks among the K most-central role pages '
+        "(K = the MOC's current size) yet the MOC omits it — i.e. the MOC curates a "
+        'less-central page in its place. **Stale** entries are MOC-linked topic pages that '
+        'bear a different canonical role but not this one. Curation is a human judgment — '
+        'these are signals, not auto-fixes.'
+    )
+    L.append('')
+    p2b = findings.get('p2b') or {}
+    any_p2b = False
+    for role in findings.get('canonical_roles') or list(p2b.keys()):
+        r = p2b.get(role)
+        if not r:
+            continue
+        if r.get('missing_moc'):
+            L.append(f'### {role}')
+            L.append(f'- No `role-{role}.md` MOC found — skipped.')
+            L.append('')
+            any_p2b = True
+            continue
+        promote, stale = r['promote'], r['stale']
+        if not promote and not stale:
+            continue
+        any_p2b = True
+        L.append(f'### {role}')
+        L.append(
+            f'MOC curates {r["curated_n"]} of {r["role_total"]} role pages '
+            f'(least-central curated page has {r["floor"]} inbound links).'
+        )
+        if promote:
+            shown = (
+                f' (top {len(promote)} of {r["promote_total"]})'
+                if r['promote_total'] > len(promote)
+                else ''
+            )
+            L.append(
+                f"**Promotion candidates{shown}** — among the role's most-central "
+                'pages but omitted from the MOC:'
+            )
+            for s, ic in promote:
+                L.append(f'- `{s}` — {ic} inbound links')
+        if stale:
+            L.append('**Stale curated entries** (MOC-linked but bear a different role):')
+            for s in stale:
+                L.append(f'- `{s}`')
+        L.append('')
+    if not any_p2b:
+        L.append('No curation candidates — every role MOC already curates its most-central pages.')
         L.append('')
 
     # ── Phase 3
@@ -2809,6 +2934,15 @@ def main():
         print('No log entry written. Investigate counting discrepancy before proceeding.')
         return 1
 
+    # ── Phase 2b ──────────────────────────────────────────────
+    print('[vault-lint] Phase 2b — role-MOC curation candidates')
+    p2b = phase_2b_role_moc_curation(pages, slug_index, canonical_roles)
+    p2b_promote = sum(r.get('promote_total', 0) for r in p2b.values() if not r.get('missing_moc'))
+    p2b_roles = sum(
+        1 for r in p2b.values() if not r.get('missing_moc') and (r.get('promote') or r.get('stale'))
+    )
+    print(f'  {p2b_promote} promotion candidates across {p2b_roles} roles')
+
     # ── Phase 3 ───────────────────────────────────────────────
     print('[vault-lint] Phase 3 — vault-specific extensions')
     p3 = phase_3_extensions(vault_path, config['extension_checks'], config)
@@ -2826,6 +2960,7 @@ def main():
         c8=c8,
         p15=p15,
         p2=p2,
+        p2b=p2b,
         p3=p3,
         index_md_text=index_md_text,
     )
@@ -2888,6 +3023,9 @@ def main():
     print(f'  Phase 1 findings:    {ph1_total}')
     print(f'  Gating findings:     {gating_total}  (excludes advisory cross-ref suggestions)')
     print(f'  Role drift:          {drift_count} roles')
+    print(
+        f'  Role-MOC curation:   {p2b_promote} promotion candidates across {p2b_roles} roles (advisory)'
+    )
     print(
         f'  Structural signals:  {len(p2["anemic"])} anemic / {len(p2["dominant"])} dominant / {len(p2["over_assigned"])} over-assigned'
     )
