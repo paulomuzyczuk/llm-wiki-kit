@@ -161,7 +161,7 @@ check must expect these differences and flag any other diff as a defect:
     template for other role-based vaults):
       If the query involves a specific working context or hat, load
       the relevant `wiki/topics/role-<name>.md` as the primary entry
-      point before scanning the full index — it curates the 10-15 most
+      point before scanning the full index — it curates the 10-25 most
       important pages for that role.
     Conformance: only in vaults with documented roles; inserted before
     the existing index-scan step; references
