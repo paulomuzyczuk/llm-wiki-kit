@@ -5,8 +5,8 @@ description: >
   citation-resolution failures, orphan pages, concepts lacking a page, missing
   cross-references, duplicate concept pages, stale claims, and data gaps. Also
   checks for drift between role-page-counts in wiki/index.md and the ground
-  truth from page frontmatter, surfaces role-MOC curation candidates
-  (role-bearing pages a role MOC omits that out-rank its curated pages by
+  truth from page frontmatter, surfaces role-MoC curation candidates
+  (role-bearing pages a role MoC omits that out-rank its curated pages by
   inbound-link centrality), resolves topics:/aliases: against the optional
   wiki/topics-authority.md controlled-vocabulary SOT when present (skipped when
   absent), and runs any vault-specific extensions declared in the
@@ -19,7 +19,7 @@ description: >
 
 # Vault Lint
 
-Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, role-count drift, role-MOC curation candidates (advisory), controlled-vocabulary resolution (against the optional `topics-authority.md` SOT), and vault-specific extensions.
+Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, role-count drift, role-MoC curation candidates (advisory), controlled-vocabulary resolution (against the optional `topics-authority.md` SOT), and vault-specific extensions.
 
 The implementation is a single Python script, `lint.py`, co-located with this skill — it sits in the same folder as this `SKILL.md`. When the skill is installed per the repo README (symlinked or copied into `~/.claude/skills/`), that path is `~/.claude/skills/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
 
