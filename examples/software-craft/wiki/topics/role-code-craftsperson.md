@@ -19,7 +19,7 @@ improving code day to day. This is a *map of content* (a navigation page), not a
 — it points at the pages most worth reading for this role, ordered by where you'd start.
 
 > At this example vault's scale (a handful of pages) a role map is deliberately short.
-> In a mature vault a role MOC curates the 10–15 highest-value pages for the role and is
+> In a mature vault a role MOC curates the 10–25 highest-value pages for the role and is
 > the recommended browse layer above the subject-grouped index (`wiki/index.md`).
 
 ## Start here
