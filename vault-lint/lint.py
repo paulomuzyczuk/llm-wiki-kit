@@ -667,6 +667,175 @@ _SECTION_LABEL_WORDS = frozenset(
     ]
 )
 
+# Check 3 Pass B — English-word guardrail. Bold spans overwhelmingly mark
+# emphasis ("returns **rise**", "this overstates value, a **negative**") rather
+# than concept names. Two curated tiers, applied as "drop the term when EVERY
+# alpha token is in the union":
+#   (1) _ENGLISH_STOPWORDS — classic function words (determiners, prepositions,
+#       conjunctions, auxiliaries, comparatives, quantifiers). Kills "above",
+#       "below", "only", "both", "less", "every", "cannot", "greater of".
+#   (2) _GENERIC_EMPHASIS_WORDS — content words (inflected verbs, generic
+#       adjectives/adverbs) that recur as emphasis but never name a domain
+#       concept. Deliberately EXCLUDES real single-word concepts (beta, alpha,
+#       volatility, liquidity, arbitrage, variance, duration, subprime, SOFR),
+#       and stays out of domain-generic nouns (equity, premium, discount,
+#       price, dividends) that remain legitimate human-judgment candidates.
+# Token-level AND (not whole-phrase membership) so "cost of equity", "excess
+# returns", "default risk" survive — only their function words match.
+_ENGLISH_STOPWORDS = frozenset(
+    [
+        'a',
+        'an',
+        'the',
+        'and',
+        'or',
+        'but',
+        'nor',
+        'of',
+        'to',
+        'in',
+        'on',
+        'at',
+        'by',
+        'for',
+        'with',
+        'from',
+        'as',
+        'into',
+        'onto',
+        'than',
+        'then',
+        'so',
+        'is',
+        'are',
+        'was',
+        'were',
+        'be',
+        'been',
+        'being',
+        'it',
+        'its',
+        'this',
+        'that',
+        'these',
+        'those',
+        'above',
+        'below',
+        'over',
+        'under',
+        'up',
+        'down',
+        'only',
+        'both',
+        'all',
+        'any',
+        'each',
+        'every',
+        'some',
+        'no',
+        'not',
+        'none',
+        'less',
+        'least',
+        'more',
+        'most',
+        'very',
+        'too',
+        'also',
+        'such',
+        'same',
+        'just',
+        'can',
+        'cannot',
+        'will',
+        'would',
+        'should',
+        'could',
+        'may',
+        'might',
+        'must',
+        'if',
+        'when',
+        'where',
+        'which',
+        'who',
+        'whom',
+        'what',
+        'how',
+        'why',
+        'here',
+        'there',
+        'again',
+        'once',
+        'own',
+        'greater',
+        'lesser',
+        'fewer',
+    ]
+)
+_GENERIC_EMPHASIS_WORDS = frozenset(
+    [
+        'negative',
+        'positive',
+        'absolute',
+        'relative',
+        'linear',
+        'nonlinear',
+        'continuous',
+        'discrete',
+        'asymmetric',
+        'symmetric',
+        'correlated',
+        'uncorrelated',
+        'endogenous',
+        'exogenous',
+        'normalized',
+        'monthly',
+        'daily',
+        'weekly',
+        'annual',
+        'small',
+        'large',
+        'smaller',
+        'larger',
+        'lower',
+        'higher',
+        'long',
+        'short',
+        'rise',
+        'rises',
+        'rose',
+        'fall',
+        'falls',
+        'fell',
+        'rising',
+        'falling',
+        'sell',
+        'sells',
+        'sold',
+        'buy',
+        'buys',
+        'reinvested',
+        'overstate',
+        'overstates',
+        'understate',
+        'understates',
+        'understated',
+        'overstated',
+        'lowers',
+        'raises',
+        'overvalues',
+        'overvalue',
+        'undervalues',
+        'undervalue',
+        'overvalued',
+        'undervalued',
+        'marked',
+        'taxable',
+    ]
+)
+_ENGLISH_GUARDRAIL = _ENGLISH_STOPWORDS | _GENERIC_EMPHASIS_WORDS
+
 
 def check_3_pass_b(pages, slug_index):
     """
@@ -705,14 +874,19 @@ def check_3_pass_b(pages, slug_index):
                 inner = m.group(1).strip()
 
                 # Filter chain (spec §Check 3 Pass B)
-                if inner.endswith(':'):
+                # Trailing sentence punctuation marks a label/sentence-lead bold
+                # ("Stub.", "As-of caveat.", "Synthesis strategy:"), not a concept
+                # name — concepts never carry a trailing period/colon.
+                if inner.endswith((':', '.', ';', ',', '!', '?')):
                     continue
                 if inner.lower() in _META_STOPLIST:
                     continue
                 if len(inner) < 4 or len(inner) > 60:
                     continue
-                if re.match(r'^\[\[.*\]\]$', inner):
-                    # Bold wikilink construct — handled by Check 4
+                if '[[' in inner:
+                    # Bold span containing a wikilink — a structural construct
+                    # (cross-ref label, merge tombstone "Merged into [[x]]"),
+                    # not a concept candidate. Links handled by Check 4.
                     continue
                 if inner.lower() in _STRUCT_STOPLIST:
                     continue
@@ -720,6 +894,11 @@ def check_3_pass_b(pages, slug_index):
                 # label words are heading/section markers, not concept candidates.
                 inner_lower = inner.lower()
                 if any(word in inner_lower for word in _SECTION_LABEL_WORDS):
+                    continue
+                # English-word guardrail: drop spans whose every alpha token is a
+                # function word or generic emphasis word (emphasis, not a concept).
+                alpha_tokens = re.findall(r'[a-z]+', inner_lower)
+                if alpha_tokens and all(t in _ENGLISH_GUARDRAIL for t in alpha_tokens):
                     continue
 
                 # Recognized concept → skip (missing link, not missing page)
