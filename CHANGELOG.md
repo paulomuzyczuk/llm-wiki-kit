@@ -25,8 +25,66 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   tags — so a reviewer can tell a page already reachable elsewhere from one orphaned out
   of the browse layer entirely. Report-only — no gating, no writes. Renders a
   `## Phase 2b` report section plus summary/stdout lines.
+- Lint Check 3b English-word and formatting-fragment guardrails: common-English
+  emphasis words and formatting fragments (trailing-punctuation labels, bold-wrapped
+  wikilinks) no longer surface as un-paged concept candidates. (Shipped earlier in
+  `4f35d44`; entry was missing here.)
+- Repo-root `regenerate-clones.sh` replacing the six per-skill copies — regenerates
+  every skill's project-context clone (or a named subset), with the stale-deployment
+  warning generalized from vault-lint to all skills.
+- Tests for the previously untested growth edge: `--sync-role-counts` (the one
+  vault-mutating mode — drift rewrite, idempotency, no-op byte-identity, both index
+  formats), Phase 2b role-MoC curation, and the Check 3b guardrails, plus regression
+  tests for every fix below (19 new tests; suites now 105 + 15).
+- CI: a `macos-latest` job exercising the shell scripts under macOS system bash 3.2
+  (install idempotency in both modes, scaffolder round-trip, friendly missing-flag
+  errors, `plutil -lint` on the plist templates) — previously the bash-3.2
+  portability discipline was enforced by author vigilance only.
+
+### Fixed
+
+- `vault-lint/lint.py`: Check 7's open-question marker regex `\[?\?\]` made the `[`
+  optional, so bare `?]` in prose false-positived — now matches `[?]` only.
+- `vault-lint/lint.py`: index-**table** role matching used substring containment
+  (role `beta` could claim a "beta-blocker studies" row, first match won); detector
+  and patcher now share exact `role-<id>.md`-link / normalized-cell matching, and the
+  READY-TO-APPLY / `--sync-role-counts` patch edits only the count cell instead of
+  the first matching number anywhere in the row. The never-reported sentinel is now
+  an explicit leave-row-unpatched fail-safe.
+- `lint.py` and `check-conformance.py` now honor their documented exit-code
+  contract on crash: unhandled exceptions exit **2** (previously Python's default 1,
+  which callers read as "findings/diffs found"). `check-conformance.py` reports
+  missing/unreadable template, vault, or subs files with a friendly error + exit 2
+  instead of a traceback.
+- Skill/template drift: `/book-ingest` → `/book-ingestion` (the command the skill
+  actually registers) in the template, the example vault, book-planner, and
+  book-ingestion; references to the git-ignored `*-skill.md` clones now point at the
+  skills themselves; the template's phantom "Step 0a gate" reference corrected to
+  vault-lint's Step 2 confirmation gate; template version stamp bumped.
+- `book-review`: frontmatter now carries a real trigger `description:`; check count
+  corrected to ten; Check 6 validates `type` against the vault's declared schema
+  instead of a hardcoded 3-value list and accepts `last_updated` on/after ingestion
+  date; Check 9 reads the synthesis strategy from `ingestion-plan.md` (present from
+  batch 1) instead of the end-of-book ingest report, so it can actually fire
+  mid-book; Phase 1 falls back to searching the whole `log.md` when the ingest entry
+  is not in the last 50 lines.
+- `vault-lint` skill Step 2 now greps for `vault_slug:` (it lives in the
+  VAULT-LINT-EXTENSIONS block, not the first 20 lines of `CLAUDE.md`).
+- `install.sh --copy` is now idempotent as the header claims (a previously-copied
+  skill directory is refreshed; unrelated directories still refuse); `new-vault.sh`
+  flags with a missing value fail with a friendly `ERROR` instead of a raw `set -u`
+  crash; `--help` on both scripts prints the header comment block instead of
+  hardcoded line ranges (which had already drifted).
+- launchd plist templates: the claude binary path is a `{{CLAUDE_BIN}}` token with
+  a `which claude` instantiation step (was hardcoded `/opt/homebrew/bin/claude`,
+  Apple Silicon Homebrew only).
 
 ### Changed
+
+- CI hardening: top-level read-only token `permissions`, `concurrency` cancellation
+  of superseded runs, pytest pinned like ruff/bandit.
+- `.gitignore` now covers `.ruff_cache/` and `.claude/settings.local.json` (both
+  previously ignored only by author-machine luck).
 
 - Role map-of-content curation cap raised from **10–15 to 10–25** highest-value pages
   per role, in `CLAUDE.template.md` (and the example vault). A soft guideline only —
