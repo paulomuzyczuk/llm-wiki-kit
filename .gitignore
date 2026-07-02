@@ -9,6 +9,10 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.ruff_cache/
+
+# Per-user Claude Code settings (personal permission allowlists, local paths)
+.claude/settings.local.json
 
 # Secrets / credentials (defensive — skills should never contain these)
 .env

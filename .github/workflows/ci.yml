@@ -5,6 +5,15 @@ on:
     branches: [main]
   pull_request:
 
+# Nothing in CI writes to the repo; drop the default token down to read-only.
+permissions:
+  contents: read
+
+# A newer push to the same branch/PR supersedes the running build.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -26,7 +35,7 @@ jobs:
 
       - name: ShellCheck
         # shellcheck ships preinstalled on ubuntu-latest runners.
-        run: shellcheck install.sh new-vault.sh */regenerate-clones.sh
+        run: shellcheck install.sh new-vault.sh regenerate-clones.sh
 
   security:
     runs-on: ubuntu-latest
@@ -65,7 +74,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install pytest
-        run: pip install pytest
+        # Pinned like ruff/bandit so a pytest release can't break the build on
+        # its own schedule.
+        run: pip install pytest==9.0.3
 
       - name: Conformance test suite
         run: python3 -m pytest -q check-conformance/tests/
@@ -117,3 +128,52 @@ jobs:
           ! grep -q '\\x' "$RUNNER_TEMP/ci-vault/claude/_provenance.md" \
             || { echo "FAIL: literal escape bytes in seeded _provenance.md"; cat "$RUNNER_TEMP/ci-vault/claude/_provenance.md"; exit 1; }
           echo "OK: scaffolded CLAUDE.md is clean."
+
+  macos:
+    # The shell scripts' primary target is macOS's system bash 3.2 (no mapfile,
+    # no associative arrays); the ubuntu jobs only ever exercise bash 5, so a
+    # bash-4-ism would ship unnoticed without this leg. Scripts are invoked as
+    # `/bin/bash script.sh` explicitly — relying on the `#!/usr/bin/env bash`
+    # shebang would resolve to the runner's Homebrew bash and defeat the point.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm system bash is 3.2
+        run: /bin/bash --version | head -1
+
+      - name: install.sh is idempotent in both modes (system bash)
+        # Each mode runs twice: the second run must succeed and refresh, not
+        # refuse — the guard distinguishes our copied skills (dir + SKILL.md)
+        # from unrelated directories, which still refuse.
+        run: |
+          skills="$RUNNER_TEMP/skills"
+          /bin/bash install.sh --dir "$skills"
+          /bin/bash install.sh --dir "$skills"
+          /bin/bash install.sh --dir "$skills" --uninstall
+          /bin/bash install.sh --dir "$skills" --copy
+          /bin/bash install.sh --dir "$skills" --copy
+
+      - name: Scaffolder round-trip (system bash)
+        run: |
+          /bin/bash new-vault.sh --subs check-conformance/subs/software-craft.json --dest "$RUNNER_TEMP/ci-vault"
+          python3 check-conformance/check-conformance.py \
+            --vault "$RUNNER_TEMP/ci-vault/CLAUDE.md" \
+            --template CLAUDE.template.md \
+            --subs check-conformance/subs/software-craft.json
+
+      - name: Missing flag value fails with a friendly error
+        # Guards the arity checks: `--subs` with no value must print an ERROR
+        # line and exit non-zero, not crash with a raw set -u unbound-variable.
+        run: |
+          if /bin/bash new-vault.sh --subs 2>err.txt; then
+            echo "FAIL: expected non-zero exit"; exit 1
+          fi
+          grep -q 'needs a value' err.txt \
+            || { echo "FAIL: raw crash instead of friendly error:"; cat err.txt; exit 1; }
+
+      - name: Plist templates are well-formed
+        # plutil is the validator the templates' own instantiation steps
+        # prescribe; {{TOKENS}} live inside <string> text so they don't affect
+        # XML validity.
+        run: plutil -lint scheduled-job.plist.template freshness-job.plist.template
