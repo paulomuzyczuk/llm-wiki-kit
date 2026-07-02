@@ -321,7 +321,7 @@ Triggered by: the Ingest operation's article branch, a human giving an article U
 
 Invoke: `/article-ingestion`. The skill has two entry points: **Phase 1 (Fetch)** turns a URL into a provenance-stamped Markdown note in `raw-input/_pending/`; **Phase 2 (Ingest)** synthesises a pending article note into the wiki — page writes, resolve-before-minting against `topics-authority.md`, the first-ingest vocabulary seed when an article is the vault's first content, `index.md`/cross-reference updates, the `ingest | article |` log entry, the article lint trigger, and the headless `wiki/digests/ingest-<date>.md`.
 
-The full procedure lives in `article-ingestion-skill.md`. This contract delegates the article path to it the same way the book path is delegated to `book-ingestion-skill.md`. Articles still arrive in `_pending/` via the Obsidian Web Clipper as well as via the skill's fetch phase.
+The full procedure lives in the article-ingestion skill (its SKILL.md). This contract delegates the article path to it the same way the book path is delegated to the book-ingestion skill. Articles still arrive in `_pending/` via the Obsidian Web Clipper as well as via the skill's fetch phase.
 
 ---
 
@@ -333,9 +333,9 @@ Triggered by: human request only. Always interactive. Never headless. Each human
 
 > **Resume rule:** When starting a session for a partially-ingested book, read `raw-input/books/<slug>/ingestion-plan.md` (for synthesis strategy and batch boundaries) and `raw-input/books/<slug>/meta.md` (for chapter progress) before doing anything else. State in one line: *"Resuming \<book\>: next batch is batch-\<N\> — chapters \<X\>–\<Y\>."*
 
-Book onboarding (first add of a new book — creating meta.md and the book entity page) is the responsibility of `book-planner-skill.md` Phase 0. Invoke `/book-planner` for any new book; ingestion cannot begin until the plan + meta.md + book entity all exist.
+Book onboarding (first add of a new book — creating meta.md and the book entity page) is the responsibility of the book-planner skill (its SKILL.md) Phase 0. Invoke `/book-planner` for any new book; ingestion cannot begin until the plan + meta.md + book entity all exist.
 
-The full ingest procedure — chapter state machine, per-chapter synthesis steps, mark-reviewed-clean transitions, on-book-completion guard and ingest report schema — lives in `book-ingestion-skill.md`. Invoke `/book-ingest` to run a batch.
+The full ingest procedure — chapter state machine, per-chapter synthesis steps, mark-reviewed-clean transitions, on-book-completion guard and ingest report schema — lives in the book-ingestion skill (its SKILL.md). Invoke `/book-ingestion` to run a batch.
 
 Reviewer is mandatory. See `### Book-review` below for the reviewer-failure hard rule (full DO NOT list).
 
@@ -449,7 +449,7 @@ Cron/launchd invokes Claude Code headless and runs:
 The Ingest step delegates each `_pending/` article to `/article-ingestion` (Phase 2), which is headless-capable and runs in this scheduled context; book-ingest is never run headless. To change cadence, edit the day count in step 1.
 launchd label for this vault: `com.user.vault-sc-scheduled`.
 Scheduled to fire daily at `08:02`.
-vault-lint is never invoked from scheduled operations; it requires interactive human authorisation via the skill's Step 0a gate.
+vault-lint is never invoked from scheduled operations; it requires interactive human authorisation via the skill's Step 2 confirmation gate.
 
 ---
 

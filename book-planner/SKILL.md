@@ -16,7 +16,7 @@ description: >
 # Book Planner
 
 The planning step that runs before book ingestion. Its job: turn a raw book into an
-agreed, persisted ingestion plan, then stop. It does not ingest (that is `book-ingestion-skill.md`) and it does not review (that is the `book-review`
+agreed, persisted ingestion plan, then stop. It does not ingest (that is the book-ingestion skill) and it does not review (that is the `book-review`
 skill). Three separate jobs, three separate steps.
 
 ## Why this skill exists
@@ -228,7 +228,7 @@ status: approved
 3. Determine the next un-ingested batch from the plan.
 4. Report in one line: "Plan recovered. Batches 1–N complete (per meta.md). Next:
    Batch N+1 (chapters X–Y), strategy Z."
-5. Hand off to `book-ingestion-skill.md` (invoke `/book-ingest`) for that batch — this skill's job
+5. Hand off to the book-ingestion skill (invoke `/book-ingestion`) for that batch — this skill's job
    ends at recovery; it does not ingest.
 
 Never re-plan a book that already has an approved plan file unless the human explicitly
