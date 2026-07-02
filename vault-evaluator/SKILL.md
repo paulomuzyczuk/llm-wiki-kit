@@ -177,8 +177,27 @@ per the Vault conventions section below). This file is immutable once created �
 never modify questions after running any condition against them, or comparisons
 become invalid.
 
+**Longitudinal reuse rule.** Only a vault's *first* evaluation generates a fresh
+golden set. Any re-evaluation of the same vault — after ingesting more sources,
+fixing lint findings, or improving synthesis — MUST reuse the existing frozen
+`eval-golden-set-*.md`: identical questions are what make before/after runs
+comparable. Generate a fresh set for an already-evaluated vault only when coverage
+has changed enough to obsolete the frozen one, and then state explicitly in the
+report that the comparison chain restarts at this run.
+
 **Stop and show the golden set to the human before proceeding.**
-The human must approve or adjust before any model runs.
+The human must approve or adjust before any model runs. At this gate, also
+actively invite the human to add their own questions — question text only,
+phrased however they would naturally ask; domain expertise is not required, and
+plain-language phrasing is a feature (it tests vocabulary robustness that
+index-derived questions, written in the vault's own terms, structurally cannot).
+For each human question the orchestrator does the answer-key work — authoritative
+pages, ground-truth sections, rubric, type classification — and flags the entry
+`origin: human`. Human questions are additive (they don't count toward the 30 or
+its quotas). If a human question cannot be grounded in vault content, that is
+signal, not rejection: make it an abstention-control candidate, or record it as a
+coverage-gap candidate for `wiki/gaps.md`. The invitation is skippable — "none,
+proceed" costs nothing.
 
 ---
 
@@ -363,7 +382,9 @@ Write `wiki/digests/eval-report-<YYYY-MM-DD>.md` containing:
 Lead with the pairwise results, not averages — per model, per pair (C vs B
 foremost), wins–losses–ties overall and by question type, each marked
 **significant** or **below threshold** per the Phase 3 sign-test table. A
-sub-threshold direction is reported as exactly that.
+sub-threshold direction is reported as exactly that. If the set contains
+`origin: human` questions, report their results as a separate subset too — those
+are the questions closest to real use.
 
 ### Summary table (diagnostic averages)
 ```
