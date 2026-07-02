@@ -21,9 +21,12 @@ EXEMPT-CONTAINED (never PASS) because the roles-table swap is applied by
 construction and creates a known sanctioned difference.
 """
 
+import json
 import re
+import subprocess
+import sys
 
-from conftest import SCRIPT_PATH, TEST_SUBS, make_vault, run_check
+from conftest import SCRIPT_PATH, TEMPLATE_PATH, TEST_SUBS, make_vault, run_check
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -437,3 +440,64 @@ def test_metadata_key_does_not_weaken_missing_token_validation(tmp_path):
     assert result.returncode == 2, result.stdout + result.stderr
     out = result.stdout + result.stderr
     assert 'EXEC_HANDOFF' in out, f'Missing token name must appear in output: {out!r}'
+
+
+# ---------------------------------------------------------------------------
+# test 11: missing input files → friendly ERROR + exit 2 (not an unhandled
+# traceback exiting 1, which callers read as "diffs found")
+# ---------------------------------------------------------------------------
+
+
+def _run_raw(vault_path, template_path, subs_path):
+    """Invoke the script with explicit paths (bypasses run_check's file setup)."""
+    return subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            '--vault',
+            str(vault_path),
+            '--template',
+            str(template_path),
+            '--subs',
+            str(subs_path),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_missing_vault_file_exits_2(tmp_path):
+    """--vault pointing at a nonexistent file is a tool error: friendly ERROR
+    on stderr + exit 2. Before the guard this raised an unhandled
+    FileNotFoundError and exited 1."""
+    subs_file = tmp_path / 'subs.json'
+    subs_file.write_text(json.dumps(TEST_SUBS))
+    result = _run_raw(tmp_path / 'no-such-CLAUDE.md', TEMPLATE_PATH, subs_file)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert 'ERROR' in result.stderr
+    assert 'vault' in result.stderr.lower()
+    assert 'Traceback' not in result.stderr  # friendly message, not a crash dump
+
+
+def test_missing_template_file_exits_2(tmp_path):
+    """--template pointing at a nonexistent file must also be a friendly exit 2."""
+    vault_file = tmp_path / 'CLAUDE.md'
+    vault_file.write_text(make_vault())
+    subs_file = tmp_path / 'subs.json'
+    subs_file.write_text(json.dumps(TEST_SUBS))
+    result = _run_raw(vault_file, tmp_path / 'no-such-template.md', subs_file)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert 'ERROR' in result.stderr
+    assert 'template' in result.stderr.lower()
+    assert 'Traceback' not in result.stderr
+
+
+def test_missing_subs_file_exits_2(tmp_path):
+    """--subs pointing at a nonexistent file: same friendly exit-2 contract."""
+    vault_file = tmp_path / 'CLAUDE.md'
+    vault_file.write_text(make_vault())
+    result = _run_raw(vault_file, TEMPLATE_PATH, tmp_path / 'no-such-subs.json')
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert 'ERROR' in result.stderr
+    assert 'subs' in result.stderr.lower()
+    assert 'Traceback' not in result.stderr
