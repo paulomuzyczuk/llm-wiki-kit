@@ -40,6 +40,12 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   (install idempotency in both modes, scaffolder round-trip, friendly missing-flag
   errors, `plutil -lint` on the plist templates) — previously the bash-3.2
   portability discipline was enforced by author vigilance only.
+- Worked example golden set for the example vault
+  (`examples/software-craft/wiki/digests/eval-golden-set-2026-07-02.md`): a real
+  Phase 1 artifact — 30 scored questions + 4 abstention controls grounded in the
+  vault's index, gaps, and Negative Space records — that doubles as a **frozen
+  public benchmark**: every `/vault-evaluator` run against the example vault reuses
+  this exact set, making results comparable across users, models, and time.
 
 ### Fixed
 
@@ -95,7 +101,12 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   context tokens, quality per dollar, measured cost substitution). Golden sets add
   Type 4 **abstention controls** drawn from `gaps.md`/negative-space records —
   Condition C must decline at the vault's coverage boundary rather than
-  hallucinate. The 10-question minimal version is now the mandatory first
+  hallucinate. Golden sets are **frozen for longitudinal reuse** (re-evaluations of
+  a vault must reuse the existing set — fresh sets make runs incomparable), and the
+  approval gate now **invites human-authored questions** (question text only; the
+  orchestrator grounds them, writes the rubric, and flags `origin: human` —
+  ungroundable ones become abstention candidates or logged coverage gaps). The
+  10-question minimal version is now the mandatory first
   gate and every run states its exact subprocess call count at a confirmation gate;
   eval digests carry vault frontmatter and each completed run appends an
   `eval | <vault-slug> | …` log entry; Condition C falls back to `index.md` + topic
