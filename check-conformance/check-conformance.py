@@ -10,6 +10,7 @@ import difflib
 import json
 import re
 import sys
+import traceback
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -357,10 +358,18 @@ def main():
     p.add_argument('--subs', required=True, help='JSON token substitution map')
     a = p.parse_args()
 
-    template_raw = Path(a.template).read_text()
-    vault_raw = Path(a.vault).read_text()
+    try:
+        template_raw = Path(a.template).read_text()
+    except OSError as e:
+        _die(f'cannot read template file: {e}')
+    try:
+        vault_raw = Path(a.vault).read_text()
+    except OSError as e:
+        _die(f'cannot read vault file: {e}')
     try:
         subs = json.loads(Path(a.subs).read_text())
+    except OSError as e:
+        _die(f'cannot read subs file: {e}')
     except json.JSONDecodeError as e:
         _die(f'subs file is not valid JSON: {e}')
 
@@ -379,4 +388,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        # Exit-code contract (module docstring): 2 = error. Without this guard
+        # an unhandled exception exits 1, which callers read as "diffs found".
+        traceback.print_exc()
+        sys.exit(2)
