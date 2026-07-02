@@ -305,7 +305,7 @@ List any unresolved anchors by file path and citation location.
 
 ## Phase 4 — Update operational files and review (per chapter)
 
-**Halted-chapter guard.** If Phase 3 halted on a self-check for this chapter (chapter state is `[!]` in meta.md after Phase 3), skip Phase 4 entirely for this chapter. The reviewer is not invoked; meta.md is not re-ticked (Phase 3 already wrote the halt state); no further log entry is written by Phase 4. Resume the chapter via a fresh `/book-ingest` invocation after the human has resolved the blocker.
+**Halted-chapter guard.** If Phase 3 halted on a self-check for this chapter (chapter state is `[!]` in meta.md after Phase 3), skip Phase 4 entirely for this chapter. The reviewer is not invoked; meta.md is not re-ticked (Phase 3 already wrote the halt state); no further log entry is written by Phase 4. Resume the chapter via a fresh `/book-ingestion` invocation after the human has resolved the blocker.
 
 After each chapter is synthesized, complete the following steps for that chapter
 before moving to the next. Repeat Phases 3 and 4 for every chapter in the batch.

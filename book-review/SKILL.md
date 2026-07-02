@@ -1,10 +1,16 @@
 ---
 name: book-review
+description: >
+  Reviews a single freshly ingested book chapter against the vault's discipline
+  rules and writes a verdict digest. Invoked automatically by book-ingestion Phase 4
+  once per chapter after a batch, or explicitly via /book-review or when a user asks
+  to re-review a chapter. Report-only — it writes only a review digest and a log entry,
+  never meta.md or wiki pages, and never auto-fixes. Reviews one chapter per invocation.
 ---
 
 # Book Chapter Reviewer
 
-Verify a freshly ingested book chapter against the vault's nine discipline rules. **Reports only — never modifies any wiki file, never auto-fixes.**
+Verify a freshly ingested book chapter against the vault's ten discipline rules. **Reports only — never modifies any wiki file, never auto-fixes.**
 
 ## Invocation
 
@@ -47,12 +53,12 @@ If either argument is missing, ask the user before proceeding.
    - **named key K**: match the row whose label matches K case-insensitively with hyphen→space (e.g. `afterword` matches `Afterword`; `appendix-a` matches `Appendix A`).
 
    Record the matched row's label verbatim as `<row-label>` — used by step 4 below and Phase 3. FAIL early if no row matches.
-3. **Halted-chapter guard.** If the located meta.md row's checkbox is `[!]` (Halted-on-self-check state — see book-ingestion-skill.md state machine table for the full five-state set), do NOT proceed with the review. Return immediately with:
+3. **Halted-chapter guard.** If the located meta.md row's checkbox is `[!]` (Halted-on-self-check state — see the book-ingestion skill's state machine table for the full five-state set), do NOT proceed with the review. Return immediately with:
 
    > `chapter <slug>/<chapter> is HALTED (self-check halted: <description from meta.md row>) — resolve the synthesis-time blocker before review. The reviewer is not designed to run on halted chapters; no review digest will be written and no log entry will be appended.`
 
    Do not write a review digest, do not append to log.md, do not run Phase 2 (any check) or Phase 3. Just emit the message and exit cleanly.
-4. Read the last 50 lines of `log.md`. Find the most recent `book-ingest` entry for this unit:
+4. Read the last 50 lines of `log.md`. Find the most recent `book-ingest` entry for this unit. If it is not present in the last 50 lines, search the whole `log.md` for the chapter's ingest entry before concluding it is missing:
    - **integer N**: `book-ingest | <book> ch.N |`
    - **named key K**: `book-ingest | <book> <row-label> |` (e.g. `book-ingest | <book> Afterword |`)
 
@@ -61,9 +67,9 @@ If either argument is missing, ask the user before proceeding.
 
 ---
 
-## Phase 2 — Nine checks
+## Phase 2 — Ten checks
 
-Run all nine in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FAIL add a one-line explanation and a suggested fix prompt.
+Run all ten in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FAIL add a one-line explanation and a suggested fix prompt.
 
 ### Check 1 — Citation density
 
@@ -110,8 +116,8 @@ Run all nine in order. For each: state `PASS`, `WARN`, or `FAIL`; for WARN or FA
 
 For every created or modified page, verify:
 - **Guard:** if the CLAUDE.md frontmatter schema was not cleanly declared in Phase 1, score this check as `CONFIG-ERROR: vault CLAUDE.md does not declare a frontmatter schema — cannot validate fields or tags; fix CLAUDE.md` and skip field/tag validation. Otherwise: all frontmatter fields declared in the vault's CLAUDE.md schema are present. Apply per-type requirement rules: if CLAUDE.md marks a field as required only on certain `type` values (e.g. `roles:` required on topic pages but optional on digest artifacts), enforce accordingly. Use the exact field name declared in CLAUDE.md for the domain/topic-tag field — if the vault declares `topics:`, check `topics:`, not `tags:`. Verify the domain tag declared as the fixed first entry in that field is present on every page.
-- `last_updated` matches today's date.
-- `type` is one of: `topic`, `entity`, `digest`.
+- `last_updated` is on or after the page's ingestion date (the date of the chapter's ingest log entry) — review may legitimately run the day after synthesis, so a later date is not a failure.
+- `type` is one of the values declared in the vault's CLAUDE.md frontmatter schema (loaded in Phase 1 step 1) — do not validate against a hardcoded list.
 
 ### Check 7 — Index and log consistency
 
@@ -126,7 +132,7 @@ For every created or modified page, verify:
 
 **Target error classes:** misattribution (a claim attributed to the wrong source or person), unsourced derivation/calculation (a specific figure, year, or calculation not present in the source text), and silent omission (a source section or framework-qualifying caveat absent from the wiki with no negative-space rejection entry).
 
-**Scope:** Check 8 is a textual and structural fidelity check — does the wiki page accurately reproduce what the cited PDF page says? It deliberately does NOT verify algebraic correctness of formulas (boundary conditions, parent-equation satisfaction, derivation correctness). Algebraic self-checks are a synthesis-time discipline in book-ingestion-skill.md Phase 3 (Theory-heavy chapters). Do not re-derive formulas independently during review — the reviewer is a fidelity auditor, not a re-derivation agent.
+**Scope:** Check 8 is a textual and structural fidelity check — does the wiki page accurately reproduce what the cited PDF page says? It deliberately does NOT verify algebraic correctness of formulas (boundary conditions, parent-equation satisfaction, derivation correctness). Algebraic self-checks are a synthesis-time discipline in the book-ingestion skill's Phase 3 (Theory-heavy chapters). Do not re-derive formulas independently during review — the reviewer is a fidelity auditor, not a re-derivation agent.
 
 This check runs in three required parts. A Check 8 report that omits the Reverse omission sweep subsection is itself a rubric violation.
 
@@ -161,10 +167,10 @@ Note: these thresholds are stricter than pre-edit digests (which rated this fiel
 
 ### Check 9 — Synthesis-strategy declaration *(pass/fail)*
 
-- Locate the book's protocol report: `<vault>/wiki/digests/ingest-report-<book-slug>-*.md`.
-- If no protocol report exists yet (book still in progress), mark this check **N/A — SKIP**.
-- If the protocol report exists: for every chapter row in the Scope table, verify a synthesis strategy is declared (e.g. 'full synthesis', 'principles + decision criteria', 'enrichment only').
-- **FAIL** if any chapter row has no declared strategy.
+- Locate the approved plan: `raw-input/books/<book-slug>/ingestion-plan.md` (it exists from batch 1). Read its `## Batches` table.
+- For every batch row, verify a synthesis strategy is declared in the `Synthesis strategy` column (e.g. 'full synthesis', 'principles + decision criteria', 'enrichment only'). In particular, confirm the batch covering this chapter declares a strategy.
+- If the plan file is missing, fall back to the book's protocol report `<vault>/wiki/digests/ingest-report-<book-slug>-*.md` and verify a declared strategy for every chapter row in its Scope table. If neither the plan nor a protocol report exists, mark this check **N/A — SKIP**.
+- **FAIL** if the applicable row has no declared strategy.
 - The reviewer checks declaration only — never whether the strategy was the correct one.
 
 ### Check 10 — Notation hygiene application *(conditional)*
@@ -181,7 +187,7 @@ For each in-scope page, run three sub-checks:
 
 (b) **Self-consistency artifacts on multi-line formulas.** For any multi-line printed formula on the page (nested fractions, ODE solutions, derivation chains spanning multiple lines):
 
-  - **FAIL** if a "transcription uncertain — awaiting human verification" flag is present at the top of the page. Per book-ingestion-skill.md Phase 3 Theory-heavy chapters, that flag means the page should not have been committed at all; its presence on a page that reached review is a hard violation of the synthesis-time halt rule.
+  - **FAIL** if a "transcription uncertain — awaiting human verification" flag is present at the top of the page. Per the book-ingestion skill's Phase 3 Theory-heavy chapters, that flag means the page should not have been committed at all; its presence on a page that reached review is a hard violation of the synthesis-time halt rule.
   - **WARN** if no such flag is present AND no self-consistency footnote is present near the formula. Synthesis discipline not visibly applied — the algebraic check may or may not have been done, but no evidence remains.
   - **PASS** if a self-consistency footnote is present recording the algebraic check done at ingestion time.
 
@@ -192,7 +198,7 @@ For each in-scope page, run three sub-checks:
 - **WARN** for any unresolved (a), (b)-mid, or (c) finding.
 - **PASS** if all applicable sub-checks pass or are inapplicable (e.g. no multi-line formulas on the page → (b) is N/A).
 
-**Scope reminder.** This check verifies the discipline was applied — i.e., artifacts are present. It does NOT verify the underlying algebra. Algebraic correctness is a synthesis-time discipline (see book-ingestion-skill.md Phase 3 Theory-heavy chapters); the reviewer is a fidelity auditor, not a re-derivation agent (see Check 8 scope note).
+**Scope reminder.** This check verifies the discipline was applied — i.e., artifacts are present. It does NOT verify the underlying algebra. Algebraic correctness is a synthesis-time discipline (see the book-ingestion skill's Phase 3 Theory-heavy chapters); the reviewer is a fidelity auditor, not a re-derivation agent (see Check 8 scope note).
 
 ### Compression-ratio diagnostic *(informational — not scored)*
 

@@ -42,7 +42,7 @@ Resolve the vault path from the user's working context:
 
 Before running the script (which writes a digest report and modifies `log.md`), confirm with the user:
 
-1. Read just the first ~20 lines of `<vault>/CLAUDE.md` to extract the `vault_slug:` value. Do not read further; the script will read everything it needs itself.
+1. Grep `<vault>/CLAUDE.md` for the `vault_slug:` line to extract the `vault_slug:` value (it lives in the VAULT-LINT-EXTENSIONS block). Do not read further; the script will read everything it needs itself.
 2. Ask the user: "Lint the `<vault_slug>` vault? This writes a digest to `wiki/digests/lint-YYYY-MM-DD.md` and appends a log entry. (proceed / cancel)"
 3. Wait for explicit confirmation. Anything other than an affirmative ("proceed", "yes", "go ahead") cancels.
 
