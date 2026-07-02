@@ -10,6 +10,11 @@ To instantiate for a new vault:
   2. Replace {{VAULT_PATH}} with the absolute path to the vault root
      (e.g. /Users/<username>/vaults/<vault-slug>). launchd does not
      expand ~ or $HOME — the path must be literal.
+  2b. Replace {{CLAUDE_BIN}} with the absolute path to the claude
+     binary — the output of `which claude`. It varies by install:
+     /opt/homebrew/bin/claude (Apple Silicon Homebrew),
+     /usr/local/bin/claude (Intel Homebrew), or an npm global bin.
+     launchd jobs get a minimal PATH, so the path must be absolute.
   3. Optionally adjust StartCalendarInterval > Hour if you want this
      vault's job to fire at a different time of day. Default 08:00.
   4. Replace {{INTAKE_DIR}} with the absolute path to the intake
@@ -51,7 +56,7 @@ zsh, so the actual shell command is identical either way.
     <array>
         <string>/bin/zsh</string>
         <string>-c</string>
-        <string>cd {{VAULT_PATH}} &amp;&amp; /opt/homebrew/bin/claude -p "Run scheduled-operations workflow as defined in CLAUDE.md. Apply the 5-day guard." --permission-mode bypassPermissions --add-dir {{INTAKE_DIR}}</string>
+        <string>cd {{VAULT_PATH}} &amp;&amp; {{CLAUDE_BIN}} -p "Run scheduled-operations workflow as defined in CLAUDE.md. Apply the 5-day guard." --permission-mode bypassPermissions --add-dir {{INTAKE_DIR}}</string>
     </array>
 
     <key>StartCalendarInterval</key>

@@ -26,11 +26,19 @@ force=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --subs) subs="$2"; shift 2 ;;
-    --dest) dest="$2"; shift 2 ;;
-    --template) template="$2"; shift 2 ;;
+    --subs)
+      [ $# -ge 2 ] || { echo "ERROR: --subs needs a value" >&2; exit 2; }
+      subs="$2"; shift 2 ;;
+    --dest)
+      [ $# -ge 2 ] || { echo "ERROR: --dest needs a value" >&2; exit 2; }
+      dest="$2"; shift 2 ;;
+    --template)
+      [ $# -ge 2 ] || { echo "ERROR: --template needs a value" >&2; exit 2; }
+      template="$2"; shift 2 ;;
     --force) force=1; shift ;;
-    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    # Print the header comment block (everything between the shebang and the
+    # first non-comment line) so editing the header can't garble the help text.
+    -h|--help) awk 'NR == 1 { next } /^#/ { print; next } { exit }' "$0"; exit 0 ;;
     *) echo "ERROR: unknown argument: $1" >&2; exit 2 ;;
   esac
 done
