@@ -15,6 +15,7 @@ from conftest import (
     make_pages,
     minimal_claude_md,
     run_lint,
+    run_sync,
 )
 
 # ===========================================================================
@@ -332,28 +333,66 @@ def test_check_3a_dangling():
 
 
 def test_check_3b_clean():
-    pages, slug_index = make_pages(
+    pages, _ = make_pages(
         {
             'wiki/topics/a.md': '# A\nNothing bold here.\n',
         }
     )
-    res = lint.check_3_pass_b(pages, slug_index)
+    res = lint.check_3_pass_b(pages)
     assert res['candidates'] == {}
 
 
 def test_check_3b_candidate():
     # A bold term appearing on >=3 pages, not a stoplist word, not canonical.
     term = '**Widget Framework**'
-    pages, slug_index = make_pages(
+    pages, _ = make_pages(
         {
             'wiki/topics/a.md': f'# A\n{term} matters.\n',
             'wiki/topics/b.md': f'# B\n{term} matters.\n',
             'wiki/topics/c.md': f'# C\n{term} matters.\n',
         }
     )
-    res = lint.check_3_pass_b(pages, slug_index)
+    res = lint.check_3_pass_b(pages)
     assert 'Widget Framework' in res['candidates']
     assert len(res['candidates']['Widget Framework']) == 3
+
+
+# --- check_3_pass_b guardrails (English-word + formatting-fragment) ---------
+
+
+def _bold_on_three_pages(*terms):
+    """Three pages each carrying every given bold span in the body."""
+    body = ' and '.join(f'**{t}**' for t in terms)
+    return make_pages(
+        {f'wiki/topics/p{i}.md': f'# P{i}\nSome prose with {body} inline.\n' for i in range(3)}
+    )[0]
+
+
+def test_check_3b_domain_phrase_survives_guardrail():
+    # Token-level AND: 'cost of equity' contains the stopword 'of', but 'cost'
+    # and 'equity' are not guardrail words, so the phrase survives and a
+    # genuine repeated un-paged concept term IS flagged.
+    pages = _bold_on_three_pages('cost of equity')
+    res = lint.check_3_pass_b(pages)
+    assert 'cost of equity' in res['candidates']
+    assert len(res['candidates']['cost of equity']) == 3
+
+
+def test_check_3b_english_word_emphasis_suppressed():
+    # Every alpha token in the guardrail union -> emphasis, not a concept:
+    # 'greater of' (both function words) and 'rises' (generic emphasis verb).
+    pages = _bold_on_three_pages('greater of', 'rises')
+    res = lint.check_3_pass_b(pages)
+    assert res['candidates'] == {}
+
+
+def test_check_3b_formatting_fragments_suppressed():
+    # Trailing sentence punctuation marks a label ('Key point.'), and a bold
+    # span embedding a wikilink is a structural construct — both filtered even
+    # when repeated on >=3 pages.
+    pages = _bold_on_three_pages('Key point.', 'Merged into [[alpha]]')
+    res = lint.check_3_pass_b(pages)
+    assert res['candidates'] == {}
 
 
 # --- check_4_cross_refs ----------------------------------------------------
@@ -618,6 +657,18 @@ def test_check_7_open_question():
     assert len(res['open_questions']) == 1
 
 
+def test_check_7_bare_bracket_close_not_flagged():
+    # Regression (B1): the marker regex was '\[?\?\]' — the '[' was optional —
+    # so a bare '?]' in prose false-positived as a [?] gap marker.
+    pages, _ = make_pages(
+        {
+            'wiki/topics/a.md': frontmatter(title='A') + '\nprose (see fig 3?] and more prose\n',
+        }
+    )
+    res = lint.check_7_data_gaps(pages)
+    assert res['open_questions'] == []
+
+
 # ===========================================================================
 # 3. PHASE 2 — ROLE-COUNT DRIFT
 # ===========================================================================
@@ -641,6 +692,72 @@ def test_parse_index_role_counts_unknown():
     reported, fmt, lines = lint._parse_index_role_counts('# Index\nno role surface\n', canonical)
     assert fmt == 'unknown'
     assert reported == {'alpha': 0}
+
+
+def test_parse_index_role_counts_table_exact_cell_match():
+    # Regression (B3): substring matching attributed a 'beta-blocker studies'
+    # row to canonical role 'beta', and 'alpha' (a prefix of 'alpha-prime')
+    # hijacked the alpha-prime row via first-match-wins. Matching is now exact
+    # on the normalized first-cell text.
+    canonical = ['alpha', 'alpha-prime', 'beta']
+    index = (
+        '# Index\n\n'
+        '## Role counts\n\n'
+        '| Role | Pages | Notes |\n'
+        '|---|---|---|\n'
+        '| alpha | 3 | core |\n'
+        '| alpha-prime | 4 | spinoff |\n'
+        '| beta | 5 | second |\n'
+        '| beta-blocker studies | 7 | not a role |\n'
+    )
+    reported, fmt, _ = lint._parse_index_role_counts(index, canonical)
+    assert fmt == 'table'
+    assert reported == {'alpha': 3, 'alpha-prime': 4, 'beta': 5}
+
+
+def test_parse_index_role_counts_table_link_anchor_preferred():
+    # A role-<id>.md link in the row resolves the role exactly (same anchor
+    # the list format keys on), even when the display text is a free label.
+    canonical = ['beta']
+    index = (
+        '# Index\n\n'
+        '## Roles\n\n'
+        '| Map | Pages |\n'
+        '|---|---|\n'
+        '| [Beta — Reviewer Guide](topics/role-beta.md) | 9 |\n'
+    )
+    reported, fmt, _ = lint._parse_index_role_counts(index, canonical)
+    assert fmt == 'table'
+    assert reported == {'beta': 9}
+
+
+def test_rewrite_role_section_table_edits_count_cell_only():
+    # Regression (B4): the patch used re.sub over the whole row, replacing the
+    # first occurrence of the old count anywhere — digits in an earlier cell
+    # (here the link text 'top 12') were edited instead of the count cell.
+    lines = [
+        '## Role counts',
+        '',
+        '| Role | Pages | Notes |',
+        '|---|---|---|',
+        '| beta | 12 findings from 12 sources | 12 |',
+        '| [Alpha — top 12](topics/role-alpha.md) | 12 | 12 charts |',
+    ]
+    p2 = {'actual': {'alpha': 15, 'beta': 15}, 'reported': {'alpha': 12, 'beta': 12}}
+    out = lint._rewrite_role_section(lines, 0, len(lines), 'table', p2)
+    assert out[:4] == lines[:4]  # heading/blank/header/separator untouched
+    assert out[4] == '| beta | 15 findings from 12 sources | 12 |'
+    assert out[5] == '| [Alpha — top 12](topics/role-alpha.md) | 15 | 12 charts |'
+
+
+def test_rewrite_role_section_table_missing_reported_left_unpatched():
+    # Explicit fail-safe (replaces the accidental "\b-999\b never matches"
+    # sentinel): when the detector parsed no reported count for a matched
+    # role, the row is left byte-identical rather than guess-edited.
+    lines = ['| beta | 12 |']
+    p2 = {'actual': {'beta': 15}, 'reported': {}}
+    out = lint._rewrite_role_section(lines, 0, 1, 'table', p2)
+    assert out == ['| beta | 12 |']
 
 
 def test_phase_2_role_drift_skipped(tmp_path):
@@ -680,6 +797,157 @@ def test_parse_frontmatter_roles_inline():
 
 def test_parse_frontmatter_roles_absent():
     assert lint._parse_frontmatter_roles('---\ntitle: X\n---\n') is None
+
+
+# ===========================================================================
+# 3b. PHASE 2B — ROLE-MOC CURATION (advisory)
+# ===========================================================================
+
+
+def test_phase_2b_promotes_central_omitted_page():
+    # 'high' bears role alpha with 3 inbound links but the alpha MoC curates
+    # only 'low' (1 inbound) -> 'high' out-ranks the curated page and is a
+    # promotion candidate. 'stray' is MoC-linked but bears role beta -> stale.
+    pages, slug_index = make_pages(
+        {
+            'wiki/topics/role-alpha.md': '# Role — Alpha\n[[low]] [[stray]]\n',
+            'wiki/topics/low.md': frontmatter(title='Low', roles=['alpha']) + '# Low\n',
+            'wiki/topics/high.md': frontmatter(title='High', roles=['alpha']) + '# High\n',
+            'wiki/topics/stray.md': frontmatter(title='Stray', roles=['beta']) + '# Stray\n',
+            'wiki/topics/l1.md': frontmatter(title='L1', roles=['beta']) + '[[high]]\n',
+            'wiki/topics/l2.md': frontmatter(title='L2', roles=['beta']) + '[[high]]\n',
+            'wiki/topics/l3.md': frontmatter(title='L3', roles=['beta']) + '[[high]]\n',
+        }
+    )
+    res = lint.phase_2b_role_moc_curation(pages, slug_index, ['alpha', 'beta'])
+    r = res['alpha']
+    assert r['missing_moc'] is False
+    assert r['moc_relpath'] == 'wiki/topics/role-alpha.md'
+    assert r['role_total'] == 2 and r['curated_n'] == 1 and r['floor'] == 1
+    assert [c['slug'] for c in r['promote']] == ['high']
+    cand = r['promote'][0]
+    assert cand['inbound'] == 3
+    assert cand['curated_in'] == []  # not reachable via any other role MoC
+    assert cand['roles'] == ['alpha']
+    assert r['stale'] == ['stray']
+    # No role-beta.md MoC exists -> role skipped with missing_moc.
+    assert res['beta'] == {'missing_moc': True}
+
+
+def test_phase_2b_curated_page_is_not_a_candidate():
+    # The MoC already curates the most-central role page -> nothing to promote.
+    pages, slug_index = make_pages(
+        {
+            'wiki/topics/role-alpha.md': '# Role — Alpha\n[[high]]\n',
+            'wiki/topics/high.md': frontmatter(title='High', roles=['alpha']) + '# High\n',
+            'wiki/topics/low.md': frontmatter(title='Low', roles=['alpha']) + '# Low\n[[high]]\n',
+        }
+    )
+    res = lint.phase_2b_role_moc_curation(pages, slug_index, ['alpha'])
+    r = res['alpha']
+    assert r['promote'] == [] and r['promote_total'] == 0
+    assert r['stale'] == []
+
+
+def test_phase_2b_promote_order_deterministic():
+    # Two equally-central omitted pages: ranked by (-inbound, slug), so the
+    # candidate list orders alphabetically on the tie — stable run-to-run.
+    pages, slug_index = make_pages(
+        {
+            'wiki/topics/role-alpha.md': '# Role — Alpha\n[[c1]] [[c2]]\n',
+            'wiki/topics/c1.md': frontmatter(title='C1', roles=['alpha']) + '# C1\n',
+            'wiki/topics/c2.md': frontmatter(title='C2', roles=['alpha']) + '# C2\n',
+            'wiki/topics/aa.md': frontmatter(title='AA', roles=['alpha']) + '# AA\n',
+            'wiki/topics/zz.md': frontmatter(title='ZZ', roles=['alpha']) + '# ZZ\n',
+            'wiki/topics/x1.md': frontmatter(title='X1', roles=['alpha']) + '[[aa]] [[zz]]\n',
+            'wiki/topics/x2.md': frontmatter(title='X2', roles=['alpha']) + '[[aa]] [[zz]]\n',
+        }
+    )
+    res = lint.phase_2b_role_moc_curation(pages, slug_index, ['alpha'])
+    assert [c['slug'] for c in res['alpha']['promote']] == ['aa', 'zz']
+
+
+# ===========================================================================
+# 3c. SYNC-ROLE-COUNTS (--sync-role-counts CLI mode — the only vault mutator)
+# ===========================================================================
+
+
+def _sync_topic_pages():
+    """Two alpha pages, one beta page -> actual counts alpha=2, beta=1."""
+    return {
+        'a': frontmatter(title='A', roles=['alpha']) + '# A\n',
+        'b': frontmatter(title='B', roles=['alpha']) + '# B\n',
+        'c': frontmatter(title='C', roles=['beta']) + '# C\n',
+    }
+
+
+def test_sync_role_counts_list_rewrites_drift_and_is_idempotent(tmp_path):
+    index = (
+        '# Index\n\n'
+        '## Role Maps of Content\n\n'
+        '- [Role — Alpha](topics/role-alpha.md) — 5 pages; alpha desc\n'
+        '- [Role — Beta](topics/role-beta.md) — 1 pages; beta desc\n'
+    )
+    vault = build_vault(tmp_path, topic_pages=_sync_topic_pages(), index_md=index)
+    proc = run_sync(vault)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert 'wiki/index.md updated' in proc.stdout
+    text = (vault / 'wiki' / 'index.md').read_text(encoding='utf-8')
+    assert '- [Role — Alpha](topics/role-alpha.md) — 2 pages; alpha desc' in text
+    assert '- [Role — Beta](topics/role-beta.md) — 1 pages; beta desc' in text
+    # Idempotent: a second run finds no drift and writes nothing.
+    proc2 = run_sync(vault)
+    assert proc2.returncode == 0, proc2.stdout + proc2.stderr
+    assert 'already in sync' in proc2.stdout
+    assert (vault / 'wiki' / 'index.md').read_text(encoding='utf-8') == text
+
+
+def test_sync_role_counts_no_drift_leaves_file_untouched(tmp_path):
+    index = (
+        '# Index\n\n'
+        '## Role Maps of Content\n\n'
+        '- [Role — Alpha](topics/role-alpha.md) — 2 pages; alpha desc\n'
+        '- [Role — Beta](topics/role-beta.md) — 1 pages; beta desc\n'
+    )
+    vault = build_vault(tmp_path, topic_pages=_sync_topic_pages(), index_md=index)
+    proc = run_sync(vault)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert 'already in sync' in proc.stdout
+    assert (vault / 'wiki' / 'index.md').read_text(encoding='utf-8') == index  # byte-identical
+
+
+def test_sync_role_counts_table_rewrites_only_count_cell(tmp_path):
+    # Table format end-to-end through the CLI: rows resolve by exact cell
+    # match (B3) and only the count cell is rewritten — the '9' in the Notes
+    # cell survives (B4).
+    index = (
+        '# Index\n\n'
+        '## Role counts\n\n'
+        '| Role | Pages | Notes |\n'
+        '|---|---|---|\n'
+        '| alpha | 9 | intro |\n'
+        '| beta | 9 | 9 charts |\n'
+    )
+    vault = build_vault(tmp_path, topic_pages=_sync_topic_pages(), index_md=index)
+    proc = run_sync(vault)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    text = (vault / 'wiki' / 'index.md').read_text(encoding='utf-8')
+    assert '| alpha | 2 | intro |' in text
+    assert '| beta | 1 | 9 charts |' in text
+    # Idempotent: second run is a no-op.
+    proc2 = run_sync(vault)
+    assert proc2.returncode == 0, proc2.stdout + proc2.stderr
+    assert 'already in sync' in proc2.stdout
+    assert (vault / 'wiki' / 'index.md').read_text(encoding='utf-8') == text
+
+
+def test_sync_role_counts_no_surface_exit_2(tmp_path):
+    vault = build_vault(tmp_path, topic_pages=_sync_topic_pages(), index_md='# Index\nno roles\n')
+    proc = run_sync(vault)
+    assert proc.returncode == 2, proc.stdout + proc.stderr
+    assert 'nothing synced' in proc.stderr
+    # The file was not touched.
+    assert (vault / 'wiki' / 'index.md').read_text(encoding='utf-8') == '# Index\nno roles\n'
 
 
 # ===========================================================================
@@ -751,6 +1019,23 @@ def test_e2e_no_vault_slug_exit_2(tmp_path):
     result = run_lint(vault)
     assert result.returncode == 2, result.stdout + result.stderr
     assert 'vault_slug not found' in result.stderr
+
+
+def test_e2e_crash_exits_2_not_1(tmp_path):
+    # Exit-code contract (B2): 2 = script crash; 1 is reserved for the Phase
+    # 2.5 FATAL. A vault whose wiki/log.md is a directory crashes
+    # append_log_entry (IsADirectoryError) deep in the run — before the
+    # top-level guard, that unhandled exception exited 1.
+    vault = build_vault(
+        tmp_path,
+        topic_pages={'a': frontmatter(title='A', roles=['alpha']) + '# A\n'},
+    )
+    log = vault / 'wiki' / 'log.md'
+    log.unlink()
+    log.mkdir()
+    result = run_lint(vault)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert 'Traceback' in result.stderr
 
 
 def test_e2e_minimal_valid_vault_exit_0(tmp_path):

@@ -149,3 +149,13 @@ def run_lint(vault_path):
         text=True,
         cwd=str(REPO_ROOT),
     )
+
+
+def run_sync(vault_path):
+    """Invoke lint.py --sync-role-counts as a subprocess; return CompletedProcess."""
+    return subprocess.run(
+        [sys.executable, str(SCRIPT_PATH), '--sync-role-counts', str(vault_path)],
+        capture_output=True,
+        text=True,
+        cwd=str(REPO_ROOT),
+    )
