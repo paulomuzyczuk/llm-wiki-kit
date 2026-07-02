@@ -87,7 +87,15 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   Condition A is genuinely context-free and the orchestrating session never
   answers or scores anything itself); scoring is blind — a fixed frontier-tier
   judge subprocess sees shuffled, unlabeled answers, with per-question permutations
-  recorded for audit; the 10-question minimal version is now the mandatory first
+  recorded for audit. Verdicts are **position-swapped pairwise** (two judge calls
+  per question, reversed presentation; disagreement = tie) with per-pair win rates
+  gated by a sign-test significance table as the headline metric — rubric scores
+  remain as diagnostics. Every cell runs `--output-format json` and records
+  tokens/cost/duration, feeding a report Efficiency section (vault lift per 1k
+  context tokens, quality per dollar, measured cost substitution). Golden sets add
+  Type 4 **abstention controls** drawn from `gaps.md`/negative-space records —
+  Condition C must decline at the vault's coverage boundary rather than
+  hallucinate. The 10-question minimal version is now the mandatory first
   gate and every run states its exact subprocess call count at a confirmation gate;
   eval digests carry vault frontmatter and each completed run appends an
   `eval | <vault-slug> | …` log entry; Condition C falls back to `index.md` + topic

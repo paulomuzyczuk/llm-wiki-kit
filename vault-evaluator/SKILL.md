@@ -35,11 +35,14 @@ These rules are what make the numbers mean anything. Do not relax them.
 1. **Every question × condition × model cell is one fresh headless subprocess:**
 
    ```sh
-   cd "$EVAL_RUN_DIR" && claude -p --model <model> < cell-prompt.md > cell-answer.md
+   cd "$EVAL_RUN_DIR" && claude -p --model <model> --output-format json < cell-prompt.md > cell-result.json
    ```
 
    Pass the prompt on **stdin** as above, never as a shell argument — golden-set
-   questions and pasted context contain quotes.
+   questions and pasted context contain quotes. Parse the answer text from the
+   JSON `result` field, and record the cell's `usage` token counts,
+   `total_cost_usd`, and `duration_ms` — the efficiency analysis in Phase 5
+   needs them for every cell.
 
 2. **`EVAL_RUN_DIR` is a temp directory (`mktemp -d`) outside the vault.** Running
    `claude -p` from inside the vault auto-loads the vault's `CLAUDE.md` into the
@@ -57,9 +60,9 @@ These rules are what make the numbers mean anything. Do not relax them.
 
 5. **Cost gate.** Before launching any subprocess, state the exact call count for the
    requested run (answer cells + judge calls — e.g. the minimal version is 30 calls;
-   a full 30-question × 3-condition × 3-model matrix is 270 answer calls + 90 judge
-   calls) and get explicit confirmation. Each call is a full headless session billed
-   to the user's account.
+   a full single-model run is 98 answer cells + 64 judge calls; the 3-model matrix
+   is 294 answer cells + 192 judge calls) and get explicit confirmation. Each call
+   is a full headless session billed to the user's account.
 
 6. **Failure handling.** A cell whose subprocess exits non-zero or returns empty
    output is retried once; on a second failure, record the cell as `FAILED` in the
@@ -90,8 +93,9 @@ synthesis pages shouldn't lose factual fidelity). C > B on applied judgment ques
 
 ## Question taxonomy
 
-Every golden set must contain all three question types in roughly this ratio:
-20% factual, 40% cross-source synthesis, 40% applied judgment.
+Every golden set must contain all three scored question types in roughly this
+ratio — 20% factual, 40% cross-source synthesis, 40% applied judgment — plus a
+small set of separately-tracked abstention controls (Type 4).
 
 ### Type 1 — Single-source factual (20%)
 Tests basic information retrieval and fidelity. Should be easy for conditions B and C;
@@ -127,12 +131,30 @@ Evaluation: whether the answer draws on the right concepts, applies them correct
 to the novel scenario, and surfaces the relevant trade-offs without hallucinating
 constraints the sources don't mention.
 
+### Type 4 — Abstention controls (unscored; tracked separately)
+Tests the property this vault system uniquely claims: negative-space honesty.
+Questions on topics *adjacent to* the corpus that the vault deliberately does not
+cover — drawn from `wiki/gaps.md` §2 and the pages' Negative Space records. A good
+Condition C answer says the vault doesn't cover this (ideally citing the exclusion
+record) instead of producing a fluent hallucination.
+
+Example (for a software-craft vault that excludes people management):
+*"According to this vault, what's the recommended approach to compensation
+bands for open source maintainers?"*
+
+Evaluation: classification, not scoring — ABSTAINED / HEDGED / ANSWERED (see
+Phase 3). These questions never enter the win-rate or average computations.
+
 ---
 
 ## Phase 1 — Build the golden set
 
 Read `wiki/index.md` to survey the vault's full topic coverage. Build a golden set
-of 30 questions (6 factual, 12 cross-source synthesis, 12 applied judgment) that:
+of 30 scored questions (6 factual, 12 cross-source synthesis, 12 applied judgment)
+plus 4 abstention controls (Type 4, sourced from `wiki/gaps.md` §2 and
+Negative Space records — their rubric states the expected coverage boundary and,
+where one exists, the exclusion record a good answer should cite). The 30 scored
+questions must:
 
 1. Span the full corpus — don't cluster around one book
 2. Include at least 5 cross-book synthesis questions that explicitly require
@@ -195,6 +217,9 @@ Paste the role MoC for the most relevant role plus the specific topic pages
 identified in the rubric. Do not paste raw source pages. If the vault has no role
 MoCs, paste `wiki/index.md` plus the rubric's topic pages instead.
 
+**Abstention controls** run conditions A and C only — B has no meaningful
+raw-source context for a question the corpus deliberately doesn't cover.
+
 **Context loading discipline:** Conditions B and C must load the same *volume* of
 context (approximately equal token counts — estimate as characters ÷ 4, the same
 method book-planner uses) so the comparison is fair. If condition B would load
@@ -207,11 +232,12 @@ Write all answers to `wiki/digests/eval-answers-<YYYY-MM-DD>.md` in this structu
 
 ```
 ## Q{N}: {question text}
-**Type:** factual | cross-source | applied
+**Type:** factual | cross-source | applied | abstention-control
 **Condition A:** {answer}
 **Condition B:** {answer}
 **Condition C:** {answer}
 **Context tokens — B:** {count} · **C:** {count}
+**Cell usage:** per condition — in/out tokens, USD, ms (from the cell JSON)
 ```
 
 ---
@@ -226,21 +252,35 @@ scores would be self-graded.
 regardless of which model produced the answers. A per-row judge would confound
 answerer capability with judge capability in the cross-model matrix.
 
-**Blinding procedure, per question:**
+**Position-swapped pairwise judging, per scored question — two judge calls:**
+
+LLM judges are more reliable at comparison than at absolute scoring, and they
+carry position bias (favoring the answer shown first). Both calls use an
+identical prompt except the answers are presented in **reverse order** in the
+second call; blind shuffling alone does not cancel position bias — the swap does.
 
 1. Shuffle the three answers into an arbitrary order (vary the permutation across
    questions; record each permutation — it is unblinded in step 5).
 2. Build the judge prompt: the question, its golden-set rubric, and the three
    answers labeled only **Answer 1 / Answer 2 / Answer 3**. No condition names, no
-   words like "vault", "wiki", or "source" in the labels or framing.
-3. One fresh judge subprocess per question (same stdin/temp-dir rules as Phase 2).
-   Instruct the judge to score each answer on each dimension of the rubric table
-   below (1–5) with a one-line justification, in a fixed per-answer block so the
-   output is mechanically parseable.
-4. If the judge output is unparseable, re-run the judge once; on a second failure
-   mark the question `JUDGE-FAILED` and exclude it from averages (report it).
-5. Unblind using the recorded permutation. Apply the N/A and weighting rules below
-   mechanically — the judge scores dimensions; the orchestrator applies policy.
+   words like "vault", "wiki", or "source" in the labels or framing. Instruct the
+   judge to produce, in a fixed mechanically-parseable block: (a) a 1–5 score per
+   rubric dimension per answer, and (b) a strict best-to-worst **ranking** with a
+   one-line justification.
+3. Run the judge twice (fresh subprocess each time, same stdin/temp-dir rules as
+   Phase 2): once with the shuffled order, once with that order reversed.
+4. If a judge output is unparseable, re-run that call once; on a second failure
+   mark the question `JUDGE-FAILED` and exclude it from win rates and averages
+   (report it).
+5. Unblind and derive, per question:
+   - **Pairwise verdicts** (C vs B, C vs A, B vs A): a pair's verdict is the
+     relation the two orderings agree on; if the orderings disagree, the pair is
+     a **tie** — that disagreement is position bias, not signal.
+   - **Diagnostic scores**: the mean of the two calls' rubric scores, with the
+     N/A and weighting rules below applied mechanically by the orchestrator —
+     the judge scores dimensions; the orchestrator applies policy.
+
+The rubric dimensions the judge scores:
 
 | Dimension | 1 | 3 | 5 |
 |---|---|---|---|
@@ -252,13 +292,35 @@ Factual questions: score only accuracy (synthesis depth and actionability N/A).
 Synthesis questions: score all three dimensions.
 Applied judgment questions: score all three dimensions, weight actionability 2×.
 
-For each question, also record a binary **vault advantage** flag:
-- `C > B`: vault condition meaningfully outperformed raw source condition
-- `C ≈ B`: roughly equivalent
-- `C < B`: raw source outperformed vault (flag for investigation)
+**Headline metric — win rates with a significance gate.** For each pair (C vs B
+is the one that matters most), report wins–losses–ties across questions, overall
+and per question type. Excluding ties, a win count is **significant (two-sided
+p < 0.05, sign test)** only at or above these thresholds:
+
+| n (non-tied questions) | 10 | 12 | 15 | 20 | 25 | 30 |
+|---|---|---|---|---|---|---|
+| wins needed | 9 | 10 | 12 | 15 | 18 | 21 |
+
+(For other n, compute the exact binomial or use the nearest larger threshold.)
+Below the threshold, report the direction but call it what it is: not
+statistically distinguishable from noise at this sample size. Never present a
+sub-threshold average delta as a finding.
+
+**Abstention controls — one judge call per control:** present the question, the
+expected coverage boundary from its rubric, and the A and C answers (shuffled,
+labeled Answer 1 / Answer 2). The judge classifies each answer as **ABSTAINED**
+(declines and names the coverage boundary), **HEDGED** (partially answers with
+caveats), or **ANSWERED** (confident specifics). Unblind: C passes only on
+ABSTAINED — ideally citing the vault's gap or negative-space record; ANSWERED is
+a hallucination failure. Comparing A's and C's classifications shows whether
+vault context makes the model *more* honest than its bare baseline.
+
+The per-question **vault advantage** flag is the C-vs-B pairwise verdict:
+win = `C > B`, tie = `C ≈ B`, loss = `C < B` (losses get diagnosed in Phase 5).
 
 Write scores to `wiki/digests/eval-scores-<YYYY-MM-DD>.md`, including each
-question's blinding permutation so the run is auditable.
+question's blinding permutation, both orderings' rankings, and the derived
+pairwise verdicts, so the run is auditable end to end.
 
 ---
 
@@ -297,7 +359,13 @@ across all models.
 
 Write `wiki/digests/eval-report-<YYYY-MM-DD>.md` containing:
 
-### Summary table
+### Headline: win rates
+Lead with the pairwise results, not averages — per model, per pair (C vs B
+foremost), wins–losses–ties overall and by question type, each marked
+**significant** or **below threshold** per the Phase 3 sign-test table. A
+sub-threshold direction is reported as exactly that.
+
+### Summary table (diagnostic averages)
 ```
 | Model | Condition | Factual avg | Synthesis avg | Judgment avg | Overall |
 |---|---|---|---|---|---|
@@ -307,6 +375,22 @@ Write `wiki/digests/eval-report-<YYYY-MM-DD>.md` containing:
 | Sonnet | No context | ... | ... | ... | ... |
 ...
 ```
+
+### Efficiency
+From the per-cell usage data (Execution model rule 1):
+- **Vault lift per 1k context tokens** — score/win-rate lift of C over A, divided
+  by the context volume C paid for it, per model.
+- **Quality per dollar** — for each model × condition, average score against
+  measured `total_cost_usd`.
+- **Cost substitution** — the cheapest configuration that matches or beats the
+  frontier-model no-context row. "Mid-tier + vault ≥ frontier bare" stated as a
+  measured cost saving, or explicitly not achieved.
+
+### Abstention honesty
+Per condition (A and C), the ABSTAINED / HEDGED / ANSWERED counts on the Type 4
+controls. Any C hallucination (ANSWERED) is listed verbatim with the gap or
+negative-space record it should have cited. State whether vault context made the
+model more or less honest than its bare baseline.
 
 ### Vault advantage analysis
 - Questions where C clearly beat B (vault adds value): list them
@@ -324,10 +408,17 @@ synthesis, or absent cross-book connections.
 
 ### Interpretation
 State directly:
-1. Is the vault adding value over raw sources? (C > B on synthesis questions?)
-2. Does vault context close the gap between model tiers?
+1. Is the vault adding value over raw sources? (Significant C-over-B win rate on
+   synthesis questions?)
+2. Does vault context close the gap between model tiers, and at what measured cost?
 3. Which question types benefit most from the vault?
-4. What are the top 3 vault improvements that would most raise scores?
+4. Is the vault honest at its coverage boundary?
+5. What are the top 3 vault improvements that would most raise scores?
+
+The report must also carry a **contamination caveat**: Condition A reflects what
+the model already knows, and publicly published sources are typically in training
+data — so lift measured on a public-book vault understates what the same
+discipline yields on private or recent material. Name the sources this applies to.
 
 After writing the report, append one log entry (see Vault conventions).
 
@@ -381,7 +472,9 @@ directional signal (30 subprocess calls; state the count at the cost gate):
 2. Run conditions A and C only (skip B for speed) — 20 answer cells, same
    isolation rules as Phase 2
 3. Score with one blind judge call per question: the pair of answers in shuffled
-   order, "which answer is better and why?" — no rubric needed at this stage
+   order, "which answer is better and why?" — no rubric and no position swap at
+   this stage (directional signal only; the full run's verdicts are
+   position-swapped)
 4. If C clearly beats A on synthesis and judgment: proceed to the full evaluation
 5. If C ≈ A: investigate whether context is being assembled correctly before
    spending the full matrix
