@@ -15,7 +15,8 @@
 # Environment:
 #   CLAUDE_SKILLS_DIR            Default target dir if --dir is not given.
 #
-# Re-running install is safe: existing links are replaced, not duplicated.
+# Re-running install is safe in both modes: links are replaced, and copies
+# made by a previous --copy run are refreshed.
 
 set -euo pipefail
 
@@ -27,7 +28,9 @@ MODE="install"
 USE_COPY=0
 
 usage() {
-  sed -n '3,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  # Print the header comment block (everything between the shebang and the
+  # first non-comment line) so editing the header can't garble the help text.
+  awk 'NR == 1 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "${BASH_SOURCE[0]}"
 }
 
 while [ $# -gt 0 ]; do
@@ -89,9 +92,16 @@ for skill in "${SKILLS[@]}"; do
   src="$REPO_DIR/$skill"
   target="$SKILLS_DIR/$skill"
   if [ -e "$target" ] && [ ! -L "$target" ]; then
-    echo "error: $target exists and is not a symlink — refusing to overwrite" >&2
-    echo "       move it aside or pass --dir to use a different location." >&2
-    exit 1
+    # A real directory containing a SKILL.md at the skill's own name is a
+    # previous --copy run's output — safe to refresh. Anything else is not
+    # ours and stays untouched.
+    if [ "$USE_COPY" -eq 1 ] && [ -f "$target/SKILL.md" ]; then
+      :
+    else
+      echo "error: $target exists and is not a symlink — refusing to overwrite" >&2
+      echo "       move it aside or pass --dir to use a different location." >&2
+      exit 1
+    fi
   fi
   if [ "$USE_COPY" -eq 1 ]; then
     rm -rf "$target"

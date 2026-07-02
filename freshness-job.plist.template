@@ -9,6 +9,10 @@ See sanctioned region 6 in CLAUDE.template.md for context.
 To instantiate:
   1. Replace {{VAULT_PREFIX}} with the vault's short prefix.
   2. Replace {{VAULT_PATH}} with the absolute path to the vault root.
+  2b. Replace {{CLAUDE_BIN}} with the absolute path to the claude
+     binary — the output of `which claude` (varies by install:
+     /opt/homebrew/bin, /usr/local/bin, or an npm global bin).
+     launchd jobs get a minimal PATH, so the path must be absolute.
   3. The default StartCalendarInterval > Hour is 9, staggered one hour
      after the scheduled-operations job (default 8). This avoids a
      same-vault race on log.md between Job A and Job B. Keep them
@@ -37,7 +41,7 @@ not &&.
     <array>
         <string>/bin/zsh</string>
         <string>-c</string>
-        <string>cd {{VAULT_PATH}} &amp;&amp; /opt/homebrew/bin/claude -p "Run freshness-scan workflow as defined in CLAUDE.md. Apply the 7-day guard." --permission-mode bypassPermissions</string>
+        <string>cd {{VAULT_PATH}} &amp;&amp; {{CLAUDE_BIN}} -p "Run freshness-scan workflow as defined in CLAUDE.md. Apply the 7-day guard." --permission-mode bypassPermissions</string>
     </array>
 
     <key>StartCalendarInterval</key>
