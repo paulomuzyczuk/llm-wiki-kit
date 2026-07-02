@@ -439,7 +439,7 @@ Other conventions:
 - Topic page size: aim for 2,000–5,000 tokens per page. Pages exceeding 8,000 tokens are candidates for splitting or for aggressive negative-space review. Cross-book convergence pages may legitimately exceed this — flag them explicitly in frontmatter with a note explaining why.
 - `log.md` entries use the format:
   `## [YYYY-MM-DD] <operation> | <topic-or-{{LOG_CLASSIFIER}}> | <one-line summary>`
-  where `<operation>` is one of: `intake`, `ingest`, `book-ingest`, `query`, `distil`, `lint`, `lint-fix`, `digest`.
+  where `<operation>` is one of: `intake`, `ingest`, `book-ingest`, `query`, `distil`, `lint`, `lint-fix`, `digest`, `eval`.
 - Never delete; flag stale pages with `status: archived` in frontmatter.
 - `status: stub` — for pages created with a one-sentence definition when a concept is forward-referenced but not yet developed. Add `stub` to `topics:` tags. Flesh out when the concept is fully treated by a source.
 

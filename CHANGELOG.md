@@ -81,6 +81,19 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 
+- `vault-evaluator` redesigned from a methodology document into an executable
+  protocol. Every question × condition × model cell is now an isolated
+  `claude -p --model <id>` subprocess launched from a neutral temp cwd (so
+  Condition A is genuinely context-free and the orchestrating session never
+  answers or scores anything itself); scoring is blind — a fixed frontier-tier
+  judge subprocess sees shuffled, unlabeled answers, with per-question permutations
+  recorded for audit; the 10-question minimal version is now the mandatory first
+  gate and every run states its exact subprocess call count at a confirmation gate;
+  eval digests carry vault frontmatter and each completed run appends an
+  `eval | <vault-slug> | …` log entry; Condition C falls back to `index.md` + topic
+  pages for vaults without role MoCs; model tiers updated to current names. The
+  vault log operation enum in `CLAUDE.template.md` (and the example vault) gains
+  `eval`.
 - CI hardening: top-level read-only token `permissions`, `concurrency` cancellation
   of superseded runs, pytest pinned like ruff/bandit.
 - `.gitignore` now covers `.ruff_cache/` and `.claude/settings.local.json` (both
