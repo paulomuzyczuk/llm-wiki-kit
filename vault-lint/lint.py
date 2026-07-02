@@ -26,6 +26,7 @@ import math
 import os
 import re
 import sys
+import traceback
 import urllib.parse
 
 TODAY = datetime.date.today()
@@ -837,7 +838,7 @@ _GENERIC_EMPHASIS_WORDS = frozenset(
 _ENGLISH_GUARDRAIL = _ENGLISH_STOPWORDS | _GENERIC_EMPHASIS_WORDS
 
 
-def check_3_pass_b(pages, slug_index):
+def check_3_pass_b(pages):
     """
     Pass B: bold terms (≥3 pages) not in canonical concept set.
     Applies the full metadata-label filter chain from spec.
@@ -1274,9 +1275,11 @@ def check_7_data_gaps(pages):
 
     # Explicit gap markers only. TODO/FIXME require the colon suffix to avoid
     # matching the word as prose (e.g. "things to do" patterns in body text).
-    # [?] is the bracket-marker convention. ?? flags genuine uncertainty notation.
-    # > Q: is the explicit question-block syntax.
-    todo_pat = re.compile(r'(TODO:|FIXME:|\[?\?\]|\?\?|^> Q:)', re.MULTILINE)
+    # [?] is the bracket-marker convention — the opening bracket is mandatory:
+    # an optional '[' (the old '\[?\?\]') made bare '?]' in prose a false
+    # positive. ?? flags genuine uncertainty notation. > Q: is the explicit
+    # question-block syntax.
+    todo_pat = re.compile(r'(TODO:|FIXME:|\[\?\]|\?\?|^> Q:)', re.MULTILINE)
 
     for rp, data in pages.items():
         fm = data['fm'] or {}
@@ -1738,6 +1741,39 @@ def _median(vals):
     return (s[n // 2 - 1] + s[n // 2]) / 2 if n % 2 == 0 else s[n // 2]
 
 
+def _normalize_role_text(s):
+    """Normalize a table cell / role id for exact comparison: strip markdown
+    formatting characters, lowercase, and unify hyphens/whitespace runs."""
+    s = re.sub(r'[`*_\[\]()]', '', s)
+    s = re.sub(r'[\s\-]+', ' ', s)
+    return s.strip().lower()
+
+
+def _role_for_table_row(line, first_cell, canonical_roles):
+    """Resolve which canonical role an index-TABLE row belongs to.
+
+    Preference order:
+      1. an explicit ``role-<id>.md`` link/path anywhere in the row, matched
+         exactly against a canonical role — the same anchor the LIST format
+         keys on;
+      2. the first cell's text, normalized, compared for EXACT equality with
+         the role id (hyphens/spaces unified).
+    Never substring containment: that attributed a 'beta-blocker studies' row
+    to canonical role 'beta', and a role that is a prefix/substring of another
+    row's text hijacked that row's count (first-match-wins). Shared by the
+    Phase 2 drift detector and _rewrite_role_section so detection and patching
+    always agree. Returns the role id, or None when no role matches.
+    """
+    for m in re.finditer(r'role-([\w\-]+)\.md', line):
+        if m.group(1) in canonical_roles:
+            return m.group(1)
+    cell_norm = _normalize_role_text(first_cell)
+    for role_id in canonical_roles:
+        if cell_norm == _normalize_role_text(role_id):
+            return role_id
+    return None
+
+
 def _parse_index_role_counts(index_md_text, canonical_roles):
     """
     Detect and parse the role-page-counts surface in index.md.
@@ -1783,13 +1819,12 @@ def _parse_index_role_counts(index_md_text, canonical_roles):
             cells = [c.strip() for c in ln.split('|') if c.strip()]
             if len(cells) < 2:
                 continue
-            for role_id in canonical_roles:
-                if role_id in cells[0].lower() or role_id.replace('-', ' ') in cells[0].lower():
-                    try:
-                        reported[role_id] = int(re.search(r'\d+', cells[1]).group())
-                    except (AttributeError, ValueError):
-                        pass
-                    break
+            role_id = _role_for_table_row(ln, cells[0], canonical_roles)
+            if role_id is None:
+                continue
+            count_m = re.search(r'\d+', cells[1])
+            if count_m:
+                reported[role_id] = int(count_m.group())
         return reported, 'table', (sec_start, sec_end)
 
     return reported, 'unknown', (sec_start, sec_end)
@@ -2836,14 +2871,25 @@ def _rewrite_role_section(index_lines, sec_start, sec_end, fmt_type, p2):
             if '|' not in ln or re.match(r'^[\|\s\-:]+$', ln):
                 out.append(ln)
                 continue
-            updated = ln
-            for role_id, actual in p2['actual'].items():
-                role_disp = role_id.replace('-', ' ')
-                if role_disp.lower() in ln.lower() or role_id in ln.lower():
-                    old_count = str(p2['reported'].get(role_id, -999))
-                    updated = re.sub(r'\b' + re.escape(old_count) + r'\b', str(actual), ln, count=1)
-                    break
-            out.append(updated)
+            parts = ln.split('|')
+            content_idx = [k for k, cell in enumerate(parts) if cell.strip()]
+            if len(content_idx) < 2:
+                out.append(ln)
+                continue
+            role_id = _role_for_table_row(ln, parts[content_idx[0]].strip(), p2['actual'])
+            # Fail-safe (replaces the accidental -999 sentinel, whose \b-999\b
+            # never matched): patch only when the detector both resolved this
+            # row to a role AND parsed a reported count for it; otherwise leave
+            # the row byte-identical rather than guess which number to edit.
+            if role_id is None or p2['reported'].get(role_id) is None:
+                out.append(ln)
+                continue
+            # Rewrite the count cell — the same cell the detector reads (first
+            # number of the second content cell) — never the first numeric
+            # match anywhere in the row, which could hit an earlier cell.
+            ci = content_idx[1]
+            parts[ci] = re.sub(r'\d+', str(p2['actual'][role_id]), parts[ci], count=1)
+            out.append('|'.join(parts))
         else:
             out.append(ln)
     return out
@@ -3085,7 +3131,7 @@ def main():
     c3a = check_3_pass_a(vault_path, pages, slug_index)
     print(f'  Check 3a (dangling):    {len(c3a["dangling"])} unique dangling targets')
 
-    c3b = check_3_pass_b(pages, slug_index)
+    c3b = check_3_pass_b(pages)
     print(f'  Check 3b (bold terms):  {len(c3b["candidates"])} candidate missing pages')
 
     c4 = check_4_cross_refs(vault_path, pages)
@@ -3253,4 +3299,11 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except Exception:
+        # Exit-code contract (module docstring): 2 = script crash. Without this
+        # guard an unhandled exception exits 1 — the code reserved for a
+        # Phase 2.5 FATAL — so callers would misread a tool failure as findings.
+        traceback.print_exc()
+        sys.exit(2)
