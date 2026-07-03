@@ -176,6 +176,12 @@ def parse_claude_config(claude_md_text):
         'projects': [],
         'extension_checks': [],
         'canonical_roles': [],
+        # Domain-vocabulary knobs — empty by default; a vault that needs them
+        # declares comma-separated lists in its VAULT-LINT-EXTENSIONS block.
+        # The script itself ships no domain terms.
+        'check3b_guardrail_extra': [],
+        'check4_generic_topics': [],
+        'check5_generic_terms': [],
     }
 
     # VAULT-LINT-EXTENSIONS block
@@ -224,6 +230,10 @@ def _parse_extensions_block(text, config):
 
         if key == 'vault_slug':
             config['vault_slug'] = val or None
+            i += 1
+
+        elif key in ('check3b_guardrail_extra', 'check4_generic_topics', 'check5_generic_terms'):
+            config[key] = [t.strip().lower() for t in val.split(',') if t.strip()]
             i += 1
 
         elif key == 'freshness_model':
@@ -838,11 +848,14 @@ _GENERIC_EMPHASIS_WORDS = frozenset(
 _ENGLISH_GUARDRAIL = _ENGLISH_STOPWORDS | _GENERIC_EMPHASIS_WORDS
 
 
-def check_3_pass_b(pages):
+def check_3_pass_b(pages, guardrail_extra=()):
     """
     Pass B: bold terms (≥3 pages) not in canonical concept set.
     Applies the full metadata-label filter chain from spec.
+    `guardrail_extra` (from check3b_guardrail_extra in VAULT-LINT-EXTENSIONS)
+    extends the built-in English guardrail with vault-specific emphasis words.
     """
+    guardrail = _ENGLISH_GUARDRAIL | {str(w).lower() for w in guardrail_extra}
     # Build canonical concept set from all page titles + aliases
     canonical = set()
     for data in pages.values():
@@ -899,7 +912,7 @@ def check_3_pass_b(pages):
                 # English-word guardrail: drop spans whose every alpha token is a
                 # function word or generic emphasis word (emphasis, not a concept).
                 alpha_tokens = re.findall(r'[a-z]+', inner_lower)
-                if alpha_tokens and all(t in _ENGLISH_GUARDRAIL for t in alpha_tokens):
+                if alpha_tokens and all(t in guardrail for t in alpha_tokens):
                     continue
 
                 # Recognized concept → skip (missing link, not missing page)
@@ -950,10 +963,11 @@ CHECK4_MIN_WEIGHT = 3.0  # min summed IDF weight (ln); just above two at-cutoff 
 CHECK4_TOPK_HUBS = 10  # a pair sharing only these global hubs is suppressed
 CHECK4_MAX_REPORT = 50  # cap on reported pairs, ranked by weighted score
 CHECK4_REQUIRE_SHARED_TOPIC = False  # optional: also require a shared non-generic frontmatter topic
-CHECK4_GENERIC_TOPICS = frozenset({'fixed-income', 'bonds'})
+# Topics too generic to count as shared evidence come from the vault's own
+# check4_generic_topics list in VAULT-LINT-EXTENSIONS — the script ships none.
 
 
-def check_4_cross_refs(vault_path, pages):
+def check_4_cross_refs(vault_path, pages, generic_topics=frozenset()):
     """
     Page pairs that *should* cross-link but don't, scored by the IDF-weighted
     distinctiveness of the concepts they share — not by raw shared count, which
@@ -1017,9 +1031,9 @@ def check_4_cross_refs(vault_path, pages):
         raw = fm.get('topics', []) or []
         if not isinstance(raw, list):
             raw = [raw]
-        page_topics[p] = {
-            str(t).strip().lower() for t in raw if str(t).strip()
-        } - CHECK4_GENERIC_TOPICS
+        page_topics[p] = {str(t).strip().lower() for t in raw if str(t).strip()} - set(
+            generic_topics
+        )
 
     def idf(n):
         return math.log(N / df[n])
@@ -1064,20 +1078,10 @@ def check_4_cross_refs(vault_path, pages):
 # ══════════════════════════════════════════════════════════════════════════════
 
 # ── Check 5 tuning — duplicate-vs-de-alias discrimination ─────────────────────
-# Generic finance terms that two pages can legitimately both carry without being
-# duplicates — they never count as duplicate evidence.
-CHECK5_GENERIC_TERMS = frozenset(
-    {
-        'option greeks',
-        'premium/discount',
-        'alpha/beta',
-        'risk premium',
-        'cap/floor',
-        'hedge ratio',
-        'average life',
-        'yield ratio',
-    }
-)
+# Generic domain terms that two pages can legitimately both carry without being
+# duplicates — they never count as duplicate evidence. The list is vault-specific
+# vocabulary and comes from check5_generic_terms in VAULT-LINT-EXTENSIONS; the
+# script ships none.
 CHECK5_JACCARD_THRESHOLD = 0.5  # min alias-set Jaccard to call a pair duplicate
 CHECK5_TITLE_SIMILARITY = 0.9  # SequenceMatcher ratio for "near-identical" titles
 
@@ -1092,12 +1096,12 @@ def _resolves_elsewhere(term, dedicated, titles, exclude):
     return False
 
 
-def check_5_duplicates(pages):
+def check_5_duplicates(pages, generic_terms=frozenset()):
     """
     Distinguish genuine duplicate pages from two weaker signals that a single
     shared term used to masquerade as duplication:
 
-    (a) Generic-term stoplist (CHECK5_GENERIC_TERMS) — terms like "risk premium"
+    (a) Generic-term stoplist (`generic_terms`, from check5_generic_terms) — terms like "risk premium"
         or "hedge ratio" never count as duplicate evidence.
     (b) Alias-should-resolve-to-dedicated-page — if a page's alias equals the
         title/slug of a *different* dedicated page, that is a de-alias signal,
@@ -1118,7 +1122,7 @@ def check_5_duplicates(pages):
         for a in fm.get('aliases', []) or []:
             if a and isinstance(a, str) and a.strip():
                 aliases.add(a.strip().lower())
-        alias_sets[rp] = aliases - CHECK5_GENERIC_TERMS  # rule (a)
+        alias_sets[rp] = aliases - set(generic_terms)  # rule (a)
 
     # Dedicated-page index: normalised title or slug -> {relpaths}.
     dedicated = {}
@@ -2016,16 +2020,37 @@ def _ext_calendar_staleness_sweep(vault_path, config, check):
     return findings
 
 
-_PT_ACCENTED = re.compile(r'[çãõáéíóúâêôà]', re.IGNORECASE)
-_PT_SIGNAL = re.compile(
-    r'\b(come-cotas|renda|fixa|variável|Tesouro|Selic|IPCA|Prefixado|debênture|'
-    r'marcação|mercado|inventário|previdência|holding|familiar|FII|PGBL|VGBL|'
-    r'FGC|IOF|ITCMD)\b',
-    re.IGNORECASE,
-)
+# The bilingual/naming handlers detect "is this title in the vault's second
+# language?" from vocabulary the CHECK DECLARATION supplies — the script ships
+# no language words. Sub-keys on the check entry in VAULT-LINT-EXTENSIONS:
+#   signal_words / function_words — comma-separated word list (required)
+#   accent_chars — characters whose presence alone marks the language (optional)
+
+
+def _lang_detector(check, words_key):
+    """Build a title→bool detector from a check's language sub-keys, or None if
+    the required word list is missing (misconfigured declaration)."""
+    words = [w.strip() for w in str(check.get(words_key, '')).split(',') if w.strip()]
+    if not words:
+        return None
+    words_re = re.compile(r'\b(?:' + '|'.join(re.escape(w) for w in words) + r')\b', re.IGNORECASE)
+    accent_chars = str(check.get('accent_chars', '')).strip()
+    accent_re = (
+        re.compile('[' + re.escape(accent_chars) + ']', re.IGNORECASE) if accent_chars else None
+    )
+    return lambda title: bool(words_re.search(title) or (accent_re and accent_re.search(title)))
 
 
 def _ext_alias_bilingual_coverage(vault_path, config, check):
+    detect = _lang_detector(check, 'signal_words')
+    if detect is None:
+        return [
+            {
+                'info': "check 'alias-bilingual-coverage' declared without a signal_words "
+                'sub-key — add a comma-separated word list (and optional accent_chars) '
+                'to its VAULT-LINT-EXTENSIONS entry.'
+            }
+        ]
     findings = []
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
         rp = os.path.relpath(fpath, vault_path)
@@ -2038,7 +2063,7 @@ def _ext_alias_bilingual_coverage(vault_path, config, check):
         if not fm:
             continue
         title = fm.get('title', '') or ''
-        if not (_PT_ACCENTED.search(title) or _PT_SIGNAL.search(title)):
+        if not detect(title):
             continue
         aliases = fm.get('aliases', [])
         if not aliases:
@@ -2046,15 +2071,22 @@ def _ext_alias_bilingual_coverage(vault_path, config, check):
     return findings
 
 
-_PT_STOPWORDS = re.compile(r'\b(de|da|do|das|dos|com|ao|aos)\b', re.IGNORECASE)
-
-
 def _ext_english_first_naming(vault_path, config, check):
-    """Flag topic pages whose title reads Portuguese-first, unless the slug is an
-    approved Brazilian term-of-art listed in the check's comma-separated `allowlist`
-    sub-key. Detection: a PT accented character or a PT function word in the title.
-    English titles that legitimately embed a protected term (e.g. 'Renda Fixa
-    Indices', 'DI Futures Contracts') carry neither signal and are not flagged."""
+    """Flag topic pages whose title reads second-language-first, unless the slug is
+    an approved term-of-art listed in the check's comma-separated `allowlist`
+    sub-key. Detection: an `accent_chars` character or a `function_words` word in
+    the title (both from the check declaration). English titles that legitimately
+    embed a protected term (e.g. 'Renda Fixa Indices', 'DI Futures Contracts')
+    carry neither signal and are not flagged."""
+    detect = _lang_detector(check, 'function_words')
+    if detect is None:
+        return [
+            {
+                'info': "check 'english-first-naming' declared without a function_words "
+                'sub-key — add a comma-separated word list (and optional accent_chars) '
+                'to its VAULT-LINT-EXTENSIONS entry.'
+            }
+        ]
     allow = set(s.strip() for s in str(check.get('allowlist', '')).split(',') if s.strip())
     findings = []
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
@@ -2071,12 +2103,12 @@ def _ext_english_first_naming(vault_path, config, check):
         if not fm:
             continue
         title = fm.get('title', '') or ''
-        if _PT_ACCENTED.search(title) or _PT_STOPWORDS.search(title):
+        if detect(title):
             findings.append(
                 {
                     'page': rp,
                     'title': title,
-                    'reason': 'Portuguese-first title; slug not in terms-of-art allowlist',
+                    'reason': 'second-language-first title; slug not in terms-of-art allowlist',
                 }
             )
     return findings
@@ -3131,13 +3163,13 @@ def main():
     c3a = check_3_pass_a(vault_path, pages, slug_index)
     print(f'  Check 3a (dangling):    {len(c3a["dangling"])} unique dangling targets')
 
-    c3b = check_3_pass_b(pages)
+    c3b = check_3_pass_b(pages, config['check3b_guardrail_extra'])
     print(f'  Check 3b (bold terms):  {len(c3b["candidates"])} candidate missing pages')
 
-    c4 = check_4_cross_refs(vault_path, pages)
+    c4 = check_4_cross_refs(vault_path, pages, config['check4_generic_topics'])
     print(f'  Check 4 (cross-refs):   {len(c4["actionable"])} actionable pairs (IDF-weighted)')
 
-    c5 = check_5_duplicates(pages)
+    c5 = check_5_duplicates(pages, config['check5_generic_terms'])
     print(
         f'  Check 5 (duplicates):   {len(c5["pairs"])} pairs, '
         f'{len(c5["alias_resolve"])} alias-resolve'

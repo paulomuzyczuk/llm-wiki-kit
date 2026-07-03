@@ -87,6 +87,18 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
 
+- `vault-lint/lint.py` no longer ships any domain vocabulary. The finance
+  stoplists (`CHECK5_GENERIC_TERMS`, `CHECK4_GENERIC_TOPICS`) and the Portuguese
+  language regexes are gone from the script; vaults that need them declare
+  comma-separated lists in their VAULT-LINT-EXTENSIONS block instead —
+  `check5_generic_terms:` / `check4_generic_topics:` / `check3b_guardrail_extra:`
+  as top-level keys, and `signal_words:` / `function_words:` / `accent_chars:`
+  sub-keys on the `alias-bilingual-coverage` and `english-first-naming` check
+  declarations (which now work for any language, not just Portuguese). Defaults
+  are empty: with no config, Check 5 treats no term as generic and the language
+  checks report a config-needed finding instead of silently using Portuguese.
+  **Migration:** vaults relying on the old built-ins must add the lists to their
+  CLAUDE.md — the template documents each key.
 - `vault-evaluator` redesigned from a methodology document into an executable
   protocol. Every question × condition × model cell is now an isolated
   `claude -p --model <id>` subprocess launched from a neutral temp cwd (so

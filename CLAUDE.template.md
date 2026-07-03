@@ -1,4 +1,4 @@
-<!-- Template version: 2026-07-02 -->
+<!-- Template version: 2026-07-04 -->
 <!--
 ================================================================
 VAULT TEMPLATE — INSTANTIATION HEADER  (delete after substitution)
@@ -693,11 +693,23 @@ depth_table:
 #   - <project-code-1>
 #   - <project-code-2>
 
+# OPTIONAL — domain-vocabulary knobs (comma-separated lists). The lint script
+# ships no domain terms; a vault that needs them declares its own here.
+# check3b_guardrail_extra: <emphasis words to add to Check 3b's built-in English guardrail>
+# check4_generic_topics: <frontmatter topics too generic to count as shared Check 4 evidence>
+# check5_generic_terms: <terms two pages may legitimately both alias without being duplicates>
+
 extension_checks: []    # TBD — confirm vault-specific checks with human before first lint run.
 # Example entries — uncomment and adapt:
 #   - id: <kebab-case-id>
 #     description: <one-line description of the check>
 #     applies_to_projects: true   # optional; only meaningful when projects: is set
+# Language checks (alias-bilingual-coverage, english-first-naming) take their
+# vocabulary from sub-keys on the check entry — the script ships none:
+#     signal_words: <comma-separated words marking the second language>   # bilingual-coverage
+#     function_words: <comma-separated function words>                    # english-first-naming
+#     accent_chars: <characters whose presence alone marks the language>  # optional, both checks
+#     allowlist: <slugs exempt as terms of art>                           # english-first-naming
 
 <!-- VAULT-LINT-EXTENSIONS-END -->
 

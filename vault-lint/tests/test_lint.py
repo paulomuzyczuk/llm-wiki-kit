@@ -139,6 +139,26 @@ def test_parse_claude_config_no_vault_slug():
     assert cfg['vault_slug'] is None
 
 
+def test_parse_claude_config_domain_term_lists():
+    # The three domain-vocabulary keys parse as lowercased, trimmed lists;
+    # absent keys default to empty (the script ships no domain terms).
+    md = minimal_claude_md().replace(
+        'vault_slug: test-vault\n',
+        'vault_slug: test-vault\n'
+        'check3b_guardrail_extra: Sobrevalorizado, reinvested\n'
+        'check4_generic_topics: fixed-income, bonds\n'
+        'check5_generic_terms: risk premium, hedge ratio\n',
+    )
+    cfg = lint.parse_claude_config(md)
+    assert cfg['check3b_guardrail_extra'] == ['sobrevalorizado', 'reinvested']
+    assert cfg['check4_generic_topics'] == ['fixed-income', 'bonds']
+    assert cfg['check5_generic_terms'] == ['risk premium', 'hedge ratio']
+    empty = lint.parse_claude_config(minimal_claude_md())
+    assert empty['check3b_guardrail_extra'] == []
+    assert empty['check4_generic_topics'] == []
+    assert empty['check5_generic_terms'] == []
+
+
 # --- watermark + activity counting -----------------------------------------
 
 
@@ -395,6 +415,16 @@ def test_check_3b_formatting_fragments_suppressed():
     assert res['candidates'] == {}
 
 
+def test_check_3b_guardrail_extra_from_config():
+    # A domain emphasis word outside the built-in English guardrail is a
+    # candidate by default, and suppressed when the vault's
+    # check3b_guardrail_extra config lists it.
+    pages = _bold_on_three_pages('sobrevalorizado')
+    assert 'sobrevalorizado' in lint.check_3_pass_b(pages)['candidates']
+    res = lint.check_3_pass_b(pages, guardrail_extra=['sobrevalorizado'])
+    assert res['candidates'] == {}
+
+
 # --- check_4_cross_refs ----------------------------------------------------
 
 
@@ -546,7 +576,22 @@ def test_check_5_single_overlap_among_many_not_flagged():
 
 
 def test_check_5_generic_term_is_not_evidence():
-    # The only shared alias is a generic stoplist term -> stripped -> no pair.
+    # The only shared alias is a configured generic term -> stripped -> no pair.
+    # The stoplist comes from check5_generic_terms config; the script ships none.
+    pages, _ = make_pages(
+        {
+            'wiki/topics/a.md': frontmatter(title='Alpha', aliases=['risk premium']),
+            'wiki/topics/b.md': frontmatter(title='Beta', aliases=['risk premium']),
+        }
+    )
+    res = lint.check_5_duplicates(pages, generic_terms={'risk premium'})
+    assert res['pairs'] == []
+
+
+def test_check_5_no_config_means_no_stoplist():
+    # Without vault config, no term is generic: the shared alias counts as
+    # duplicate evidence. Guards against domain defaults sneaking back into
+    # the script.
     pages, _ = make_pages(
         {
             'wiki/topics/a.md': frontmatter(title='Alpha', aliases=['risk premium']),
@@ -554,7 +599,7 @@ def test_check_5_generic_term_is_not_evidence():
         }
     )
     res = lint.check_5_duplicates(pages)
-    assert res['pairs'] == []
+    assert len(res['pairs']) == 1
 
 
 def test_check_5_alias_resolves_to_dedicated_page():
@@ -1388,3 +1433,71 @@ def test_check_8_authority_malformed_flagged(tmp_path):
     auth = lint.parse_topics_authority(str(vault))
     r = lint.check_8_vocabulary({}, auth)
     assert r['authority_malformed'] is True
+
+
+# --- language-parameterized extension handlers -------------------------------
+
+
+def test_ext_bilingual_coverage_uses_configured_vocabulary(tmp_path):
+    # The language vocabulary comes from the check declaration, not the script.
+    vault = build_vault(
+        tmp_path,
+        topic_pages={
+            'tesouro-direto': frontmatter(title='Tesouro Direto', aliases=[]) + '# T\n',
+            'plain-english': frontmatter(title='Plain English Page', aliases=[]) + '# P\n',
+        },
+    )
+    check = {'id': 'alias-bilingual-coverage', 'signal_words': 'Tesouro, Selic'}
+    findings = lint._ext_alias_bilingual_coverage(str(vault), {}, check)
+    assert [f['page'] for f in findings] == ['wiki/topics/tesouro-direto.md']
+
+
+def test_ext_bilingual_coverage_accent_chars(tmp_path):
+    # accent_chars alone marks the language when no signal word matches.
+    vault = build_vault(
+        tmp_path,
+        topic_pages={'previdencia': frontmatter(title='Previdência', aliases=[]) + '# X\n'},
+    )
+    check = {
+        'id': 'alias-bilingual-coverage',
+        'signal_words': 'zzz-nomatch',
+        'accent_chars': 'çãõáéíóúâêôà',
+    }
+    findings = lint._ext_alias_bilingual_coverage(str(vault), {}, check)
+    assert len(findings) == 1
+
+
+def test_ext_bilingual_coverage_missing_config(tmp_path):
+    # Declared without signal_words -> a single info finding, not a crash and
+    # not a silent pass.
+    vault = build_vault(tmp_path, topic_pages={})
+    findings = lint._ext_alias_bilingual_coverage(
+        str(vault), {}, {'id': 'alias-bilingual-coverage'}
+    )
+    assert len(findings) == 1 and 'signal_words' in findings[0]['info']
+
+
+def test_ext_english_first_naming_configured(tmp_path):
+    # function_words from the declaration detect second-language-first titles;
+    # the allowlist still exempts terms of art; pure-English titles pass.
+    vault = build_vault(
+        tmp_path,
+        topic_pages={
+            'mercado-de-capitais': frontmatter(title='Mercado de Capitais', aliases=[]) + '# M\n',
+            'allowed-term': frontmatter(title='Renda de Verdade', aliases=[]) + '# A\n',
+            'english-page': frontmatter(title='Capital Markets', aliases=[]) + '# E\n',
+        },
+    )
+    check = {
+        'id': 'english-first-naming',
+        'function_words': 'de, da, do',
+        'allowlist': 'allowed-term',
+    }
+    findings = lint._ext_english_first_naming(str(vault), {}, check)
+    assert [f['page'] for f in findings] == ['wiki/topics/mercado-de-capitais.md']
+
+
+def test_ext_english_first_naming_missing_config(tmp_path):
+    vault = build_vault(tmp_path, topic_pages={})
+    findings = lint._ext_english_first_naming(str(vault), {}, {'id': 'english-first-naming'})
+    assert len(findings) == 1 and 'function_words' in findings[0]['info']
