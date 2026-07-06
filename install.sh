@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
 #
-# install.sh — link (or unlink) the LLM-Wiki Kit skills into your Claude Code
-# skills directory. There is nothing to compile: the skills are Markdown read
-# by Claude Code, so "installing" just means symlinking each skill folder into
-# ~/.claude/skills/ so Claude Code can discover it.
+# install.sh — link (or unlink) the LLM-Wiki Kit skills into an agent's skills
+# directory. There is nothing to compile: the skills are Markdown in the open
+# Agent Skills format (a SKILL.md per folder), so "installing" just means
+# symlinking each skill folder into the directory your agent discovers skills
+# from — ~/.claude/skills (Claude Code) by default.
 #
 # Usage:
 #   ./install.sh                 Link every skill into the skills directory.
+#   ./install.sh --target <t>    Pick the agent's default skills directory:
+#                                claude (~/.claude/skills, the default),
+#                                codex (~/.codex/skills), cursor (~/.cursor/skills).
 #   ./install.sh --uninstall     Remove only the symlinks that point back here.
-#   ./install.sh --dir <path>    Use <path> instead of ~/.claude/skills.
+#   ./install.sh --dir <path>    Use <path> instead of the target's default.
 #   ./install.sh --copy          Copy skill folders instead of symlinking.
 #   ./install.sh --help          Show this help.
 #
+# --dir and --target both set the same destination; the last one given wins.
+#
 # Environment:
-#   CLAUDE_SKILLS_DIR            Default target dir if --dir is not given.
+#   CLAUDE_SKILLS_DIR            Default target dir if --dir/--target is not given.
 #
 # Re-running install is safe in both modes: links are replaced, and copies
 # made by a previous --copy run are refreshed.
@@ -40,6 +46,15 @@ while [ $# -gt 0 ]; do
     --dir)
       [ $# -ge 2 ] || { echo "error: --dir needs a path" >&2; exit 2; }
       SKILLS_DIR="$2"; shift ;;
+    --target)
+      [ $# -ge 2 ] || { echo "error: --target needs a value (claude, codex, cursor)" >&2; exit 2; }
+      case "$2" in
+        claude) SKILLS_DIR="$HOME/.claude/skills" ;;
+        codex)  SKILLS_DIR="$HOME/.codex/skills" ;;
+        cursor) SKILLS_DIR="$HOME/.cursor/skills" ;;
+        *) echo "error: unknown target: $2 (claude, codex, cursor)" >&2; exit 2 ;;
+      esac
+      shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "error: unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac

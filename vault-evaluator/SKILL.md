@@ -26,6 +26,12 @@ The session running this skill is the **orchestrator** — it builds the questio
 assembles contexts, launches answer and judge subprocesses, and compiles the report.
 It never answers a question itself and never scores an answer itself.
 
+> **Runtime requirement:** every answer and judge cell is a headless `claude -p`
+> subprocess, so this skill needs the Claude Code CLI on PATH regardless of which
+> agent runs the orchestrator. Orchestrating from another agent (Codex, Cursor) is
+> fine — the cells still go through `claude -p`. There is no portable substitute:
+> if the CLI is missing, halt per isolation rule 4; never answer in-session.
+
 ---
 
 ## Execution model — isolation rules

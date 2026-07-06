@@ -94,7 +94,7 @@ The example synthesizes and cites these sources (attribution as required by thei
 
 ## Install
 
-These are Claude Code skills — there's nothing to compile. "Installing" just symlinks each skill folder into `~/.claude/skills/` so Claude Code can discover it. Clone the repo and run `install.sh`:
+The skills are Markdown in the open Agent Skills format (a `SKILL.md` per folder) — there's nothing to compile. "Installing" just symlinks each skill folder into the directory your agent discovers skills from: `~/.claude/skills/` for Claude Code (the default and primary runtime; see [Other agents](#other-agents-codex-cursor) for the rest). Clone the repo and run `install.sh`:
 
 ```sh
 git clone https://github.com/paulomuzyczuk/llm-wiki-kit.git
@@ -105,6 +105,7 @@ cd llm-wiki-kit
 The installer auto-discovers every skill (any folder with a `SKILL.md`), creates the skills directory if needed, and is safe to re-run — it replaces existing links instead of duplicating them. Useful flags:
 
 ```sh
+./install.sh --target codex              # install for Codex (~/.codex/skills) or cursor (~/.cursor/skills)
 ./install.sh --dir ~/some/other/skills   # install into a non-default location
 ./install.sh --copy                      # copy the folders instead of symlinking
 ./install.sh --uninstall                 # remove only the links pointing back at this repo
@@ -140,6 +141,17 @@ python3 vault-lint/lint.py examples/software-craft   # Phase 1 findings: 0
 
 Once you have a vault, see [Using the vault](#using-the-vault) for how to prompt an LLM against it efficiently.
 
+### Other agents (Codex, Cursor)
+
+The kit is built and battle-tested with Claude Code, but most of it isn't tied to it:
+
+- **Reading a vault** needs nothing from this repo — it's plain Markdown, so any agent with file access works ([Using the vault](#using-the-vault)).
+- **The contract** ships under both names: `new-vault.sh` creates `AGENTS.md` as a symlink to `CLAUDE.md`, so agents that auto-load `AGENTS.md` (Codex, Cursor) pick up the same contract Claude Code does. The example vault carries the same symlink. (An agent that auto-loads *both* names will load the contract twice — the content is identical, so the only cost is context tokens; delete the symlink in your vault if that matters to you.)
+- **The skills** use the open Agent Skills format that Codex and Cursor also support — install them with `./install.sh --target codex` (or `cursor`, or `--dir <path>` for anything else). Slash triggers like `/vault-lint` are a Claude Code convenience; in other agents, ask in words ("run a vault health check"). The `allowed-tools` frontmatter is Claude Code-specific and is ignored elsewhere.
+- **Claude Code CLI required** for exactly two things: `vault-evaluator` (every answer/judge cell is a headless `claude -p` subprocess — that isolation is the methodology, not an implementation detail) and the launchd scheduling templates (they invoke the `claude` binary). Everything else — planner, ingestion, review, lint, conformance — runs wherever the skill format is supported.
+
+One caveat: cross-skill chaining (e.g. book-ingestion invoking book-review per chapter) follows each agent's own skill-invocation semantics, and only Claude Code's are exercised daily. Treat other agents' pipeline runs as supported-but-younger: the contracts and tooling hold, but review the first few digests more closely.
+
 ## Using the vault
 
 The build pipeline is the hard part; *reading* a vault is deliberately plain — it's Markdown, so any LLM with file access works. In practice you point Claude Code (or any agent) at the vault directory and ask. The vault's shape is what makes that exchange efficient: the LLM should **enter through [`index.md`](examples/software-craft/wiki/index.md), pull only the pages it needs, and answer from their citations** rather than re-deriving the material. A few prompt patterns get you most of the value:
@@ -168,7 +180,7 @@ The throughline: tell the agent to treat the vault as authoritative and bounded 
 
 ## Requirements
 
-- [Claude Code](https://claude.com/claude-code)
+- [Claude Code](https://claude.com/claude-code) — the primary runtime. Strictly required only by `vault-evaluator` and the scheduling templates; the other skills run in any agent that supports the Agent Skills format (see [Other agents](#other-agents-codex-cursor))
 - [Obsidian](https://obsidian.md) (the vaults are plain Markdown, so any editor works, but the conventions assume Obsidian-style `[[wikilinks]]`)
 - Python 3.10+ for the linter and conformance checker
 - [Calibre](https://calibre-ebook.com/) (its `ebook-convert` CLI) — only if you ingest non-PDF books; `book-planner` uses it to convert `.epub`/`.mobi`/`.azw`/`.azw3` sources to PDF. Not needed for PDF sources or article ingestion.

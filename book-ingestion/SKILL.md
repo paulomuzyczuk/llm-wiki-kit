@@ -354,8 +354,9 @@ for every chapter):
    add page entries but do NOT refresh the role-count numbers in the role
    maps-of-content header, so those counts drift every batch. Refresh them now —
    once per batch, after every chapter is in — by running the lint script's
-   sync mode (the `lint.py` co-located with the vault-lint skill; with the README
-   install that is `~/.claude/skills/vault-lint/lint.py`):
+   sync mode (the `lint.py` co-located with the vault-lint skill — resolve it inside
+   the same skills directory this skill runs from; with the README install under
+   Claude Code that is `~/.claude/skills/vault-lint/lint.py`):
    ```
    python3 ~/.claude/skills/vault-lint/lint.py --sync-role-counts <vault-path>
    ```

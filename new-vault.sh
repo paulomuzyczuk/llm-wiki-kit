@@ -4,6 +4,7 @@
 # Does the mechanical 80% of instantiation:
 #   - validates the subs file covers exactly the template's tokens
 #   - strips the instantiation header, substitutes every {{TOKEN}}, writes <dest>/CLAUDE.md
+#     (plus an AGENTS.md symlink so agents that auto-load AGENTS.md see the contract)
 #   - creates the folder tree and seeds empty index/log/gaps/quality-debt/_provenance
 #
 # It does NOT make the judgment calls the template leaves to a human: the roles
@@ -97,6 +98,17 @@ os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
 open(out_path, "w", encoding="utf-8").write(raw)
 print(f"wrote {out_path}")
 PY
+
+# --- AGENTS.md: portability alias for the contract. Claude Code auto-loads
+#     CLAUDE.md; Codex, Cursor, and other agents auto-load AGENTS.md. A relative
+#     symlink ships the one contract under both names. A pre-existing regular
+#     AGENTS.md is not ours — leave it and warn instead of clobbering.
+if [ -L "$dest/AGENTS.md" ] || [ ! -e "$dest/AGENTS.md" ]; then
+  ln -sfn "CLAUDE.md" "$dest/AGENTS.md"
+  echo "linked $dest/AGENTS.md -> CLAUDE.md"
+else
+  echo "WARNING: $dest/AGENTS.md exists and is a regular file — left untouched. Agents that read AGENTS.md will not see the vault contract unless you merge or link it yourself." >&2
+fi
 
 # --- The two tokens that name folders in the tree.
 exec_handoff="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["EXEC_HANDOFF"])' "$subs")"

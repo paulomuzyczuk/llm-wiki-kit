@@ -9,6 +9,15 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 
+- Agent-portability pass (Codex, Cursor): `install.sh --target claude|codex|cursor`
+  installs the skills into another agent's skills directory; `new-vault.sh` and the
+  `examples/software-craft` vault now ship an `AGENTS.md → CLAUDE.md` symlink so
+  agents that auto-load `AGENTS.md` pick up the contract; skill prose no longer
+  assumes the `~/.claude/skills` install path; `vault-evaluator` carries an explicit
+  runtime-requirement note (its cells are `claude -p` subprocesses regardless of
+  orchestrator), and the README gains an "Other agents" section documenting the
+  Claude Code CLI boundary (vault-evaluator + launchd templates only).
+
 - `vault-lint/lint.py --sync-role-counts <vault-path>` — a deterministic,
   report-free, log-free, idempotent mode that recomputes the role-page counts in
   `wiki/index.md` from topic-page frontmatter and rewrites them in place. It reuses

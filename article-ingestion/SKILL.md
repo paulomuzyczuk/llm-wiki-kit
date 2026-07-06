@@ -253,7 +253,8 @@ For each pending article note (in `raw-input/_pending/`):
 **Sync the index role-counts.** The per-article `index.md` edits (step 4) add page
 entries but do NOT refresh the role-count numbers in the role maps-of-content header,
 so those counts drift. Refresh them once, after the loop, by running the lint script's
-sync mode (the `lint.py` co-located with the vault-lint skill; with the README install
+sync mode (the `lint.py` co-located with the vault-lint skill — resolve it inside the
+same skills directory this skill runs from; with the README install under Claude Code
 that is `~/.claude/skills/vault-lint/lint.py`):
 ```
 python3 ~/.claude/skills/vault-lint/lint.py --sync-role-counts <vault-path>

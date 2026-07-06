@@ -21,7 +21,7 @@ description: >
 
 Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, role-count drift, role-MoC curation candidates (advisory), controlled-vocabulary resolution (against the optional `topics-authority.md` SOT), and vault-specific extensions.
 
-The implementation is a single Python script, `lint.py`, co-located with this skill — it sits in the same folder as this `SKILL.md`. When the skill is installed per the repo README (symlinked or copied into `~/.claude/skills/`), that path is `~/.claude/skills/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
+The implementation is a single Python script, `lint.py`, co-located with this skill — it sits in the same folder as this `SKILL.md`. When the skill is installed per the repo README (symlinked or copied into your agent's skills directory — `~/.claude/skills/` for Claude Code, `~/.codex/skills/` for Codex, `~/.cursor/skills/` for Cursor), that path is `<skills-dir>/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
 
 ## When to invoke
 
@@ -50,9 +50,11 @@ If a `lint | pending | <vault-slug>` marker exists in `log.md`, mention it in th
 
 ### Step 3 — Invoke the script
 
-Once confirmed, execute the `lint.py` co-located with this skill. With the README install that is:
+Once confirmed, execute the `lint.py` co-located with this skill. With the README install under Claude Code that is:
 
   python3 ~/.claude/skills/vault-lint/lint.py <vault-path>
+
+Under another agent, substitute its skills directory (e.g. `~/.codex/skills`, `~/.cursor/skills`).
 
 If the skill was installed somewhere else, run the `lint.py` that sits beside this `SKILL.md` instead of hardcoding a clone path.
 
