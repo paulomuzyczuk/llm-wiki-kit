@@ -7,7 +7,7 @@ Before you start anything non-trivial, **open an issue** describing the change. 
 solo-maintained project, so a quick check that a change fits the design saves everyone
 a wasted PR. Small fixes (typos, a clearly-broken thing) can go straight to a PR.
 
-By participating you agree to keep things respectful and constructive. Security issues
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Security issues
 should **not** be filed as public issues — see [`SECURITY.md`](SECURITY.md).
 
 ## What contributions fit

@@ -1,0 +1,40 @@
+name: Bug report
+description: A skill, script, or check does not behave as documented
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Security issues do not belong here** — use
+        private vulnerability reporting instead (see SECURITY.md).
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - vault-lint
+        - check-conformance
+        - a skill (book-ingestion, article-ingestion, book-planner, book-review, vault-evaluator)
+        - install / new-vault / regenerate-clones scripts
+        - CLAUDE.template.md contract
+        - other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you run, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Lint findings, tracebacks, or the offending vault page (sanitized).
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: e.g. macOS 15, Python 3.12, Claude Code 2.x

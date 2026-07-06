@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose an improvement to the skills, checks, or templates
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please skim [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) first —
+        this is a small, opinionated project and non-trivial changes should
+        start as an issue.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What breaks down or gets tedious in your vault workflow?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you imagine it working — a new lint check, a skill change, a template amendment?
+    validations:
+      required: true
