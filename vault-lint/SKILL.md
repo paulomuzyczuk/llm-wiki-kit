@@ -79,6 +79,27 @@ If exit code 2 (crash), report the error from stdout and stop. Do NOT attempt to
 - Does NOT modify the vault directly. Only the script writes to disk.
 - Does NOT detect pair-and-split violations (two paired concepts conflated onto one page). That needs semantic judgment the mechanical linter can't apply: `lint.py` Check 5 catches the *inverse* — duplicate pages — not under-splitting. The discipline is defined in book-ingestion and enforced adversarially by book-review (Check 2); consult those when a lint pass makes you suspect a page is doing two concepts' jobs.
 
+## Index.md role-count surface — accepted forms
+
+`wiki/index.md`'s role-page-counts list (under a heading matching "Role" / "Roles" /
+"Role Maps") must render each entry as one of two forms — mixing a third, unrecognized
+form into a vault's index silently disables both `--sync-role-counts` and the Phase 2
+drift check for that vault (this happened to the example-domain-5 vault for ~20 batches
+before being caught):
+
+```
+- [Role — Name](topics/role-<id>.md) — N pages; description
+- [[role-<id>]] — N pages; description
+```
+
+This is illustrative, not authoritative — `lint.py`'s `_parse_index_role_counts`
+docstring and regexes are the single source of truth for exact matching rules, per
+"What this skill does NOT do" above. When scaffolding a new vault's index, prefer the
+first (markdown-link) form; it is what most existing vaults use. If a sync ever exits
+non-zero with "could not detect a role-counts surface," that means the index drifted
+into a third form — fix the index to match one of the two above, or extend the parser
+(and this note) if the new form is worth supporting permanently.
+
 ## Calibration notes
 
 This skill evolved through 8 lint runs against software-craft, each surfacing a different category of runtime non-determinism: wikilink parser regression, Check 4 filter-skipping, Phase 2 role-counting drift, Phase 2.5 guard inconsistency, parser improvisation, structural-exclusion skipping. Declarative spec language, imperative "MUST" instructions, embedded reference implementations, and hard cross-check guards were each ignored by different sessions at different times.

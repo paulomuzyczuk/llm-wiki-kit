@@ -1801,19 +1801,27 @@ def _parse_index_role_counts(index_md_text, canonical_roles):
     )
 
     section = lines[sec_start:sec_end]
-    has_list = any(re.match(r'^-\s+\[Role', ln) for ln in section)
+    has_list = any(
+        re.match(r'^-\s+\[Role', ln) or re.match(r'^-\s+\[\[role-', ln) for ln in section
+    )
     has_table = any('|' in ln and not re.match(r'^[\|\s\-:]+$', ln) for ln in section)
 
     if has_list:
         for ln in section:
             # - [Role — Name](topics/role-<id>.md) — N pages; ...
             m = re.match(r'^-\s+\[.*?\]\((.*?)\).*?—\s+(\d+)\s+pages?', ln)
-            if not m:
+            if m:
+                path_slug = os.path.splitext(os.path.basename(m.group(1)))[0]
+                role_id = path_slug[len('role-') :] if path_slug.startswith('role-') else path_slug
+                if role_id in reported:
+                    reported[role_id] = int(m.group(2))
                 continue
-            path_slug = os.path.splitext(os.path.basename(m.group(1)))[0]
-            role_id = path_slug[len('role-') :] if path_slug.startswith('role-') else path_slug
-            if role_id in reported:
-                reported[role_id] = int(m.group(2))
+            # - [[role-<id>]] — N pages; ...  (wikilink form)
+            m = re.match(r'^-\s+\[\[role-([\w\-]+)\]\].*?—\s+(\d+)\s+pages?', ln)
+            if m:
+                role_id = m.group(1)
+                if role_id in reported:
+                    reported[role_id] = int(m.group(2))
         return reported, 'list', (sec_start, sec_end)
 
     if has_table:
@@ -2678,7 +2686,8 @@ def render_report(vault_slug, findings):
             'No role-page-counts surface declared in wiki/index.md. '
             'Phase 2 (drift detection) skipped. '
             'To enable drift tracking, add either a markdown table or a bulleted list '
-            'with the format `- [Role — Name](path) — N pages; description` under a heading '
+            'with the format `- [Role — Name](path) — N pages; description` (or the '
+            'wikilink form `- [[role-<id>]] — N pages; description`) under a heading '
             "matching 'Role' or 'Roles' or 'Role Maps' in index.md."
         )
         L.append('')
@@ -2892,6 +2901,9 @@ def _rewrite_role_section(index_lines, sec_start, sec_end, fmt_type, p2):
             m = re.match(
                 r'^(-\s+\[.*?\]\(topics/role-([\w\-]+)\.md\).*?—\s+)(\d+)(\s+pages?.*)', ln
             )
+            if not m:
+                # - [[role-<id>]] — N pages; rest  (wikilink form)
+                m = re.match(r'^(-\s+\[\[role-([\w\-]+)\]\].*?—\s+)(\d+)(\s+pages?.*)', ln)
             if m:
                 role_id = m.group(2)
                 actual = p2['actual'].get(role_id)

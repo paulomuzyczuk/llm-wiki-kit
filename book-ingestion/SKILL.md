@@ -366,6 +366,16 @@ for every chapter):
    the script is the single source of truth, and hand-editing reintroduces the drift
    this step exists to kill. Fold the reported role-count changes into the summary.
 
+   **Hard rule — crash on sync failure.** Check the exit code. If it is non-zero
+   (e.g. `ERROR: could not detect a role-counts surface in wiki/index.md — nothing
+   synced`), STOP before Phase 5 step 2 and surface the exact stderr output to the
+   human verbatim. Do NOT fold "no changes" or any other paraphrase into the batch
+   summary as if the sync ran clean — a failed sync is a distinct outcome from an
+   already-in-sync no-op, and reporting them the same way is how this class of
+   failure has previously gone unnoticed for many consecutive batches. Resuming the
+   next batch does not require the sync to be fixed, but the human must see the
+   failure and decide, in that turn, whether to fix it now or defer it explicitly.
+
 2. **Deliver the batch summary:**
    - Pages created (with names)
    - Pages enriched (with names)
