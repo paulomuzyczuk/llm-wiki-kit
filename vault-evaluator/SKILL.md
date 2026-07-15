@@ -490,6 +490,60 @@ quality needs work.
 
 ---
 
+## Optional — External benchmark comparison (manual, not part of the scored run)
+
+A separate, qualitative supplement to the A/B/C evaluation above — not a scored
+condition, not a win rate, not part of the sign-test or the report's headline
+metrics. It answers a different question: *how does the vault's aggregate
+content compare to a well-known public reference work covering similar
+ground* (e.g. Investopedia for a personal-finance vault, MDN for a web-platform
+vault, a standard textbook's companion site). Run this only when such a
+reference obviously exists for the vault's domain — skip it otherwise rather
+than forcing a comparison against a mismatched site.
+
+**Why this can't be a headless subprocess cell.** Public reference sites
+commonly block bot/crawler traffic (Cloudflare-style challenges, CAPTCHAs).
+`claude -p` and `WebFetch` will typically be refused outright. This means the
+isolation rules above do not apply here: a human needs to be present in a real
+browser session to clear any challenge, and the orchestrator itself (not a
+subprocess) reads the resulting page content. Never attempt to bypass a
+CAPTCHA or bot-check — if one appears, ask the human to clear it.
+
+Steps:
+
+1. **Vault-side scale, mechanically** — from `wiki/index.md` and
+   `wiki/topics-authority.md`: topic-page count, rough total wordcount
+   (`wc -w wiki/topics/*.md`), and which subject areas are covered.
+2. **Pick 2-4 overlapping topics** — concepts that exist both in the vault's
+   topic list and as a page on the reference site. Prefer topics where the
+   vault page cites multiple sources, since that's where synthesis value is
+   most visible.
+3. **Fetch the reference pages via browser automation, not WebFetch.** Use
+   the `mcp__claude-in-chrome__*` tools: navigate, let the human clear any
+   challenge, then `get_page_text` to extract the real article body.
+4. **Compare each pair directly**, not from memory of the reference site:
+   depth (formulas, derivations, worked examples, cited sources), length,
+   presence of a limitations/critique section, and audience/style. Quote
+   only short excerpts if any — do not reproduce substantial portions of a
+   third party's content.
+5. **Synthesize**, covering: raw scale (vault topic/page count vs. the
+   reference site's approximate catalog size — order of magnitude only, and
+   only from a claim the site itself makes, never fabricated), where the
+   reference site is stronger (breadth, accessibility, quick lookup), where
+   the vault is stronger (depth, cross-source synthesis, domain-specific
+   coverage the reference site doesn't attempt), and for what purpose each
+   is the right tool.
+6. Write the result to `wiki/digests/eval-benchmark-<YYYY-MM-DD>.md` and
+   append one `log.md` entry: `## [YYYY-MM-DD] eval-benchmark | <vault-slug> |
+   vs <reference-site> on <N> topics — <headline takeaway>`.
+
+This never feeds the C-vs-B win rate, the summary table, or any threshold in
+Phase 3 — it is context for a human deciding how the vault complements (not
+replaces) existing public references, kept in its own digest so it's never
+mistaken for a scored result.
+
+---
+
 ## Minimal version (10-question quick signal) — mandatory first
 
 Never launch the full evaluation cold. Run this minimal version first to get
