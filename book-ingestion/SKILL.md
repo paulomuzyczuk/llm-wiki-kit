@@ -491,6 +491,12 @@ execute for any reason, see CLAUDE.md's `### Book-review` section for the full
 reviewer-failure procedure — the short version: STOP, surface the failure to the
 human, never self-review.
 
+**Verification loops are bounded:** when a page-anchor, citation, or other
+self-verification check (including the Phase 3.5 Check B retry sequence) cannot
+resolve after two attempts, stop, log the specific item as unresolved, and move
+forward — do not re-check an already-failed item hoping for a different result,
+and do not let verification anxiety block progress through the rest of the batch.
+
 ---
 
 ## Vault-specific configuration
