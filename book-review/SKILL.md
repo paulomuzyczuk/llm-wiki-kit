@@ -269,3 +269,4 @@ or for **named key K**:
 - Do not auto-fix any issue found.
 - Do not run headless.
 - Do not merge with extraction-skill behavior.
+- When a citation-anchor or other self-verification check cannot resolve after two attempts, log it as unresolved and move to the next check rather than looping on it.

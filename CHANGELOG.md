@@ -9,6 +9,13 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 
+- **Verification-loop bound** (book-ingestion, book-review, template): a new hard
+  rule/constraint stating that when a page-anchor, citation, or other
+  self-verification check cannot resolve after two attempts, the skill must stop,
+  surface the specific unresolved item to the human, and move forward rather than
+  looping indefinitely on it. Added to `CLAUDE.template.md`'s Book-ingest section,
+  `book-ingestion/SKILL.md`'s Hard rules, and `book-review/SKILL.md`'s Constraints.
+
 - Agent-portability pass (Codex, Cursor): `install.sh --target claude|codex|cursor`
   installs the skills into another agent's skills directory; `new-vault.sh` and the
   `examples/software-craft` vault now ship an `AGENTS.md → CLAUDE.md` symlink so

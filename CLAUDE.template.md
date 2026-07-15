@@ -619,6 +619,8 @@ The full ingest procedure — chapter state machine, per-chapter synthesis steps
 
 Reviewer is mandatory. See `### Book-review` below for the reviewer-failure hard rule (full DO NOT list).
 
+> **Hard rule — verification-loop bound:** When a page-anchor, citation, or other self-verification check cannot resolve after two attempts, stop, surface the specific unresolved item to the human, and move forward rather than looping. Do not re-check an item that has already failed twice hoping for a different result, and do not let self-verification block progress on the rest of the batch.
+
 <!-- VAULT-SPECIFIC-EXTENSIONS-START -->
 > **Vault-specific extensions** (ratified YYYY-MM-DD, see `_provenance`):
 >
