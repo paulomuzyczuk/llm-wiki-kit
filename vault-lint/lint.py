@@ -1538,6 +1538,202 @@ def check_8_vocabulary(pages, authority):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §12.5 CHECK 9 — FRONTMATTER SCHEMA CONFORMANCE
+#
+# Validates every live page's YAML frontmatter against the vault's effective
+# schema (schema/base.schema.json + schema/vaults/<slug>.json). Deliberately
+# stdlib-only — no `jsonschema` runtime dependency, matching this module's
+# regex frontmatter parser and zero-dependency "runs anywhere" design.
+#
+# The "frontmatter-validated-against-a-schema, per-field errors, schema-as-SOT"
+# pattern is adapted (no code copied) from JulianCataldo/remark-lint-frontmatter-
+# schema (ISC) and dendronhq/dendron's schema.yml namespaces (Apache-2.0).
+# See CREDITS.md.
+#
+# Roles are intentionally NOT validated here: presence and membership are owned
+# by Phase 2 (role-count drift), and duplicating them would double-report.
+# ══════════════════════════════════════════════════════════════════════════════
+
+_FM_DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+
+def _load_effective_schema(vault_slug):
+    """Load base ⊕ overlay for a vault. Returns (schema|None, warnings)."""
+    schema_dir = os.path.abspath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'schema')
+    )
+    if schema_dir not in sys.path:
+        sys.path.insert(0, schema_dir)
+    try:
+        from build_effective_schema import load_effective_schema
+
+        return load_effective_schema(vault_slug, schema_dir=schema_dir)
+    except FileNotFoundError as e:
+        return None, [f'schema files not found ({e}); check_9 skipped']
+    except Exception as e:  # defensive — never let a schema issue crash the lint
+        return None, [f'schema load error ({e}); check_9 skipped']
+
+
+def _fm_type_ok(value, spec):
+    """Tolerant JSON-Schema 'type' check. The regex frontmatter parser yields
+    strings for all scalars, so integers arrive as digit strings — coerce."""
+    types = spec.get('type')
+    if types is None:
+        return True
+    if isinstance(types, str):
+        types = [types]
+    for t in types:
+        if t == 'null' and (value is None or value == 'null'):
+            return True
+        if t == 'array' and isinstance(value, list):
+            return True
+        if t == 'string' and isinstance(value, str):
+            return True
+        if t == 'integer':
+            if isinstance(value, bool):
+                continue
+            if isinstance(value, int):
+                return True
+            if isinstance(value, str) and re.match(r'^-?\d+$', value.strip()):
+                return True
+    return False
+
+
+def _fm_enum_ok(value, spec):
+    """Enum membership, compared as strings to bridge the parser (e.g. source_tier
+    arrives as "1" but the schema enum is [1, 2, 3])."""
+    enum = spec.get('enum')
+    if enum is None:
+        return True
+    return str(value) in {str(e) for e in enum}
+
+
+def check_9_frontmatter_schema(pages, schema, schema_warnings=()):
+    """Validate each live page's frontmatter against the effective schema.
+
+    errors   → gating problems (missing required field, wrong type, bad enum,
+               malformed date).
+    warnings → advisory (field not in schema — typo/drift such as a stray
+               project: on a role-MoC page or a legacy tags: field; topics-prefix
+               deviations). Do not gate CI.
+    """
+    props = schema.get('properties', {})
+    conf = schema.get('$conformance', {})
+    base_required = schema.get('required', [])
+    required_on_type = conf.get('required_on_type', {})
+    additional_ok = schema.get('additionalProperties', True)
+    additional_sev = conf.get('additional_properties_severity', 'warn')
+    topics_prefix = conf.get('topics_prefix')
+    # Role-MoC pages (slug == role-<canonical-role>) are navigational maps, not
+    # domain-content pages, so they legitimately lead their topics: with `roles`
+    # rather than the vault's domain tag — exempt them from the topics-prefix rule.
+    # Derived from the roles enum, so a content page like `role-of-valuation`
+    # (not a role slug) is NOT exempted.
+    roles_enum = ((props.get('roles', {}) or {}).get('items', {}) or {}).get('enum') or []
+    role_moc_slugs = {f'role-{r}' for r in roles_enum}
+
+    errors, warnings = [], []
+    for w in schema_warnings:
+        warnings.append({'page': '(schema build)', 'field': '—', 'msg': w})
+
+    for rp, data in sorted(pages.items()):
+        fm = data.get('fm')
+        if fm is None:
+            errors.append(
+                {'page': rp, 'field': '(frontmatter)', 'msg': 'no YAML frontmatter found'}
+            )
+            continue
+        if fm.get('status') == 'archived':
+            continue  # intentional tombstone — skip, as the orphan check does
+
+        ptype = fm.get('type')
+
+        # `type` is enum-checked on every page, so a typo (e.g. `type: entty`)
+        # is caught anywhere. But the rich per-field contract below is the
+        # TOPIC-PAGE schema: entity/book/handoff/digest pages have their own
+        # legitimate frontmatter shapes (author, year, slug, ingest_status, …)
+        # that this contract does not model, so they are not validated here.
+        type_spec = props.get('type', {})
+        if 'type' not in fm:
+            errors.append({'page': rp, 'field': 'type', 'msg': 'required field missing'})
+            continue
+        if not _fm_enum_ok(ptype, type_spec):
+            errors.append(
+                {
+                    'page': rp,
+                    'field': 'type',
+                    'msg': f'value {ptype!r} not in {type_spec.get("enum")}',
+                }
+            )
+        if ptype != 'topic':
+            continue
+
+        # Required fields: base (always) + per-type. roles is owned by Phase 2.
+        required = list(base_required)
+        for f in required_on_type.get(ptype, []):
+            if f not in required:
+                required.append(f)
+        for f in required:
+            if f == 'roles':
+                continue
+            if f not in fm:
+                errors.append({'page': rp, 'field': f, 'msg': 'required field missing'})
+
+        # Per-field type / enum / date-format checks + unexpected-field detection.
+        for field, value in fm.items():
+            if field == 'roles':
+                continue  # owned by Phase 2 (role-count drift)
+            spec = props.get(field)
+            if spec is None:
+                if not additional_ok:
+                    bucket = warnings if additional_sev == 'warn' else errors
+                    bucket.append(
+                        {
+                            'page': rp,
+                            'field': field,
+                            'msg': 'field not in schema (unexpected — possible typo or drift)',
+                        }
+                    )
+                continue
+            if not _fm_type_ok(value, spec):
+                errors.append(
+                    {'page': rp, 'field': field, 'msg': f'wrong type (expected {spec.get("type")})'}
+                )
+                continue
+            if not _fm_enum_ok(value, spec):
+                errors.append(
+                    {
+                        'page': rp,
+                        'field': field,
+                        'msg': f'value {value!r} not in {spec.get("enum")}',
+                    }
+                )
+            if (
+                spec.get('format') == 'date'
+                and isinstance(value, str)
+                and value not in ('', 'null')
+            ):
+                if not _FM_DATE_RE.match(value):
+                    errors.append(
+                        {'page': rp, 'field': field, 'msg': f'not a YYYY-MM-DD date: {value!r}'}
+                    )
+
+        # Vault-specific topics-prefix rule (IS / SS); role-MoCs are exempt.
+        if topics_prefix and ptype == 'topic' and get_slug(rp) not in role_moc_slugs:
+            topics = fm.get('topics')
+            if isinstance(topics, list) and topics and str(topics[0]).strip() != topics_prefix:
+                warnings.append(
+                    {
+                        'page': rp,
+                        'field': 'topics',
+                        'msg': f"first topic tag should be '{topics_prefix}', got '{topics[0]}'",
+                    }
+                )
+
+    return {'errors': errors, 'warnings': warnings}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §13 PHASE 2 — ROLE-COUNT DRIFT
 #     Reference implementation from SKILL.md, inlined verbatim.
 # ══════════════════════════════════════════════════════════════════════════════
@@ -2354,6 +2550,7 @@ def render_report(vault_slug, findings):
     c6 = findings['c6']
     c7 = findings['c7']
     c8 = findings['c8']
+    c9 = findings['c9']
     p15 = findings['p15']
     p2 = findings['p2']
     p3 = findings['p3']
@@ -2656,6 +2853,32 @@ def render_report(vault_slug, findings):
             )
             for f in c8['alias_shadows']:
                 L.append(f'- `{f["page"]}` alias "{f["alias"]}" shadows `{f["canonical_page"]}`')
+    L.append('')
+
+    # ── Check 9
+    L.append('### Check 9 — Frontmatter schema conformance')
+    if c9.get('skipped'):
+        L.append('SKIPPED — effective schema could not be loaded:')
+        for w in c9['warnings']:
+            L.append(f'- {w["msg"]}')
+    elif not c9['errors'] and not c9['warnings']:
+        L.append('PASS — all live-page frontmatter conforms to the effective schema')
+    else:
+        if c9['errors']:
+            L.append(
+                f'**Schema errors ({len(c9["errors"])})** — missing required field / wrong type / bad enum / malformed date:'
+            )
+            for f in c9['errors']:
+                L.append(f'- `{f["page"]}` — `{f["field"]}`: {f["msg"]}')
+        else:
+            L.append('No schema errors.')
+        if c9['warnings']:
+            L.append('')
+            L.append(
+                f'**Warnings ({len(c9["warnings"])})** — advisory (unexpected field / topics-prefix); does not gate:'
+            )
+            for f in c9['warnings']:
+                L.append(f'- `{f["page"]}` — `{f["field"]}`: {f["msg"]}')
     L.append('')
 
     # ── Phase 1.5
@@ -3210,6 +3433,23 @@ def main():
             f'{"; SOT skeleton unseeded" if c8.get("skeleton_unseeded") else ""}'
         )
 
+    eff_schema, schema_warnings = _load_effective_schema(vault_slug)
+    if eff_schema is None:
+        c9 = {
+            'errors': [],
+            'warnings': [
+                {'page': '(schema build)', 'field': '—', 'msg': w} for w in schema_warnings
+            ],
+            'skipped': True,
+        }
+        print('  Check 9 (frontmatter):  skipped — ' + '; '.join(schema_warnings))
+    else:
+        c9 = check_9_frontmatter_schema(pages, eff_schema, schema_warnings)
+        print(
+            f'  Check 9 (frontmatter):  {len(c9["errors"])} schema errors, '
+            f'{len(c9["warnings"])} warnings'
+        )
+
     # ── Phase 1.5 ─────────────────────────────────────────────
     print('[vault-lint] Phase 1.5 — activity since last lint')
     activity = count_activity_since(log_md_text, vault_slug, watermark_date)
@@ -3264,6 +3504,7 @@ def main():
         c6=c6,
         c7=c7,
         c8=c8,
+        c9=c9,
         p15=p15,
         p2=p2,
         p2b=p2b,
@@ -3303,6 +3544,7 @@ def main():
         + len(c7['todos'])
         + len(c7['open_questions'])
         + c8_total
+        + len(c9['errors'])
     )
     # Check 4 (cross-references) emits advisory "consider linking these" pairs,
     # not failures: any populated vault surfaces some, so they never reach zero.

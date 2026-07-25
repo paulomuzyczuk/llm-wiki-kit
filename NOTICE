@@ -1,0 +1,36 @@
+llm-wiki-kit
+Copyright (c) the llm-wiki-kit authors
+Licensed under the MIT License (see LICENSE).
+
+This product includes ideas and design patterns adapted from third-party
+open-source projects. Where a pattern was reimplemented independently rather than
+copied, no source code from the third party is present in this repository; the
+attribution below is provided per the project's CREDITS convention and to honour
+the spirit of the upstream licences. See CREDITS.md for the full ledger, including
+the borrow site of each item.
+
+-------------------------------------------------------------------------------
+Frontmatter-validated-against-a-JSON-Schema lint pattern (schema as single source
+of truth; per-field validation errors)
+  Source:  JulianCataldo/remark-lint-frontmatter-schema
+  Licence: ISC
+  Use:     Pattern reimplemented independently in Python (stdlib-only) — no source
+           code copied. Lands in schema/base.schema.json + schema/vaults/*.json and
+           vault-lint/lint.py (check_9_frontmatter_schema).
+
+  ISC License
+  Copyright (c) Julian Cataldo
+  Permission to use, copy, modify, and/or distribute this software for any purpose
+  with or without fee is hereby granted, provided that the above copyright notice
+  and this permission notice appear in all copies. THE SOFTWARE IS PROVIDED "AS IS"
+  AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE.
+
+-------------------------------------------------------------------------------
+Hierarchical-namespace schema-validation model (schema.yml)
+  Source:  dendronhq/dendron
+  Licence: Apache License 2.0
+  Use:     Design precedent for the effective-schema / per-vault-overlay model.
+           Reimplemented independently — no source code copied. Had any Apache-2.0
+           source been reused, this NOTICE would additionally state the changes
+           made, per Apache-2.0 §4.
+-------------------------------------------------------------------------------

@@ -22,9 +22,20 @@ _ROLES_END_SENTINEL = 'The `source_tier:` field is required'
 _OOS_ROW_PAT = re.compile(r'^\|\s*`out-of-scope`\s*\|')
 _TOKEN_PAT = re.compile(r'\{\{([^}]+)\}\}')
 
+# Frontmatter YAML block inside `## Conventions`. Since schema/base.schema.json +
+# schema/vaults/<slug>.json are now the machine-readable SOT for frontmatter
+# (enforced by vault-lint check_9), the CLAUDE.md YAML example is descriptive, not
+# authoritative — so legitimate per-vault frontmatter variance (entity field, role
+# enum, freshness volatility/next_review, topics prefix) must no longer force a
+# Conventions DIFF. This block is masked on both sides, exactly like the roles table.
+_FM_INTRO_PAT = re.compile(r'^All wiki pages start with YAML frontmatter')
+_FM_FENCE_OPEN_PAT = re.compile(r'^(?:```|~~~)ya?ml\s*$')
+_FM_FENCE_CLOSE_PAT = re.compile(r'^(?:```|~~~)\s*$')
+
 CONVENTIONS_NAME = 'Conventions'
 _PH_ROLES = '[[[SANCTIONED-ROLES-TABLE]]]\n'
 _PH_OOS = '[[[SANCTIONED-OOS-ROW]]]\n'
+_PH_FM = '[[[SANCTIONED-FRONTMATTER-BLOCK]]]\n'
 
 
 # ---------------------------------------------------------------------------
@@ -162,6 +173,32 @@ def _find_oos_row(lines: list, label: str) -> int:
     raise AnchorError(f'Anchor not found: {label}')
 
 
+def _find_frontmatter_block(lines: list, label: str):
+    """Return (start, end) for the fenced YAML frontmatter example — start is the
+    opening fence line, end is exclusive (one past the closing fence). Tolerant of
+    both ``` and ~~~ fence styles (the template uses ~~~, some vaults use ```).
+    Raises AnchorError (like the roles/oos finders) so a vault that diverged away
+    from the block degrades to a literal Conventions comparison rather than aborting."""
+    intro = None
+    for i, ln in enumerate(lines):
+        if _FM_INTRO_PAT.match(ln):
+            intro = i
+            break
+    if intro is None:
+        raise AnchorError(f'Anchor not found: frontmatter intro line ({label})')
+    start = None
+    for i in range(intro + 1, len(lines)):
+        if _FM_FENCE_OPEN_PAT.match(lines[i].rstrip()):
+            start = i
+            break
+    if start is None:
+        raise AnchorError(f'Anchor not found: frontmatter opening fence ({label})')
+    for i in range(start + 1, len(lines)):
+        if _FM_FENCE_CLOSE_PAT.match(lines[i].rstrip()):
+            return start, i + 1
+    raise AnchorError(f'Anchor not found: frontmatter closing fence ({label})')
+
+
 def _oos_cell_conforms(line: str, domain: str) -> bool:
     parts = line.split('|')
     cell = parts[2].strip() if len(parts) >= 3 else ''
@@ -188,6 +225,7 @@ def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str):
             conv_exp, _ROLES_START_EXPECTED, 'expected roles table start'
         )
         exp_oos = _find_oos_row(conv_exp, 'expected out-of-scope row')
+        exp_fm_s, exp_fm_e = _find_frontmatter_block(conv_exp, 'expected frontmatter block')
     except AnchorError as e:
         _die(f'{e} (in expected/template — template or tool is broken)')
 
@@ -200,6 +238,7 @@ def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str):
             conv_vault, _ROLES_START_VAULT, 'vault roles table start'
         )
         vlt_oos = _find_oos_row(conv_vault, 'vault out-of-scope row')
+        vlt_fm_s, vlt_fm_e = _find_frontmatter_block(conv_vault, 'vault frontmatter block')
     except AnchorError:
         return None  # degrade: vault diverged so anchors don't resolve → reported as DIFF
 
@@ -214,6 +253,10 @@ def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str):
         vlt_re=vlt_re,
         exp_oos=exp_oos,
         vlt_oos=vlt_oos,
+        exp_fm_s=exp_fm_s,
+        exp_fm_e=exp_fm_e,
+        vlt_fm_s=vlt_fm_s,
+        vlt_fm_e=vlt_fm_e,
         oos_ok=oos_ok,
     )
 
@@ -223,17 +266,15 @@ def _check_sanctioned(exp_regions: dict, vault_regions: dict, domain: str):
 # ---------------------------------------------------------------------------
 
 
-def _mask(lines: list, rs: int, re_: int, oos: int, oos_ok: bool) -> list:
+def _mask(lines: list, ranges: list) -> list:
     """
-    Return a copy of lines with sanctioned sub-regions replaced by placeholders.
+    Return a copy of lines with sanctioned sub-regions (each a (start, end, ph)
+    triple; end exclusive) replaced by placeholders.
 
     Single left-to-right pass over original indices — no shifted arithmetic,
     safe regardless of which sanctioned range comes first in the list.
     """
-    ranges = [(rs, re_, _PH_ROLES)]
-    if oos_ok:
-        ranges.append((oos, oos + 1, _PH_OOS))
-    ranges.sort(key=lambda r: r[0])
+    ranges = sorted(ranges, key=lambda r: r[0])
 
     out = []
     i = 0
@@ -277,8 +318,21 @@ def _cmp_conventions(s: dict) -> tuple:
     exp = s['conv_exp']
     vlt = s['conv_vault']
 
-    m_exp = _mask(exp, s['exp_rs'], s['exp_re'], s['exp_oos'], s['oos_ok'])
-    m_vlt = _mask(vlt, s['vlt_rs'], s['vlt_re'], s['vlt_oos'], s['oos_ok'])
+    exp_ranges = [(s['exp_rs'], s['exp_re'], _PH_ROLES)]
+    vlt_ranges = [(s['vlt_rs'], s['vlt_re'], _PH_ROLES)]
+    # The frontmatter block is a sanctioned region in every real run (always set by
+    # _check_sanctioned); guarded here so any caller that builds `s` by hand for
+    # roles/oos-only geometry stays valid.
+    has_fm = 'exp_fm_s' in s
+    if has_fm:
+        exp_ranges.append((s['exp_fm_s'], s['exp_fm_e'], _PH_FM))
+        vlt_ranges.append((s['vlt_fm_s'], s['vlt_fm_e'], _PH_FM))
+    if s['oos_ok']:
+        exp_ranges.append((s['exp_oos'], s['exp_oos'] + 1, _PH_OOS))
+        vlt_ranges.append((s['vlt_oos'], s['vlt_oos'] + 1, _PH_OOS))
+
+    m_exp = _mask(exp, exp_ranges)
+    m_vlt = _mask(vlt, vlt_ranges)
 
     if list(difflib.unified_diff(m_exp, m_vlt)):
         # Non-sanctioned difference — show full unmasked hunks
@@ -299,6 +353,15 @@ def _cmp_conventions(s: dict) -> tuple:
     out.append('--- EXEMPT: roles table (vault) ---\n')
     out.extend(vlt[s['vlt_rs'] : s['vlt_re']])
     out.append('---\n')
+    if has_fm:
+        out.append(
+            '--- EXEMPT: frontmatter block (governed by schema/base.schema.json + overlay) ---\n'
+        )
+        out.append('--- expected ---\n')
+        out.extend(exp[s['exp_fm_s'] : s['exp_fm_e']])
+        out.append('--- vault ---\n')
+        out.extend(vlt[s['vlt_fm_s'] : s['vlt_fm_e']])
+        out.append('---\n')
     if s['oos_ok']:
         out.append('--- EXEMPT: out-of-scope row (vault) ---\n')
         out.append(vlt[s['vlt_oos']])

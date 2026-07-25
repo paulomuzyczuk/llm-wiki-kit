@@ -1,0 +1,10 @@
+{
+  "vault_slug": "software-craft",
+  "_note": "Overlay onto schema/base.schema.json. entity_field and handoff_type are cross-checked against check-conformance/subs/software-craft.json (ENTITY_SUBJECT-singular, EXEC_HANDOFF) by build_effective_schema.py.",
+  "entity_field": "project",
+  "handoff_type": "coding-handoff",
+  "roles": ["code-craftsperson", "system-designer", "data-engineer", "security-engineer", "tech-lead", "product-engineer"],
+  "status_add": [],
+  "extra_fields": {},
+  "topics_prefix": null
+}
