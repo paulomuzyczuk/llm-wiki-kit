@@ -364,6 +364,9 @@ All wiki pages start with YAML frontmatter:
 
 ~~~yaml
 ---
+# Frontmatter contract SOT: schema/base.schema.json + schema/vaults/<slug>.json
+# (assembled by build_effective_schema.py). This block is a human-readable example;
+# the schema files are authoritative and are enforced by vault-lint check_9.
 title: <human-readable>
 aliases: [<alternate names>]
 date: <YYYY-MM-DD created>

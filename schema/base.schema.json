@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "llm-wiki-kit/schema/base.schema.json",
+  "title": "LLM-wiki-kit fleet base frontmatter schema (single source of truth)",
+  "description": "SOT for wiki-page YAML frontmatter across the fleet. Universal fields live here; per-vault variance (entity field, role enum, status additions, extra fields, topics prefix) lives in schema/vaults/<slug>.json overlays. The effective per-vault schema is base + overlay, assembled by build_effective_schema.py. Enforced by vault-lint check_9_frontmatter_schema and honoured by check-conformance (the CLAUDE.md frontmatter block is masked, since this file — not the prose — is authoritative). Validation-as-a-schema pattern adapted from JulianCataldo/remark-lint-frontmatter-schema (ISC) and the hierarchical-namespace model of dendronhq/dendron schema.yml (Apache-2.0); see CREDITS.md. No code copied.",
+  "type": "object",
+  "properties": {
+    "title": {"type": "string"},
+    "aliases": {"type": "array", "items": {"type": "string"}},
+    "date": {"type": "string", "format": "date"},
+    "last_updated": {"type": "string", "format": "date"},
+    "type": {"type": "string", "enum": ["entity", "topic", "planning-handoff", "book", "paper", "blog-post", "whitepaper", "digest", "authority"]},
+    "topics": {"type": "array", "items": {"type": "string"}},
+    "roles": {"type": "array", "items": {"type": "string"}},
+    "source_tier": {"type": "integer", "enum": [1, 2, 3]},
+    "source_count": {"type": "integer"},
+    "status": {"type": "string", "enum": ["active", "stub", "archived"]},
+    "note": {"type": "string"},
+    "size_note": {"type": "string"}
+  },
+  "required": ["title", "type"],
+  "additionalProperties": false,
+  "$conformance": {
+    "comment": "Extension keys consumed by the vault-lint hand-rolled checker (stdlib-only; deliberately no jsonschema runtime dependency — mirrors lint.py's regex frontmatter parser). Standard JSON Schema keys above stay valid so this file can be handed to a real JSON Schema validator later without change.",
+    "required_on_type": {
+      "topic": ["title", "aliases", "date", "last_updated", "topics", "source_tier", "source_count", "status"]
+    },
+    "roles_owned_by": "phase_2_role_drift — roles presence and membership are reported there; check_9 does not duplicate that.",
+    "additional_properties_severity": "warn",
+    "date_format_fields": ["date", "last_updated"]
+  }
+}

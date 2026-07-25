@@ -84,7 +84,7 @@ If exit code 2 (crash), report the error from stdout and stop. Do NOT attempt to
 `wiki/index.md`'s role-page-counts list (under a heading matching "Role" / "Roles" /
 "Role Maps") must render each entry as one of two forms — mixing a third, unrecognized
 form into a vault's index silently disables both `--sync-role-counts` and the Phase 2
-drift check for that vault (this happened to the example-domain-5 vault for ~20 batches
+drift check for that vault (this was observed in practice for ~20 batches
 before being caught):
 
 ```

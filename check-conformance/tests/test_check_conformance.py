@@ -501,3 +501,56 @@ def test_missing_subs_file_exits_2(tmp_path):
     assert 'ERROR' in result.stderr
     assert 'subs' in result.stderr.lower()
     assert 'Traceback' not in result.stderr
+
+
+# ===========================================================================
+# Frontmatter-block masking — legitimate per-vault frontmatter variance is now
+# governed by schema/base.schema.json (+ overlay), so it must NOT force a
+# Conventions DIFF. The YAML example block is masked, like the roles table.
+# ===========================================================================
+
+
+def _mutate_frontmatter_block(lines):
+    """Insert a per-vault field into the frontmatter YAML example (the kind of
+    variance a vault legitimately carries). Without the mask this is a
+    non-sanctioned Conventions diff."""
+    out = []
+    for ln in lines:
+        out.append(ln)
+        if ln.strip() == 'source_count: <integer>':
+            out.append('volatility: static | slow | fast | live\n')
+    return out
+
+
+def test_frontmatter_variance_is_sanctioned(tmp_path):
+    vault = make_vault(mutations=[_mutate_frontmatter_block])
+    result = run_check(vault, tmp_path=tmp_path)
+    conv = [
+        ln for ln in result.stdout.splitlines() if ln.startswith('REGION') and 'Conventions' in ln
+    ]
+    assert conv, 'Conventions region must appear in output'
+    assert 'EXEMPT-CONTAINED' in conv[0], (
+        f'Frontmatter-only variance must be EXEMPT, got: {conv[0]!r}\n{result.stdout}'
+    )
+    # exit 0: no non-sanctioned diffs anywhere
+    assert result.returncode == 0, result.stdout
+
+
+def test_non_frontmatter_convention_diff_still_flagged(tmp_path):
+    """Control: a change OUTSIDE the frontmatter block still DIFFs — the mask
+    must not swallow real Conventions drift."""
+
+    def mutate(lines):
+        return [
+            ln.replace('Page filenames in `kebab-case.md`.', 'Page filenames in `snake_case.md`.')
+            for ln in lines
+        ]
+
+    vault = make_vault(mutations=[mutate])
+    result = run_check(vault, tmp_path=tmp_path)
+    conv = [
+        ln for ln in result.stdout.splitlines() if ln.startswith('REGION') and 'Conventions' in ln
+    ]
+    assert conv and 'DIFF' in conv[0], (
+        f'Non-frontmatter Conventions drift must still DIFF, got: {conv[0]!r}'
+    )

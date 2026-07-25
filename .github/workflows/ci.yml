@@ -35,7 +35,12 @@ jobs:
 
       - name: ShellCheck
         # shellcheck ships preinstalled on ubuntu-latest runners.
-        run: shellcheck install.sh new-vault.sh regenerate-clones.sh
+        run: shellcheck install.sh new-vault.sh regenerate-clones.sh check-no-private-vault-names.sh
+
+      - name: No private vault names
+        # Privacy guard: a PUBLIC repo may name only the `software-craft` example
+        # vault. Fails if any private fleet vault slug appears in a tracked file.
+        run: ./check-no-private-vault-names.sh
 
   security:
     runs-on: ubuntu-latest
