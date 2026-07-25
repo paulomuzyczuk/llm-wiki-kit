@@ -173,10 +173,10 @@ def test_archived_tombstone_skipped():
 
 
 def test_topics_prefix_warns():
-    sch = eff_schema(entity_field=None, topics_prefix='example-domain-3')
+    sch = eff_schema(entity_field=None, topics_prefix='my-domain')
     page = good_topic(topics=['roles', 'navigation'], project=None)
     r = run_c9({'wiki/topics/role-x.md': page}, sch)
-    assert any(w['field'] == 'topics' and 'example-domain-3' in w['msg'] for w in r['warnings'])
+    assert any(w['field'] == 'topics' and 'my-domain' in w['msg'] for w in r['warnings'])
 
 
 def test_role_moc_exempt_from_topics_prefix():
@@ -184,7 +184,7 @@ def test_role_moc_exempt_from_topics_prefix():
     # and must NOT trigger the topics-prefix warning.
     sch = eff_schema(
         entity_field=None,
-        topics_prefix='example-domain-3',
+        topics_prefix='my-domain',
         roles=['archivist', 'retrieval-specialist'],
     )
     page = good_topic(topics=['roles', 'navigation'], project=None)
@@ -195,7 +195,7 @@ def test_role_moc_exempt_from_topics_prefix():
 def test_non_moc_role_prefixed_page_still_checked():
     # A content page that merely starts with 'role-' but is not a role slug
     # (e.g. role-of-valuation) is still subject to the topics-prefix rule.
-    sch = eff_schema(entity_field=None, topics_prefix='example-domain-3', roles=['archivist'])
+    sch = eff_schema(entity_field=None, topics_prefix='my-domain', roles=['archivist'])
     page = good_topic(topics=['metadata'], project=None)
     r = run_c9({'wiki/topics/role-of-valuation.md': page}, sch)
     assert any(w['field'] == 'topics' for w in r['warnings'])
@@ -210,8 +210,7 @@ def test_schema_build_warnings_surface():
 # integration tests — the real schema/ files
 #
 # This example kit ships a single example overlay (schema/vaults/software-craft.json)
-# paired with check-conformance/subs/software-craft.json. The wider-fleet overlays
-# (example finance vaults, example-domain-3, example-domain-4, example-domain-5)
+# paired with check-conformance/subs/software-craft.json. Any other vault's overlays
 # are not shipped here, so the integration tests cover only what the kit ships;
 # the unit tests above already exercise the documentation-only (null entity) and
 # freshness-extra-field code paths against hand-built schemas.

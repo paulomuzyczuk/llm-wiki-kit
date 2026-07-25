@@ -21,19 +21,19 @@ legitimately varies:
 
 | Overlay key | Meaning | Example |
 |---|---|---|
-| `entity_field` | the vault's entity-subject field, or `null` (documentation-only) | `portfolio`, `study`, `project`, `null` |
-| `handoff_type` | the vault's exec-handoff `type` value, or `null` | `coding-handoff`, `advisory-handoff`, `null` |
-| `roles` | the vault's role enum | `[portfolio-steward, …]` |
-| `status_add` | status-enum additions beyond `active\|stub\|archived` | `[needs-review]` (FG) |
-| `extra_fields` | vault-specific fields | FG: `volatility`, `next_review` |
-| `topics_prefix` | required first `topics` tag, or `null` | `example-domain-3` (IS), `example-domain-5` (SS) |
+| `entity_field` | the vault's entity-subject field, or `null` (documentation-only) | `project`, `null` |
+| `handoff_type` | the vault's exec-handoff `type` value, or `null` | `coding-handoff`, `null` |
+| `roles` | the vault's role enum | `[code-craftsperson, …]` |
+| `status_add` | status-enum additions beyond `active\|stub\|archived` | `[needs-review]` |
+| `extra_fields` | vault-specific fields | `volatility`, `next_review` |
+| `topics_prefix` | required first `topics` tag, or `null` | `my-domain`, `null` |
 
 `entity_field` and `handoff_type` are **cross-checked** against the vault's
 existing substitution map (`check-conformance/subs/<slug>.json`) at build time, so
 the schema and the subs map cannot silently disagree.
 
-The overlay-key examples above (`portfolio`, freshness fields, `topics_prefix`)
-illustrate the format across the wider fleet. This example kit ships a single
+The overlay-key examples above (`entity_field`, freshness fields, `topics_prefix`)
+illustrate the format a vault may vary. This example kit ships a single
 example overlay, `vaults/software-craft.json`, paired with the example
 `check-conformance/subs/software-craft.json`; add one overlay per vault as you
 adopt the convention.

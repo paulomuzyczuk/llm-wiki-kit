@@ -30,7 +30,7 @@ The honest framing is the one Andrej Karpathy uses: a "distilled wiki," a compre
 
 ## Sources
 
-The principles above are distilled from these works (all ingested into the companion `example-domain-3` reference vault):
+The principles above are distilled from these works (all ingested into a companion reference vault):
 
 - Sönke Ahrens, *How to Take Smart Notes* (2017)
 - Heather MacNeil & Terry Eastwood (eds.), *Currents of Archival Thinking* (2nd ed., 2017)

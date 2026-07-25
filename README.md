@@ -26,7 +26,7 @@ A vault is governed by a single `CLAUDE.md` contract instantiated from [`CLAUDE.
 - **A pipeline** — how source material (books, articles) is planned, ingested, reviewed, and evaluated into wiki pages.
 - **Negative space** — knowledge gaps and out-of-scope topics are first-class, recorded rather than silently absent.
 
-One template, many vaults. A "fleet" of domain vaults (e.g. business-analytics, design, example-domain-5) all share the contract and are kept conformant by tooling.
+One template, many vaults. A "fleet" of domain vaults (the populated example here is `software-craft`) all share the contract and are kept conformant by tooling.
 
 ## Why it's shaped this way
 

@@ -9,7 +9,7 @@
     "aliases": {"type": "array", "items": {"type": "string"}},
     "date": {"type": "string", "format": "date"},
     "last_updated": {"type": "string", "format": "date"},
-    "type": {"type": "string", "enum": ["entity", "topic", "planning-handoff", "book", "digest"]},
+    "type": {"type": "string", "enum": ["entity", "topic", "planning-handoff", "book", "paper", "blog-post", "whitepaper", "digest", "authority"]},
     "topics": {"type": "array", "items": {"type": "string"}},
     "roles": {"type": "array", "items": {"type": "string"}},
     "source_tier": {"type": "integer", "enum": [1, 2, 3]},
