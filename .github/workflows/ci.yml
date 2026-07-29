@@ -40,6 +40,11 @@ jobs:
       - name: No private vault names
         # Privacy guard: a PUBLIC repo may name only the `software-craft` example
         # vault. Fails if any private fleet vault slug appears in a tracked file.
+        # The denylist is supplied out-of-band (never committed): set the
+        # LWK_PRIVATE_DENYLIST repository secret to a pipe-separated ERE of slugs.
+        # If the secret is unset the guard skips (exit 0) rather than failing.
+        env:
+          LWK_PRIVATE_DENYLIST: ${{ secrets.LWK_PRIVATE_DENYLIST }}
         run: ./check-no-private-vault-names.sh
 
   security:
