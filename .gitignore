@@ -29,3 +29,9 @@ credentials.json
 
 # Privacy guard denylist — supplied out-of-band, never committed (would leak names)
 .private-denylist
+
+# Private vault schema overlays — this repo may name only the public example
+# vault (software-craft.json). A local lint run against a private vault may
+# generate its own overlay here; it must stay untracked.
+schema/vaults/*.json
+!schema/vaults/software-craft.json

@@ -1560,7 +1560,7 @@ _FM_DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 def _load_effective_schema(vault_slug):
     """Load base ⊕ overlay for a vault. Returns (schema|None, warnings)."""
     schema_dir = os.path.abspath(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'schema')
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'schema')
     )
     if schema_dir not in sys.path:
         sys.path.insert(0, schema_dir)
