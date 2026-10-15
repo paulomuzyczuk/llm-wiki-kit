@@ -313,6 +313,8 @@ def load_live_pages(vault_path):
     pages = {}
     for pattern in ['wiki/topics/**/*.md', 'wiki/entities/**/*.md']:
         for fpath in sorted(glob.glob(os.path.join(vault_path, pattern), recursive=True)):
+            if _is_drawing(fpath):
+                continue
             relpath = os.path.relpath(fpath, vault_path).replace('\\', '/')
             try:
                 with open(fpath, encoding='utf-8') as f:
@@ -325,6 +327,16 @@ def load_live_pages(vault_path):
             except Exception as e:
                 print(f'WARNING: could not read {relpath}: {e}', file=sys.stderr)
     return pages
+
+
+DRAWING_SUFFIX = '.excalidraw.md'
+
+
+def _is_drawing(path):
+    """Excalidraw drawings are not wiki pages: skipped by every page check.
+    Their only lint today is staleness (check 6, Condition C); full linting of
+    drawing content is tracked separately."""
+    return path.endswith(DRAWING_SUFFIX)
 
 
 def get_slug(relpath):
@@ -576,6 +588,8 @@ def check_3_pass_a(vault_path, pages, slug_index):
     """
     digest_slugs = set()
     for fpath in glob.glob(os.path.join(vault_path, 'wiki/digests/**/*.md'), recursive=True):
+        if _is_drawing(fpath):
+            continue
         digest_slugs.add(os.path.splitext(os.path.basename(fpath))[0])
     dangling = {}
     for relpath, data in pages.items():
@@ -995,6 +1009,8 @@ def check_4_cross_refs(vault_path, pages, generic_topics=frozenset()):
     page_links = {}
     for pattern in ['wiki/topics/*.md', 'wiki/entities/books/*.md']:
         for fpath in sorted(glob.glob(os.path.join(vault_path, pattern))):
+            if _is_drawing(fpath):
+                continue
             rp = os.path.relpath(fpath, vault_path).replace('\\', '/')
             if rp in pages:
                 page_links[rp] = set(pages[rp]['wikilinks'])
@@ -1256,6 +1272,58 @@ def check_6_stale_claims(pages):
             )
 
     return {'stale_active': stale_active, 'opposing_candidates': contradicts_findings}
+
+
+def check_6c_stale_visuals(vault_path, pages, slug_index):
+    """
+    Condition C: visual summaries (visual-summary skill drawings) that no longer
+    match their page. Scans wiki/**/*.excalidraw.md carrying a
+    `visual-summary-of: "[[slug]]"` field; hand-made drawings without it are
+    ignored. Reasons:
+      stale    — the page's last_updated is later than visual-summary-date
+      undated  — the drawing has no visual-summary-date to compare against
+      orphaned — the page it summarises no longer exists
+    """
+    findings = []
+    pattern = os.path.join(vault_path, 'wiki', '**', '*' + DRAWING_SUFFIX)
+    for fpath in sorted(glob.glob(pattern, recursive=True)):
+        rp = os.path.relpath(fpath, vault_path).replace('\\', '/')
+        try:
+            with open(fpath, encoding='utf-8') as f:
+                fm = parse_frontmatter(f.read()) or {}
+        except Exception as e:
+            print(f'WARNING: could not read {rp}: {e}', file=sys.stderr)
+            continue
+        m = re.search(r'\[\[([^\]|#]+)', str(fm.get('visual-summary-of', '')))
+        if not m:
+            continue
+        slug = m.group(1).strip()
+        targets = slug_index.get(slug, [])
+        if not targets:
+            findings.append({'drawing': rp, 'page': slug, 'reason': 'orphaned'})
+            continue
+        page_rp = targets[0]
+        drawn = str(fm.get('visual-summary-date', '')).strip()
+        if not drawn:
+            findings.append({'drawing': rp, 'page': page_rp, 'reason': 'undated'})
+            continue
+        updated = str((pages[page_rp]['fm'] or {}).get('last_updated', '')).strip()
+        try:
+            if updated and datetime.date.fromisoformat(updated) > datetime.date.fromisoformat(
+                drawn
+            ):
+                findings.append(
+                    {
+                        'drawing': rp,
+                        'page': page_rp,
+                        'reason': 'stale',
+                        'drawn': drawn,
+                        'page_updated': updated,
+                    }
+                )
+        except ValueError:
+            findings.append({'drawing': rp, 'page': page_rp, 'reason': 'undated'})
+    return findings
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1788,6 +1856,8 @@ def phase_2_role_drift(vault_path, canonical_roles, index_md_text):
     total_scanned = 0
 
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/*.md'))):
+        if _is_drawing(fpath):
+            continue
         total_scanned += 1
         rp = os.path.relpath(fpath, vault_path)
         try:
@@ -2173,6 +2243,8 @@ def _ext_cross_vault_reference_format(vault_path, config, check):
     marker = 'See also (cross-vault):'
     for pattern in ['wiki/topics/**/*.md', 'wiki/entities/**/*.md']:
         for fpath in sorted(glob.glob(os.path.join(vault_path, pattern), recursive=True)):
+            if _is_drawing(fpath):
+                continue
             rp = os.path.relpath(fpath, vault_path)
             try:
                 with open(fpath, encoding='utf-8') as f:
@@ -2195,6 +2267,8 @@ def _ext_cross_vault_reference_format(vault_path, config, check):
 def _ext_calendar_staleness_sweep(vault_path, config, check):
     findings = []
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
+        if _is_drawing(fpath):
+            continue
         rp = os.path.relpath(fpath, vault_path)
         try:
             with open(fpath, encoding='utf-8') as f:
@@ -2257,6 +2331,8 @@ def _ext_alias_bilingual_coverage(vault_path, config, check):
         ]
     findings = []
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
+        if _is_drawing(fpath):
+            continue
         rp = os.path.relpath(fpath, vault_path)
         try:
             with open(fpath, encoding='utf-8') as f:
@@ -2294,6 +2370,8 @@ def _ext_english_first_naming(vault_path, config, check):
     allow = set(s.strip() for s in str(check.get('allowlist', '')).split(',') if s.strip())
     findings = []
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
+        if _is_drawing(fpath):
+            continue
         rp = os.path.relpath(fpath, vault_path)
         slug = os.path.basename(fpath)[:-3]
         if slug in allow:
@@ -2361,6 +2439,8 @@ def _ext_book_entity_backlink(vault_path, config, check):
     findings = []
     unresolved = {}  # book folder (exists, cited, no entity) -> [citing pages]
     for fpath in sorted(glob.glob(os.path.join(vault_path, 'wiki/topics/**/*.md'), recursive=True)):
+        if _is_drawing(fpath):
+            continue
         rp = os.path.relpath(fpath, vault_path)
         try:
             with open(fpath, encoding='utf-8') as f:
@@ -2424,6 +2504,8 @@ def _ext_merge_tombstone_hygiene(vault_path, config, check):
     files = {}  # relpath -> (fm, content)
     for pattern in ['wiki/topics/**/*.md', 'wiki/entities/**/*.md']:
         for fpath in sorted(glob.glob(os.path.join(vault_path, pattern), recursive=True)):
+            if _is_drawing(fpath):
+                continue
             rp = os.path.relpath(fpath, vault_path).replace('\\', '/')
             try:
                 with open(fpath, encoding='utf-8') as f:
@@ -2581,6 +2663,7 @@ def render_report(vault_slug, findings):
         + len(c5['alias_resolve'])
         + len(c6['stale_active'])
         + len(c6['opposing_candidates'])
+        + len(c6.get('stale_visuals', []))
         + len(c7['stubs'])
         + len(c7['todos'])
         + len(c7['open_questions'])
@@ -2735,8 +2818,10 @@ def render_report(vault_slug, findings):
 
     # ── Check 6
     L.append('### Check 6 — Contradictions and stale claims')
-    if not c6['stale_active'] and not c6['opposing_candidates']:
-        L.append('PASS — no stale-active pages; no CONTRADICTS: markers found')
+    if not c6['stale_active'] and not c6['opposing_candidates'] and not c6.get('stale_visuals'):
+        L.append(
+            'PASS — no stale-active pages; no CONTRADICTS: markers found; no stale visual summaries'
+        )
     else:
         if c6['stale_active']:
             L.append(f'**Condition A — Stale-active pages ({len(c6["stale_active"])}):**')
@@ -2759,6 +2844,16 @@ def render_report(vault_slug, findings):
                     L.append(f'  ↑ `{item["context_before"]}`')
                 if item.get('context_after'):
                     L.append(f'  ↓ `{item["context_after"]}`')
+        if c6.get('stale_visuals'):
+            L.append(f'**Condition C — Stale visual summaries ({len(c6["stale_visuals"])}):**')
+            for item in c6['stale_visuals']:
+                if item['reason'] == 'stale':
+                    why = f'page updated {item["page_updated"]}, drawn {item["drawn"]} — redraw'
+                elif item['reason'] == 'undated':
+                    why = 'no visual-summary-date — redraw or date it'
+                else:
+                    why = 'summarised page no longer exists — delete or retarget'
+                L.append(f'- `{item["drawing"]}` → `{item["page"]}`: {why}')
     L.append('')
 
     # ── Check 7
@@ -3411,8 +3506,10 @@ def main():
     )
 
     c6 = check_6_stale_claims(pages)
+    c6['stale_visuals'] = check_6c_stale_visuals(vault_path, pages, slug_index)
     print(
-        f'  Check 6 (stale):        {len(c6["stale_active"])} stale-active, {len(c6["opposing_candidates"])} CONTRADICTS: markers'
+        f'  Check 6 (stale):        {len(c6["stale_active"])} stale-active, {len(c6["opposing_candidates"])} CONTRADICTS: markers, '
+        f'{len(c6["stale_visuals"])} stale visual summaries'
     )
 
     c7 = check_7_data_gaps(pages)
@@ -3540,6 +3637,7 @@ def main():
         + len(c5['alias_resolve'])
         + len(c6['stale_active'])
         + len(c6['opposing_candidates'])
+        + len(c6.get('stale_visuals', []))
         + len(c7['stubs'])
         + len(c7['todos'])
         + len(c7['open_questions'])
