@@ -202,5 +202,6 @@ echo "  2. Decide the Notation-hygiene block (keep / strengthen / remove both ma
 echo "  3. Decide the Vault-specific-extensions block (fill or remove)."
 echo "  4. Fill the VAULT-LINT-EXTENSIONS block (freshness_model, extension_checks)."
 echo "  5. If this vault has no execution/thinking split, remove the '${exec_handoff}s' folders and prune the exec-handoff references."
-echo "  6. Verify: python3 check-conformance/check-conformance.py \\"
+echo "  6. Optional: install the Obsidian plugin set (quit Obsidian first): ./install-obsidian-plugins.py \"$dest\""
+echo "  7. Verify: python3 check-conformance/check-conformance.py \\"
 echo "       --vault \"$dest/CLAUDE.md\" --template \"$template\" --subs \"$subs\""
