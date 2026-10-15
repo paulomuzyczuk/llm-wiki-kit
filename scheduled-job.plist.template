@@ -40,8 +40,18 @@ To instantiate for a new vault:
   8. launchctl load <path> — register with launchd.
   9. launchctl list | grep com.user.vault — confirm loaded.
 
-IMPORTANT: the shell command in ProgramArguments uses &amp;&amp; instead
-of &&. This is XML entity-encoding for the ampersand character. macOS
+PUSH (optional backup): after claude exits, the command runs `git push`
+when — and only when — the vault's current branch has an upstream
+configured (`git rev-parse @{u}` succeeds). Vaults without a remote are
+unaffected. With a remote, the run's commit and any interactive commits
+since the last run reach it daily. The push runs whether or not claude
+succeeded, and the job still exits with claude's status. `cd ... || exit 1`
+(rather than &&) guarantees a failed cd never pushes from the wrong
+directory. If the vault's local branch name differs from its remote branch,
+set `git config push.default upstream` in the vault.
+
+IMPORTANT: any & in the shell command must be written &amp; (e.g. &amp;&amp;
+for &&). This is XML entity-encoding for the ampersand character. macOS
 launchd's CFPropertyList parser is lenient and accepts unescaped &, but
 plutil -lint (strict XML) rejects it. Always use the escaped form.
 launchd unescapes the entities back to & before handing the command to
@@ -56,7 +66,7 @@ zsh, so the actual shell command is identical either way.
     <array>
         <string>/bin/zsh</string>
         <string>-c</string>
-        <string>cd {{VAULT_PATH}} &amp;&amp; {{CLAUDE_BIN}} -p "Run scheduled-operations workflow as defined in CLAUDE.md. Apply the 5-day guard." --permission-mode bypassPermissions --add-dir {{INTAKE_DIR}}</string>
+        <string>cd {{VAULT_PATH}} || exit 1; {{CLAUDE_BIN}} -p "Run scheduled-operations workflow as defined in CLAUDE.md. Apply the 5-day guard." --permission-mode bypassPermissions --add-dir {{INTAKE_DIR}}; rc=$?; if /usr/bin/git rev-parse --abbrev-ref @{u} >/dev/null 2>/dev/null; then /usr/bin/git push -q || echo "git push failed"; fi; exit $rc</string>
     </array>
 
     <key>StartCalendarInterval</key>

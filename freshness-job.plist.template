@@ -29,8 +29,8 @@ To instantiate:
   7. launchctl load <path>
   8. launchctl list | grep com.user.vault-{{VAULT_PREFIX}}-freshness
 
-Same XML-escaping rule as scheduled-job.plist.template — use &amp;&amp;
-not &&.
+Same XML-escaping rule and optional trailing `git push` as
+scheduled-job.plist.template (see PUSH there).
 -->
 <plist version="1.0">
 <dict>
@@ -41,7 +41,7 @@ not &&.
     <array>
         <string>/bin/zsh</string>
         <string>-c</string>
-        <string>cd {{VAULT_PATH}} &amp;&amp; {{CLAUDE_BIN}} -p "Run freshness-scan workflow as defined in CLAUDE.md. Apply the 7-day guard." --permission-mode bypassPermissions</string>
+        <string>cd {{VAULT_PATH}} || exit 1; {{CLAUDE_BIN}} -p "Run freshness-scan workflow as defined in CLAUDE.md. Apply the 7-day guard." --permission-mode bypassPermissions; rc=$?; if /usr/bin/git rev-parse --abbrev-ref @{u} >/dev/null 2>/dev/null; then /usr/bin/git push -q || echo "git push failed"; fi; exit $rc</string>
     </array>
 
     <key>StartCalendarInterval</key>

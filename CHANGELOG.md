@@ -9,6 +9,26 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
 
 ### Added
 
+- **`install-obsidian-plugins.py`** — installs the default Obsidian plugin set into a
+  vault (or `--all` under the vaults directory): Hover Editor, Strange New Worlds,
+  Omnisearch + Text Extractor, PDF++, Excalidraw, Supercharged Links and Quiet Outline,
+  plus core Bases. Plugins are resolved through Obsidian's community registry; plugin
+  code is gitignored (only `community-plugins.json` and each plugin's `data.json` are
+  versioned); `RETIRED_PLUGINS` are uninstalled on the next run. The selection rule:
+  plugins only help a human read and navigate — nothing that writes to notes.
+  Wired into the template's instantiation steps and `new-vault.sh`'s next steps.
+- **`visual-summary` skill (draft)** — template-driven Excalidraw summaries of topic
+  pages. The agent fills a layout template (pipeline, hub, contrast) with short labels
+  instead of placing coordinates; `visual_summary.py` lays it out with text bound in
+  shapes and arrows bound to them (editable in Obsidian), enforces word budgets, checks
+  overlaps, and renders a PNG preview via headless Chrome.
+- **vault-lint: stale visual summaries** — check 6 gains Condition C: a drawing is
+  flagged when its page's `last_updated` is past its `visual-summary-date`, when it is
+  undated, or when its page no longer exists.
+- **Scheduled jobs push after each run** — both launchd templates now `git push` when
+  the vault's branch has an upstream, so a remote backup stays current. Vaults without
+  a remote are unaffected.
+
 - **Verification-loop bound** (book-ingestion, book-review, template): a new hard
   rule/constraint stating that when a page-anchor, citation, or other
   self-verification check cannot resolve after two attempts, the skill must stop,
@@ -102,6 +122,11 @@ and this project aims to adhere to [Semantic Versioning](https://semver.org/spec
   Apple Silicon Homebrew only).
 
 ### Changed
+
+- **vault-lint skips Excalidraw drawings** (`*.excalidraw.md`) in every page check, so
+  drawings no longer fail frontmatter, orphan or cross-reference checks.
+- Launchd job commands use `cd … || exit 1;` instead of `&&`, so a failed `cd` can
+  never run the job (or its push) from the wrong directory.
 
 - `vault-lint/lint.py` no longer ships any domain vocabulary. The finance
   stoplists (`CHECK5_GENERIC_TERMS`, `CHECK4_GENERIC_TOPICS`) and the Portuguese
