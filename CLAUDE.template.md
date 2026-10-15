@@ -9,7 +9,11 @@ This file is a TEMPLATE. To create a new vault from it:
   1. Copy this file into the new vault root as `CLAUDE.md`.
   2. Replace every {{PLACEHOLDER}} using the table below.
   3. Create the folder structure shown below inside the new vault.
-  4. Delete this entire comment block from the instantiated CLAUDE.md.
+  4. Install the default Obsidian plugin set (with Obsidian quit):
+       <llm-wiki-kit>/install-obsidian-plugins.py <vault-dir>
+     then open the vault in Obsidian and turn off Restricted mode
+     (Settings → Community plugins). Re-run the script any time to update.
+  5. Delete this entire comment block from the instantiated CLAUDE.md.
 
 ----------------------------------------------------------------
 PLACEHOLDERS

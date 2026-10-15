@@ -19,7 +19,7 @@ description: >
 
 # Vault Lint
 
-Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, role-count drift, role-MoC curation candidates (advisory), controlled-vocabulary resolution (against the optional `topics-authority.md` SOT), and vault-specific extensions.
+Run a comprehensive health check on an LLM-wiki Obsidian vault. The check covers citation resolution, orphan pages, dangling wikilinks, missing cross-references, duplicate pages, contradictions, stale visual summaries (Excalidraw drawings from the visual-summary skill whose page has changed since; drawings are otherwise skipped by every page check), role-count drift, role-MoC curation candidates (advisory), controlled-vocabulary resolution (against the optional `topics-authority.md` SOT), and vault-specific extensions.
 
 The implementation is a single Python script, `lint.py`, co-located with this skill — it sits in the same folder as this `SKILL.md`. When the skill is installed per the repo README (symlinked or copied into your agent's skills directory — `~/.claude/skills/` for Claude Code, `~/.codex/skills/` for Codex, `~/.cursor/skills/` for Cursor), that path is `<skills-dir>/vault-lint/lint.py`. This skill exists to invoke that script and present its output. The script is the canonical source of truth — this skill does NOT describe check logic, does NOT contain reference implementations, and does NOT reimplement anything.
 

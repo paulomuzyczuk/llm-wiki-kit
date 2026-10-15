@@ -66,13 +66,15 @@ Some shapes that fit the grain especially well:
 | [`book-review`](book-review/) | Verifies a freshly ingested chapter against the vault's discipline rules. Reports only — never modifies wiki files. |
 | [`vault-evaluator`](vault-evaluator/) | Benchmarks how much a vault actually helps: runs question sets across three conditions (no context / raw source / vault) and multiple model classes, then reports comparative performance. |
 | [`article-ingestion`](article-ingestion/) | Owns the article path: **fetches** a URL into a provenance-stamped Markdown note, and **ingests** a pending article into the wiki (topic/entity synthesis, vocabulary resolution, index/log, lint trigger). Interactive or headless. |
-| [`vault-lint`](vault-lint/) | Health-check sweep — citation-resolution failures, orphan pages, missing cross-references, duplicate concepts, stale claims, role-count drift, plus per-vault extension checks. |
+| [`vault-lint`](vault-lint/) | Health-check sweep — citation-resolution failures, orphan pages, missing cross-references, duplicate concepts, stale claims (including stale visual summaries), role-count drift, plus per-vault extension checks. |
+| [`visual-summary`](visual-summary/) | *(Draft.)* Draws a one-glance Excalidraw summary of a topic page. The agent picks a layout template (pipeline, hub, contrast) and writes a short label spec; the co-located script does the layout, enforces a ~40-word budget, checks overlaps, and renders a PNG for review. |
 
 ### Tools
 
 | Tool | What it does |
 |------|--------------|
 | [`new-vault.sh`](new-vault.sh) | Scaffolds a new vault from `CLAUDE.template.md` + a subs file: validates the token set, substitutes every `{{PLACEHOLDER}}`, writes `CLAUDE.md`, and creates the folder tree. A freshly scaffolded vault passes `check-conformance.py` with exit 0. |
+| [`install-obsidian-plugins.py`](install-obsidian-plugins.py) | Installs the default Obsidian plugin set into one vault or all of them (`--all`): Hover Editor, Strange New Worlds, Omnisearch + Text Extractor, PDF++, Excalidraw, Supercharged Links, Quiet Outline, plus core Bases. Only plugins that help a human read and navigate; nothing that rewrites notes. Plugin code is gitignored and re-downloaded by the script. |
 | [`vault-lint/lint.py`](vault-lint/lint.py) | Reference implementation of the lint spec. `python3 lint.py <vault-path>` → writes a dated digest and appends to the vault log. |
 | [`check-conformance/check-conformance.py`](check-conformance/check-conformance.py) | Mechanical template-vs-vault diff that respects the sanctioned-divergence regions. Has a pytest suite under `check-conformance/tests/`. |
 
@@ -181,7 +183,7 @@ The throughline: tell the agent to treat the vault as authoritative and bounded 
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) — the primary runtime. Strictly required only by `vault-evaluator` and the scheduling templates; the other skills run in any agent that supports the Agent Skills format (see [Other agents](#other-agents-codex-cursor))
-- [Obsidian](https://obsidian.md) (the vaults are plain Markdown, so any editor works, but the conventions assume Obsidian-style `[[wikilinks]]`)
+- [Obsidian](https://obsidian.md) (the vaults are plain Markdown, so any editor works, but the conventions assume Obsidian-style `[[wikilinks]]`). `install-obsidian-plugins.py` sets up the recommended plugins; quit Obsidian before running it, then turn off Restricted mode once per vault.
 - Python 3.10+ for the linter and conformance checker
 - [Calibre](https://calibre-ebook.com/) (its `ebook-convert` CLI) — only if you ingest non-PDF books; `book-planner` uses it to convert `.epub`/`.mobi`/`.azw`/`.azw3` sources to PDF. Not needed for PDF sources or article ingestion.
 

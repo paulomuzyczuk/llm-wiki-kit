@@ -656,6 +656,49 @@ def test_check_6_contradicts_marker():
     assert res['opposing_candidates'][0]['page'] == 'wiki/topics/a.md'
 
 
+# --- drawings: excluded from page checks; Condition C staleness ------------
+
+
+def _write(path, text):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding='utf-8')
+
+
+def _drawing(target, date=None):
+    fm = f'---\nexcalidraw-plugin: parsed\nvisual-summary-of: "[[{target}]]"\n'
+    if date:
+        fm += f'visual-summary-date: {date}\n'
+    return fm + '---\n# Excalidraw Data\n'
+
+
+def test_drawings_are_not_loaded_as_pages(tmp_path):
+    _write(tmp_path / 'wiki/topics/a.md', frontmatter(title='A'))
+    _write(tmp_path / 'wiki/topics/a.excalidraw.md', _drawing('a', '2026-01-01'))
+    pages = lint.load_live_pages(str(tmp_path))
+    assert list(pages) == ['wiki/topics/a.md']
+
+
+def test_check_6c_reasons(tmp_path):
+    _write(tmp_path / 'wiki/topics/fresh.md', frontmatter(title='F', last_updated='2026-03-01'))
+    _write(tmp_path / 'wiki/topics/moved-on.md', frontmatter(title='M', last_updated='2026-05-01'))
+    _write(tmp_path / 'wiki/topics/no-date.md', frontmatter(title='N', last_updated='2026-05-01'))
+    _write(tmp_path / 'wiki/visuals/fresh.excalidraw.md', _drawing('fresh', '2026-03-01'))
+    _write(tmp_path / 'wiki/visuals/moved-on.excalidraw.md', _drawing('moved-on', '2026-04-01'))
+    _write(tmp_path / 'wiki/visuals/no-date.excalidraw.md', _drawing('no-date'))
+    _write(tmp_path / 'wiki/visuals/gone.excalidraw.md', _drawing('gone', '2026-04-01'))
+    _write(
+        tmp_path / 'wiki/visuals/hand-made.excalidraw.md', '---\nexcalidraw-plugin: parsed\n---\n'
+    )
+    pages = lint.load_live_pages(str(tmp_path))
+    res = lint.check_6c_stale_visuals(str(tmp_path), pages, lint.build_slug_index(pages))
+    reasons = {r['drawing'].split('/')[-1]: r['reason'] for r in res}
+    assert reasons == {
+        'moved-on.excalidraw.md': 'stale',
+        'no-date.excalidraw.md': 'undated',
+        'gone.excalidraw.md': 'orphaned',
+    }
+
+
 # --- check_7_data_gaps -----------------------------------------------------
 
 
