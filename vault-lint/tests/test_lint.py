@@ -349,6 +349,21 @@ def test_check_3a_dangling():
     assert res['dangling']['ghost'] == ['wiki/topics/a.md']
 
 
+def test_check_3a_drawing_embed_not_dangling(tmp_path):
+    # `![[x.excalidraw|800]]` resolves to wiki/visuals/x.excalidraw.md, which is not a
+    # page (drawings are skipped by page checks) but is a real embed target.
+    (tmp_path / 'wiki' / 'visuals').mkdir(parents=True)
+    (tmp_path / 'wiki' / 'visuals' / 'a.excalidraw.md').write_text('drawing')
+    pages, slug_index = make_pages(
+        {
+            'wiki/topics/a.md': '# A\n![[a.excalidraw|800]]\n![[missing.excalidraw]]\n',
+        }
+    )
+    res = lint.check_3_pass_a(str(tmp_path), pages, slug_index)
+    assert 'a.excalidraw' not in res['dangling']
+    assert 'missing.excalidraw' in res['dangling']
+
+
 # --- check_3_pass_b (recurrent bold terms) ---------------------------------
 
 

@@ -584,17 +584,22 @@ def check_3_pass_a(vault_path, pages, slug_index):
 
     Digest artifacts (wiki/digests/*.md — ingest reports, review/lint digests) are
     legitimate wikilink targets even though they are not loaded as live pages, so a
-    link resolving to a digest filename is not dangling.
+    link resolving to a digest filename is not dangling. Neither is an embed of an
+    Excalidraw drawing (`![[<name>.excalidraw]]` → wiki/**/<name>.excalidraw.md).
     """
     digest_slugs = set()
     for fpath in glob.glob(os.path.join(vault_path, 'wiki/digests/**/*.md'), recursive=True):
         if _is_drawing(fpath):
             continue
         digest_slugs.add(os.path.splitext(os.path.basename(fpath))[0])
+    drawings = glob.glob(
+        os.path.join(vault_path, 'wiki', '**', '*' + DRAWING_SUFFIX), recursive=True
+    )
+    known = digest_slugs | {os.path.basename(f)[: -len('.md')] for f in drawings}
     dangling = {}
     for relpath, data in pages.items():
         for target in data['wikilinks']:
-            if target not in slug_index and target not in digest_slugs:
+            if target not in slug_index and target not in known:
                 dangling.setdefault(target, set()).add(relpath)
     return {'dangling': {t: sorted(ps) for t, ps in sorted(dangling.items())}}
 
