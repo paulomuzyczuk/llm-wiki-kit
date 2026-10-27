@@ -349,6 +349,21 @@ def test_check_3a_dangling():
     assert res['dangling']['ghost'] == ['wiki/topics/a.md']
 
 
+def test_check_3a_drawing_embed_not_dangling(tmp_path):
+    # `![[x.excalidraw|800]]` resolves to wiki/visuals/x.excalidraw.md, which is not a
+    # page (drawings are skipped by page checks) but is a real embed target.
+    (tmp_path / 'wiki' / 'visuals').mkdir(parents=True)
+    (tmp_path / 'wiki' / 'visuals' / 'a.excalidraw.md').write_text('drawing')
+    pages, slug_index = make_pages(
+        {
+            'wiki/topics/a.md': '# A\n![[a.excalidraw|800]]\n![[missing.excalidraw]]\n',
+        }
+    )
+    res = lint.check_3_pass_a(str(tmp_path), pages, slug_index)
+    assert 'a.excalidraw' not in res['dangling']
+    assert 'missing.excalidraw' in res['dangling']
+
+
 # --- check_3_pass_b (recurrent bold terms) ---------------------------------
 
 
@@ -489,13 +504,13 @@ def test_check_4_entity_neighbor_excluded(tmp_path):
     # dropped from evidence, leaving a single distinctive neighbor -> below the
     # >=2 floor -> not actionable.
     extra = {
-        'p00': ['concept-x', 'bond-markets-fabozzi-book'],
-        'p01': ['concept-x', 'bond-markets-fabozzi-book'],
+        'p00': ['concept-x', 'art-of-unix-programming-book'],
+        'p01': ['concept-x', 'art-of-unix-programming-book'],
     }
     vault = build_vault(
         tmp_path,
         topic_pages=_grid_topic_pages(extra=extra),
-        entity_pages={'bond-markets-fabozzi-book': '# Fabozzi\n'},
+        entity_pages={'art-of-unix-programming-book': '# Fabozzi\n'},
     )
     pages = lint.load_live_pages(str(vault))
     res = lint.check_4_cross_refs(str(vault), pages)
@@ -1240,12 +1255,12 @@ status: active
 | Preferred | Use-for |
 |---|---|
 | `retrieval` | information-retrieval, subject-access, access |
-| `information-organization` | knowledge-organization, organizing-systems |
+| `code-organization` | knowledge-organization, organizing-systems |
 
 ## Concept aliases
 | Preferred (page) | Use-for |
 |---|---|
-| `surrogate-record` | catalogue record, bibliographic surrogate |
+| `changelog-entry` | catalogue record, bibliographic surrogate |
 
 ## Reserved non-subject tags
 Legal but not subjects: `stub`.
@@ -1266,10 +1281,10 @@ def test_parse_topics_authority_absent_returns_none(tmp_path):
 def test_parse_topics_authority_tiers(tmp_path):
     vault = _write_authority(tmp_path)
     auth = lint.parse_topics_authority(str(vault))
-    assert auth['subjects']['preferred'] == {'retrieval', 'information-organization'}
+    assert auth['subjects']['preferred'] == {'retrieval', 'code-organization'}
     assert auth['subjects']['variants']['information-retrieval'] == 'retrieval'
-    assert auth['subjects']['variants']['organizing-systems'] == 'information-organization'
-    assert auth['concepts']['preferred'] == {'surrogate-record'}
+    assert auth['subjects']['variants']['organizing-systems'] == 'code-organization'
+    assert auth['concepts']['preferred'] == {'changelog-entry'}
     assert 'stub' in auth['reserved']
 
 
@@ -1339,7 +1354,7 @@ def test_check_8_clean_vault_no_findings(tmp_path):
         {
             'wiki/topics/a.md': frontmatter(title='A', aliases=['surrogate'], topics=['retrieval']),
             'wiki/topics/b.md': frontmatter(
-                title='B', aliases=['catalog rec'], topics=['information-organization', 'stub']
+                title='B', aliases=['catalog rec'], topics=['code-organization', 'stub']
             ),
         }
     )
@@ -1526,7 +1541,8 @@ def test_ext_english_first_naming_configured(tmp_path):
     vault = build_vault(
         tmp_path,
         topic_pages={
-            'mercado-de-capitais': frontmatter(title='Mercado de Capitais', aliases=[]) + '# M\n',
+            'engenharia-de-software': frontmatter(title='Mercado de Capitais', aliases=[])
+            + '# M\n',
             'allowed-term': frontmatter(title='Renda de Verdade', aliases=[]) + '# A\n',
             'english-page': frontmatter(title='Capital Markets', aliases=[]) + '# E\n',
         },
@@ -1537,7 +1553,7 @@ def test_ext_english_first_naming_configured(tmp_path):
         'allowlist': 'allowed-term',
     }
     findings = lint._ext_english_first_naming(str(vault), {}, check)
-    assert [f['page'] for f in findings] == ['wiki/topics/mercado-de-capitais.md']
+    assert [f['page'] for f in findings] == ['wiki/topics/engenharia-de-software.md']
 
 
 def test_ext_english_first_naming_missing_config(tmp_path):

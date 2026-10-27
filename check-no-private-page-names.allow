@@ -1,0 +1,8 @@
+# Generic or deliberately public terms the page-name guard must not flag.
+controlled-vocabulary
+topics-authority
+quality-debt
+carve-out
+digital-signatures
+open-access
+records-continuum

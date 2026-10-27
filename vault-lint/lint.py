@@ -584,17 +584,22 @@ def check_3_pass_a(vault_path, pages, slug_index):
 
     Digest artifacts (wiki/digests/*.md — ingest reports, review/lint digests) are
     legitimate wikilink targets even though they are not loaded as live pages, so a
-    link resolving to a digest filename is not dangling.
+    link resolving to a digest filename is not dangling. Neither is an embed of an
+    Excalidraw drawing (`![[<name>.excalidraw]]` → wiki/**/<name>.excalidraw.md).
     """
     digest_slugs = set()
     for fpath in glob.glob(os.path.join(vault_path, 'wiki/digests/**/*.md'), recursive=True):
         if _is_drawing(fpath):
             continue
         digest_slugs.add(os.path.splitext(os.path.basename(fpath))[0])
+    drawings = glob.glob(
+        os.path.join(vault_path, 'wiki', '**', '*' + DRAWING_SUFFIX), recursive=True
+    )
+    known = digest_slugs | {os.path.basename(f)[: -len('.md')] for f in drawings}
     dangling = {}
     for relpath, data in pages.items():
         for target in data['wikilinks']:
-            if target not in slug_index and target not in digest_slugs:
+            if target not in slug_index and target not in known:
                 dangling.setdefault(target, set()).add(relpath)
     return {'dangling': {t: sorted(ps) for t, ps in sorted(dangling.items())}}
 
@@ -1695,7 +1700,7 @@ def check_9_frontmatter_schema(pages, schema, schema_warnings=()):
     # Role-MoC pages (slug == role-<canonical-role>) are navigational maps, not
     # domain-content pages, so they legitimately lead their topics: with `roles`
     # rather than the vault's domain tag — exempt them from the topics-prefix rule.
-    # Derived from the roles enum, so a content page like `role-of-valuation`
+    # Derived from the roles enum, so a content page like `role-of-testing`
     # (not a role slug) is NOT exempted.
     roles_enum = ((props.get('roles', {}) or {}).get('items', {}) or {}).get('enum') or []
     role_moc_slugs = {f'role-{r}' for r in roles_enum}
@@ -2404,7 +2409,7 @@ def _ext_book_entity_backlink(vault_path, config, check):
     check, which only sees the aggregate (>=1 inbound link), not per-page coverage.
 
     The book *folder* slug may differ from the *entity* slug (e.g.
-    books/periodization/ -> entities/books/periodization-book.md, named to avoid
+    books/periodization/ -> entities/books/refactoring-book.md, named to avoid
     colliding with the `periodization` concept page), and an entity page need not
     cite its own PDF — so map each book folder to its entity deterministically from
     the filesystem: prefer an entity file named exactly for the folder, else fall
