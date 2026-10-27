@@ -83,7 +83,7 @@ Create `wiki/entities/books/<slug>-book.md` as a stub. The entity filename carri
 a **`-book` type suffix** (the book *folder* under `raw-input/books/` stays
 `<slug>`; only the entity page gets the suffix). This makes the wikilink
 self-describing and collision-proof against a same-named concept page in
-`wiki/topics/` — e.g. a "periodization" book becomes `periodization-book.md` so it
+`wiki/topics/` — e.g. a "periodization" book becomes `refactoring-book.md` so it
 never collides with the `periodization` concept page — and gives the
 `book-entity-backlink` lint check a deterministic source→entity mapping. The suffix
 encodes source *type* only; it is independent of `source_tier` (do not infer tier

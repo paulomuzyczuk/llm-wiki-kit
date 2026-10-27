@@ -21,6 +21,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+# Part 2: private vault page names (check-no-private-page-names.py). It runs first
+# so its verdict survives this script's early skips; combined into the exit code.
+page_rc=0
+python3 -I ./check-no-private-page-names.py "$@" || page_rc=$?
+
 DENYFILE="${LWK_PRIVATE_DENYLIST_FILE:-.private-denylist}"
 
 if [ -n "${LWK_PRIVATE_DENYLIST:-}" ]; then
@@ -32,12 +37,12 @@ else
   echo "::warning::privacy guard skipped — no denylist provided."
   echo "  Set LWK_PRIVATE_DENYLIST (pipe-separated slugs) or create $DENYFILE (one slug per line)."
   echo "  See the header of $(basename "$0") for details."
-  exit 0
+  exit "$page_rc"
 fi
 
 if [ -z "$DENY" ]; then
   echo "::warning::privacy guard skipped — denylist is empty."
-  exit 0
+  exit "$page_rc"
 fi
 
 # Scan tracked files only (never untracked WIP or .git). Skip binary (-I).
@@ -52,3 +57,4 @@ if [ -n "$hits" ]; then
 fi
 
 echo "OK: no denylisted private vault names in tracked files (only 'software-craft' is public)."
+exit "$page_rc"

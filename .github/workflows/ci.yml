@@ -43,8 +43,12 @@ jobs:
         # The denylist is supplied out-of-band (never committed): set the
         # LWK_PRIVATE_DENYLIST repository secret to a pipe-separated ERE of slugs.
         # If the secret is unset the guard skips (exit 0) rather than failing.
+        # Page names (topic/entity slugs of private vaults) are guarded the same way:
+        # set the LWK_PRIVATE_PAGENAMES secret from `./check-no-private-page-names.py
+        # --export-pagenames`. Unset, that half skips too.
         env:
           LWK_PRIVATE_DENYLIST: ${{ secrets.LWK_PRIVATE_DENYLIST }}
+          LWK_PRIVATE_PAGENAMES: ${{ secrets.LWK_PRIVATE_PAGENAMES }}
         run: ./check-no-private-vault-names.sh
 
   security:
@@ -93,6 +97,12 @@ jobs:
 
       - name: Vault-lint test suite
         run: python3 -m pytest -q vault-lint/tests/
+
+      - name: Visual-summary test suite
+        run: python3 -m pytest -q visual-summary/tests/
+
+      - name: Privacy-guard test suite
+        run: python3 -m pytest -q privacy-guard/tests/
 
       - name: Example vault lints clean
         # The populated example (examples/software-craft) is a showcase of real

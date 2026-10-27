@@ -35,3 +35,8 @@ credentials.json
 # generate its own overlay here; it must stay untracked.
 schema/vaults/*.json
 !schema/vaults/software-craft.json
+
+# Page-name guard inputs — out-of-band, they name private content
+.private-pagenames
+.private-pagenames-map
+.private-vaults-root

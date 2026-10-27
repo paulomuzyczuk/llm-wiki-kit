@@ -2,7 +2,7 @@
 
 Fixtures:
 - fixtures/carryover.excalidraw.md: a drawing as `build` writes it (copied from the
-  a real vault page, marketing-mix-modeling--carryover).
+  a real vault page, release-engineering--backports).
 - fixtures/carryover.compressed.excalidraw.md: the same file with its ```json block
   replaced by LZString.compressToBase64 output from lz-string 1.5.0 (Node), wrapped
   in 256-character lines separated by blank lines, as the Excalidraw plugin saves it.

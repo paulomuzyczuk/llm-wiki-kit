@@ -185,19 +185,19 @@ def test_role_moc_exempt_from_topics_prefix():
     sch = eff_schema(
         entity_field=None,
         topics_prefix='my-domain',
-        roles=['archivist', 'retrieval-specialist'],
+        roles=['maintainer', 'release-manager'],
     )
     page = good_topic(topics=['roles', 'navigation'], project=None)
-    r = run_c9({'wiki/topics/role-archivist.md': page}, sch)
+    r = run_c9({'wiki/topics/role-maintainer.md': page}, sch)
     assert not any(w['field'] == 'topics' for w in r['warnings'])
 
 
 def test_non_moc_role_prefixed_page_still_checked():
     # A content page that merely starts with 'role-' but is not a role slug
-    # (e.g. role-of-valuation) is still subject to the topics-prefix rule.
-    sch = eff_schema(entity_field=None, topics_prefix='my-domain', roles=['archivist'])
+    # (e.g. role-of-testing) is still subject to the topics-prefix rule.
+    sch = eff_schema(entity_field=None, topics_prefix='my-domain', roles=['maintainer'])
     page = good_topic(topics=['metadata'], project=None)
-    r = run_c9({'wiki/topics/role-of-valuation.md': page}, sch)
+    r = run_c9({'wiki/topics/role-of-testing.md': page}, sch)
     assert any(w['field'] == 'topics' for w in r['warnings'])
 
 

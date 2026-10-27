@@ -1548,7 +1548,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'pipeline',
-            'page': 'marketing-mix-modeling',
+            'page': 'release-engineering',
             'title': 'Marketing-mix modeling',
             'steps': [
                 {'label': 'Collect', 'detail': 'sales, price, media, promo'},
@@ -1573,7 +1573,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'hub',
-            'page': 'brand-elements',
+            'page': 'project-governance-elements',
             'title': 'Brand elements',
             'center': 'Brand element',
             'spokes': [
@@ -1596,7 +1596,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'contrast',
-            'page': 'long-run-advertising-effects',
+            'page': 'long-run-maintenance-effects',
             'title': 'Long-run advertising effects',
             'left': {'label': 'Sharp', 'points': ['Grow penetration, not loyalty']},
             'right': {'label': 'Binet & Field', 'points': ['Brand-building vs activation']},
@@ -1612,7 +1612,7 @@ TEMPLATES: dict[str, Template] = {
         {'stages': '3–6 × {label, detail?}', 'center': 'optional label inside the loop'},
         {
             'template': 'cycle',
-            'page': 'database-marketing-process',
+            'page': 'code-review-process',
             'title': 'Database marketing process',
             'center': 'Learning loop',
             'stages': [
@@ -1638,7 +1638,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'matrix',
-            'page': 'product-market-growth-strategies',
+            'page': 'project-growth-strategies',
             'title': 'Ansoff matrix',
             'x_axis': {'label': 'Products', 'low': 'current', 'high': 'new'},
             'y_axis': {'label': 'Markets', 'low': 'current', 'high': 'new'},
@@ -1664,7 +1664,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'timeline',
-            'page': 'product-life-cycle',
+            'page': 'project-life-cycle',
             'title': 'Product life cycle',
             'phases': [
                 {'label': 'Introduction'},
@@ -1689,7 +1689,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'tree',
-            'page': 'forecasting-methods-taxonomy',
+            'page': 'estimation-methods-taxonomy',
             'title': 'Forecasting methods',
             'root': {
                 'label': 'Forecast',
@@ -1713,7 +1713,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'funnel',
-            'page': 'customer-acquisition-funnel',
+            'page': 'contributor-acquisition-funnel',
             'title': 'Customer acquisition funnel',
             'stages': [
                 {'label': 'Awareness'},
@@ -1736,7 +1736,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'venn',
-            'page': 'customer-equity-vs-brand-equity',
+            'page': 'copyleft-vs-permissive-licenses',
             'title': 'Customer vs brand equity',
             'left': {'label': 'Customer equity', 'points': ['Financial value']},
             'right': {'label': 'Brand equity', 'points': ['Strategic guidance']},
@@ -1759,7 +1759,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'spectrum',
-            'page': 'marketing-mix-modeling',
+            'page': 'release-engineering',
             'section': 'Elasticity benchmarks',
             'title': 'Elasticity benchmarks',
             'axis': {'label': 'elasticity', 'min': 0.08, 'max': 3, 'scale': 'log'},
@@ -1792,7 +1792,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'causal-map',
-            'page': 'confounders-and-backdoor-paths',
+            'page': 'build-failure-causes',
             'title': 'A confounder opens a backdoor path',
             'nodes': [
                 {'id': 'x', 'label': 'Confounder X'},
@@ -1821,7 +1821,7 @@ TEMPLATES: dict[str, Template] = {
         },
         {
             'template': 'map',
-            'page': 'marketing-mix-modeling',
+            'page': 'release-engineering',
             'title': 'Marketing-mix modeling',
             'stages': [
                 {

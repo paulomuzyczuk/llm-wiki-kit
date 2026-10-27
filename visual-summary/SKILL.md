@@ -63,27 +63,27 @@ the sections, if any, that deserve their own drawing, picking each one's shape:
 
 | The page or section is mainly about… | Template | Validated on |
 |---|---|---|
-| A whole page with several sections' worth of ideas (overview only) | `map` | marketing-mix-modeling |
-| A process or method someone carries out, step by step | `pipeline` | marketing-mix-modeling |
-| One concept and its unranked parts, criteria or facets | `hub` | brand-elements |
-| Two positions whose differences are the point | `contrast` | long-run-advertising-effects |
-| A loop: the last stage feeds the first | `cycle` | database-marketing-process, experimentation-and-strategy |
-| Two binary dimensions crossing into four named cases | `matrix` | product-market-growth-strategies (Ansoff), difference-in-differences |
-| Phases something passes through over time | `timeline` | product-life-cycle, diffusion-of-innovation |
-| A taxonomy or decision tree | `tree` | forecasting-methods-taxonomy, estimation-methods-for-response-models |
-| Ranked stages that shrink, or levels that build up | `funnel` (`shape: pyramid`) | customer-acquisition-funnel, elements-of-value-pyramid |
-| Two lenses whose common ground matters as much as their differences | `venn` | customer-equity-vs-brand-equity, long-run-advertising-effects |
-| A few values on one scale, where the gaps between them are the point | `spectrum` | marketing-mix-modeling (elasticity benchmarks), price-elasticity-of-demand (promotional elasticity) |
-| What drives an outcome and in which direction, or which variables cause which (a DAG) | `causal-map` | churn-causation-factors, confounders-and-backdoor-paths (overview and the education DAG) |
+| A whole page with several sections' worth of ideas (overview only) | `map` | release-engineering |
+| A process or method someone carries out, step by step | `pipeline` | release-engineering |
+| One concept and its unranked parts, criteria or facets | `hub` | project-governance-elements |
+| Two positions whose differences are the point | `contrast` | long-run-maintenance-effects |
+| A loop: the last stage feeds the first | `cycle` | code-review-process, experimentation-and-roadmap |
+| Two binary dimensions crossing into four named cases | `matrix` | project-growth-strategies, build-versus-buy |
+| Phases something passes through over time | `timeline` | project-life-cycle, open-source-adoption |
+| A taxonomy or decision tree | `tree` | estimation-methods-taxonomy, choosing-a-license |
+| Ranked stages that shrink, or levels that build up | `funnel` (`shape: pyramid`) | contributor-acquisition-funnel, contributor-motivation-pyramid |
+| Two lenses whose common ground matters as much as their differences | `venn` | copyleft-vs-permissive-licenses, long-run-maintenance-effects |
+| A few values on one scale, where the gaps between them are the point | `spectrum` | release-engineering (support-window benchmarks), license-permissiveness (permissiveness scale) |
+| What drives an outcome and in which direction, or which variables cause which (a DAG) | `causal-map` | contributor-churn-factors, build-failure-causes (overview and the flaky-test DAG) |
 
-Section drawings validated on marketing-mix-modeling: `hub` (regression machinery),
-`contrast` (error specification), `tree` (choosing the estimator), `spectrum`
-(elasticity benchmarks).
+Section drawings validated on release-engineering: `hub` (build tooling),
+`contrast` (branching policy), `tree` (choosing a branching model), `spectrum`
+(support-window benchmarks).
 
 `visual_summary.py list` prints each template's *use when* and *not when*. Common
 near-misses: a pipeline is steps someone **does**, a timeline is phases something
 **goes through**; a contrast is for opposition, a venn when the page argues the two
-**share** more than they differ (long-run-advertising-effects reads better as a venn);
+**share** more than they differ (long-run-maintenance-effects reads better as a venn);
 a causal-map is for arrows that mean *causes*, not *comes next* (pipeline) or *is part of*
 (hub), and a loop belongs in a cycle (causal-map refuses one).
 
@@ -146,7 +146,7 @@ python3 <skills-dir>/visual-summary/visual_summary.py build <spec.json> \
 ```
 
 Name section drawings `<slug>--<key>.excalidraw.md` (e.g.
-`marketing-mix-modeling--endogeneity`). Fix every `error:`. Treat `warning: overlap`,
+`release-engineering--branching`). Fix every `error:`. Treat `warning: overlap`,
 `warning: arrow … crosses` and `warning: section …` as errors (shorten the label, drop a
 detail, fix the heading), and the word-count warning as a prompt to cut.
 
